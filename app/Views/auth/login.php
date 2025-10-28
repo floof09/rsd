@@ -25,6 +25,18 @@
                     <p>Please enter your credentials to continue</p>
                 </div>
 
+                <?php if (session()->getFlashdata('error')): ?>
+                    <div class="alert alert-error">
+                        <?= session()->getFlashdata('error') ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (session()->getFlashdata('success')): ?>
+                    <div class="alert alert-success">
+                        <?= session()->getFlashdata('success') ?>
+                    </div>
+                <?php endif; ?>
+
                 <form action="<?= base_url('auth/doLogin') ?>" method="post" class="login-form">
                     <?= csrf_field() ?>
                     
