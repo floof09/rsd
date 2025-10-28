@@ -25,6 +25,18 @@ class AdminApplication extends BaseController
 
         $applicationModel = new ApplicationModel();
 
+        // Validate birthdate (must be at least 18 years old)
+        $birthdate = $this->request->getPost('birthdate');
+        if ($birthdate) {
+            $birthdateObj = new \DateTime($birthdate);
+            $today = new \DateTime();
+            $age = $today->diff($birthdateObj)->y;
+            
+            if ($age < 18) {
+                return redirect()->back()->with('error', 'Applicant must be at least 18 years old.')->withInput();
+            }
+        }
+
         $data = [
             'company_name' => $this->request->getPost('company_name'),
             'first_name' => $this->request->getPost('first_name'),
@@ -43,6 +55,29 @@ class AdminApplication extends BaseController
             'interviewed_by' => session()->get('user_id'),
             'status' => 'pending',
         ];
+
+        // Handle file upload
+        $resume = $this->request->getFile('resume');
+        if ($resume && $resume->isValid() && !$resume->hasMoved()) {
+            // Validate file type
+            if ($resume->getMimeType() !== 'application/pdf') {
+                return redirect()->back()->with('error', 'Only PDF files are allowed for resume.')->withInput();
+            }
+
+            // Validate file size (max 5MB)
+            if ($resume->getSize() > 5 * 1024 * 1024) {
+                return redirect()->back()->with('error', 'Resume file size should not exceed 5MB.')->withInput();
+            }
+
+            // Generate unique filename
+            $newName = $resume->getRandomName();
+            
+            // Move file to uploads directory
+            $resume->move(WRITEPATH . 'uploads/resumes', $newName);
+            
+            // Save file path to database
+            $data['resume_path'] = 'writable/uploads/resumes/' . $newName;
+        }
 
         if ($applicationModel->insert($data)) {
             return redirect()->back()->with('success', 'Application saved successfully!');

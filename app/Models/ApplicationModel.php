@@ -26,6 +26,7 @@ class ApplicationModel extends Model
         'birthdate',
         'bpo_experience',
         'educational_attainment',
+        'resume_path',
         'recruiter_email',
         'interviewed_by',
         'status',
