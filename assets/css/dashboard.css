@@ -34,8 +34,8 @@ body {
     flex-direction: column;
     position: fixed;
     height: 100vh;
-    overflow-y: auto;
-    transition: width 0.3s ease, transform 0.3s ease;
+    overflow: visible;
+    transition: width 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     z-index: 100;
 }
 
@@ -58,16 +58,16 @@ body {
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 101;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .sidebar-toggle:hover {
     background: #f4a261;
-    transform: scale(1.1);
+    transform: scale(1.2) rotate(10deg);
 }
 
 .sidebar-toggle svg {
-    transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .sidebar.collapsed .sidebar-toggle svg {
@@ -80,7 +80,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     position: relative;
 }
 
@@ -110,6 +110,25 @@ body {
 .sidebar-nav {
     flex: 1;
     padding: 16px 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .nav-item {
@@ -188,7 +207,7 @@ body {
     flex: 1;
     margin-left: 260px;
     min-height: 100vh;
-    transition: margin-left 0.3s ease;
+    transition: margin-left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .sidebar.collapsed ~ .main-content {

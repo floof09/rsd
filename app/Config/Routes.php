@@ -15,3 +15,6 @@ $routes->get('auth/logout', 'Auth::logout');
 
 // Admin Routes
 $routes->get('admin/dashboard', 'AdminDashboard::index');
+$routes->get('admin/application', 'AdminApplication::index');
+$routes->post('admin/application/save', 'AdminApplication::save');
+$routes->get('admin/applications', 'AdminApplication::list');
