@@ -15,12 +15,11 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, var(--light-gray) 0%, var(--secondary-color) 100%);
+    background: #f7fafc;
     min-height: 100vh;
-    padding: 40px 20px;
 }
 
-.form-container {
+.form-container-inner {
     max-width: 900px;
     margin: 0 auto;
     background: white;
