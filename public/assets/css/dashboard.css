@@ -525,21 +525,46 @@ td {
 @media (max-width: 768px) {
     .sidebar {
         width: 70px;
+        position: fixed;
     }
     
     .main-content {
         margin-left: 70px;
     }
     
-    .sidebar-header h2 span,
-    .nav-item span,
-    .logout-btn span {
+    .sidebar-header h2 {
+        font-size: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .sidebar-header h2 span {
         display: none;
     }
     
-    .nav-item,
+    .nav-item {
+        justify-content: center;
+        padding: 14px 12px;
+    }
+    
+    .nav-item svg {
+        margin: 0;
+    }
+    
+    .nav-item span {
+        display: none;
+    }
+    
     .logout-btn {
         justify-content: center;
+        padding: 14px 12px;
+    }
+    
+    .logout-btn span {
+        display: none;
     }
     
     .stats-grid {
