@@ -59,6 +59,7 @@
 }
 
 .form-group input,
+.form-group select,
 .form-group textarea {
     padding: 12px 16px;
     border: 1px solid #e2e8f0;
@@ -69,6 +70,7 @@
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-color);
@@ -80,10 +82,59 @@
     color: #a0aec0;
 }
 
+.form-group select {
+    cursor: pointer;
+    background-color: white;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+.form-group select option {
+    padding: 10px;
+}
+
 .field-hint {
     font-size: 12px;
     color: var(--light-text);
     margin-top: 4px;
+}
+
+.phone-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.phone-input-wrapper:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(254, 206, 131, 0.1);
+}
+
+.phone-prefix {
+    background: #f7fafc;
+    padding: 12px 12px 12px 16px;
+    font-weight: 600;
+    color: var(--dark-text);
+    border-right: 1px solid #e2e8f0;
+    user-select: none;
+}
+
+.phone-input-wrapper input {
+    border: none !important;
+    flex: 1;
+    box-shadow: none !important;
+    padding-left: 12px;
+}
+
+.phone-input-wrapper input:focus {
+    box-shadow: none !important;
 }
 
 .recruiter-box {
@@ -162,6 +213,159 @@
     display: block;
     font-size: 12px;
     color: var(--light-text);
+}
+
+.file-preview {
+    margin-top: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.preview-header svg {
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.preview-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.preview-filename {
+    font-weight: 500;
+    color: var(--dark-text);
+    font-size: 14px;
+}
+
+.preview-filesize {
+    font-size: 12px;
+    color: var(--light-text);
+}
+
+.preview-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-preview,
+.btn-remove {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn-preview {
+    background: var(--primary-color);
+    color: var(--dark-text);
+}
+
+.btn-preview:hover {
+    background: #f4a261;
+    transform: translateY(-1px);
+}
+
+.btn-remove {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.btn-remove:hover {
+    background: #fecaca;
+    transform: translateY(-1px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 2px solid #f7fafc;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #f4a261 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--dark-text);
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.modal-close svg {
+    color: var(--dark-text);
+}
+
+.modal-body {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+}
+
+.modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
 }
 
 .form-actions {

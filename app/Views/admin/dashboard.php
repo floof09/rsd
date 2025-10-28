@@ -38,7 +38,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>Total Users</h3>
-                            <p class="stat-number">245</p>
+                            <p class="stat-number"><?= $total_users ?? 0 ?></p>
                         </div>
                     </div>
 
@@ -51,7 +51,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>Applications</h3>
-                            <p class="stat-number">89</p>
+                            <p class="stat-number"><?= $total_applications ?? 0 ?></p>
                         </div>
                     </div>
 
@@ -63,7 +63,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>Pending</h3>
-                            <p class="stat-number">34</p>
+                            <p class="stat-number"><?= $pending_applications ?? 0 ?></p>
                         </div>
                     </div>
 
@@ -75,7 +75,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>Approved</h3>
-                            <p class="stat-number">55</p>
+                            <p class="stat-number"><?= $approved_applications ?? 0 ?></p>
                         </div>
                     </div>
                 </div>
@@ -83,30 +83,26 @@
                 <div class="content-section">
                     <h2>Recent Activity</h2>
                     <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">📝</div>
-                            <div class="activity-details">
-                                <h4>New application submitted</h4>
-                                <p>John Doe submitted a new application</p>
-                                <span class="activity-time">2 hours ago</span>
+                        <?php if (!empty($recent_applications)): ?>
+                            <?php foreach ($recent_applications as $app): ?>
+                                <div class="activity-item">
+                                    <div class="activity-icon">📝</div>
+                                    <div class="activity-details">
+                                        <h4>New application from <?= esc($app['company_name']) ?></h4>
+                                        <p><?= esc($app['first_name']) ?> <?= esc($app['last_name']) ?> - <?= esc($app['email_address']) ?></p>
+                                        <span class="activity-time"><?= time_ago($app['created_at']) ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="activity-item">
+                                <div class="activity-icon">📋</div>
+                                <div class="activity-details">
+                                    <h4>No recent activity</h4>
+                                    <p>No applications have been submitted yet</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">👤</div>
-                            <div class="activity-details">
-                                <h4>New user registered</h4>
-                                <p>Jane Smith created a new account</p>
-                                <span class="activity-time">5 hours ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">✅</div>
-                            <div class="activity-details">
-                                <h4>Application approved</h4>
-                                <p>Application #1234 has been approved</p>
-                                <span class="activity-time">1 day ago</span>
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

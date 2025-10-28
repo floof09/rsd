@@ -2,11 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Models\UserModel;
+use App\Models\ApplicationModel;
+
 class AdminDashboard extends BaseController
 {
     public function __construct()
     {
-        helper('auth');
+        helper(['auth', 'date']);
     }
     
     public function index()
@@ -16,6 +19,18 @@ class AdminDashboard extends BaseController
             return redirect()->to('/auth/login')->with('error', 'Please login as admin to access this page');
         }
         
-        return view('admin/dashboard');
+        // Get statistics from database
+        $userModel = new UserModel();
+        $applicationModel = new ApplicationModel();
+        
+        $data = [
+            'total_users' => $userModel->countAll(),
+            'total_applications' => $applicationModel->countAll(),
+            'pending_applications' => $applicationModel->where('status', 'pending')->countAllResults(false),
+            'approved_applications' => $applicationModel->where('status', 'approved')->countAllResults(),
+            'recent_applications' => $applicationModel->orderBy('created_at', 'DESC')->limit(5)->find()
+        ];
+        
+        return view('admin/dashboard', $data);
     }
 }
