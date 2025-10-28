@@ -35,6 +35,43 @@ body {
     position: fixed;
     height: 100vh;
     overflow-y: auto;
+    transition: width 0.3s ease, transform 0.3s ease;
+    z-index: 100;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-toggle {
+    position: absolute;
+    top: 20px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 101;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: #f4a261;
+    transform: scale(1.1);
+}
+
+.sidebar-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle svg {
+    transform: rotate(180deg);
 }
 
 .applicant-sidebar {
@@ -47,6 +84,17 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.sidebar.collapsed .sidebar-header h2,
+.sidebar.collapsed .sidebar-header h2 span {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-logo {
+    margin: 0 auto;
 }
 
 .sidebar-logo {
@@ -77,6 +125,24 @@ body {
     text-decoration: none;
     transition: all 0.3s ease;
     font-size: 15px;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 14px 12px;
+}
+
+.sidebar.collapsed .nav-item svg {
+    margin: 0;
+}
+
+.nav-item span {
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .nav-item span {
+    display: none;
 }
 
 .nav-item:hover {
