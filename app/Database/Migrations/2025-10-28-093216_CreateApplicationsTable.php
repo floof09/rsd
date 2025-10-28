@@ -19,9 +19,14 @@ class CreateApplicationsTable extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 255,
             ],
-            'full_name' => [
+            // Atomized name fields
+            'first_name' => [
                 'type' => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => 100,
+            ],
+            'last_name' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
             ],
             'email_address' => [
                 'type' => 'VARCHAR',
@@ -37,8 +42,25 @@ class CreateApplicationsTable extends Migration
                 'constraint' => 50,
                 'null' => true,
             ],
-            'address' => [
-                'type' => 'TEXT',
+            // Atomized address fields
+            'street_address' => [
+                'type' => 'VARCHAR',
+                'constraint' => 255,
+                'null' => true,
+            ],
+            'barangay' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                'null' => true,
+            ],
+            'municipality' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+                'null' => true,
+            ],
+            'province' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
                 'null' => true,
             ],
             'birthdate' => [

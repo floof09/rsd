@@ -50,48 +50,74 @@
 
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="full_name">Full Name <span class="required">*</span></label>
-                                    <input type="text" id="full_name" name="full_name" placeholder="Enter full name" required>
+                                    <label for="first_name">First Name <span class="required">*</span></label>
+                                    <input type="text" id="first_name" name="first_name" placeholder="Enter first name" required>
                                 </div>
 
+                                <div class="form-group">
+                                    <label for="last_name">Last Name <span class="required">*</span></label>
+                                    <input type="text" id="last_name" name="last_name" placeholder="Enter last name" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
                                 <div class="form-group">
                                     <label for="email_address">Email Address <span class="required">*</span></label>
                                     <input type="email" id="email_address" name="email_address" placeholder="applicant@email.com" required>
                                 </div>
-                            </div>
 
-                            <div class="form-row">
                                 <div class="form-group">
                                     <label for="phone_number">Phone Number</label>
                                     <input type="tel" id="phone_number" name="phone_number" placeholder="+63 912 345 6789">
                                 </div>
-
-                                <div class="form-group">
-                                    <label for="viber_number">Viber Number</label>
-                                    <input type="tel" id="viber_number" name="viber_number" placeholder="+63 912 345 6789">
-                                </div>
-                            </div>
-
-                            <div class="form-group full-width">
-                                <label for="address">Address</label>
-                                <textarea id="address" name="address" rows="2" placeholder="Enter complete address"></textarea>
                             </div>
 
                             <div class="form-row">
                                 <div class="form-group">
+                                    <label for="viber_number">Viber Number</label>
+                                    <input type="tel" id="viber_number" name="viber_number" placeholder="+63 912 345 6789">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="street_address">Street Address</label>
+                                    <input type="text" id="street_address" name="street_address" placeholder="House No., Street Name">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="barangay">Barangay</label>
+                                    <input type="text" id="barangay" name="barangay" placeholder="Enter barangay">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="municipality">Municipality/City</label>
+                                    <input type="text" id="municipality" name="municipality" placeholder="Enter municipality">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="province">Province</label>
+                                    <input type="text" id="province" name="province" placeholder="Enter province">
+                                </div>
+
+                                <div class="form-group">
                                     <label for="birthdate">Birthdate</label>
                                     <input type="date" id="birthdate" name="birthdate">
                                 </div>
+                            </div>
 
+                            <div class="form-row">
                                 <div class="form-group">
                                     <label for="bpo_experience">Total BPO Experience</label>
                                     <input type="text" id="bpo_experience" name="bpo_experience" placeholder="e.g., 2 years 6 months">
                                 </div>
-                            </div>
 
-                            <div class="form-group full-width">
-                                <label for="educational_attainment">Educational Attainment</label>
-                                <input type="text" id="educational_attainment" name="educational_attainment" placeholder="e.g., Bachelor's Degree, College Level, High School Graduate">
+                                <div class="form-group">
+                                    <label for="educational_attainment">Educational Attainment</label>
+                                    <input type="text" id="educational_attainment" name="educational_attainment" placeholder="e.g., Bachelor's Degree">
+                                </div>
                             </div>
 
                             <div class="form-group full-width recruiter-box">

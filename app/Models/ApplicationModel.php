@@ -14,11 +14,15 @@ class ApplicationModel extends Model
     protected $protectFields = true;
     protected $allowedFields = [
         'company_name',
-        'full_name',
+        'first_name',
+        'last_name',
         'email_address',
         'phone_number',
         'viber_number',
-        'address',
+        'street_address',
+        'barangay',
+        'municipality',
+        'province',
         'birthdate',
         'bpo_experience',
         'educational_attainment',
@@ -40,10 +44,11 @@ class ApplicationModel extends Model
     // Validation
     protected $validationRules = [
         'company_name' => 'required|min_length[2]',
-        'full_name' => 'required|min_length[2]',
+        'first_name' => 'required|min_length[2]',
+        'last_name' => 'required|min_length[2]',
         'email_address' => 'required|valid_email',
         'phone_number' => 'permit_empty|min_length[10]',
-        'address' => 'permit_empty',
+        'street_address' => 'permit_empty',
         'educational_attainment' => 'permit_empty',
         'bpo_experience' => 'permit_empty',
     ];

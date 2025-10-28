@@ -27,11 +27,15 @@ class AdminApplication extends BaseController
 
         $data = [
             'company_name' => $this->request->getPost('company_name'),
-            'full_name' => $this->request->getPost('full_name'),
+            'first_name' => $this->request->getPost('first_name'),
+            'last_name' => $this->request->getPost('last_name'),
             'email_address' => $this->request->getPost('email_address'),
             'phone_number' => $this->request->getPost('phone_number'),
             'viber_number' => $this->request->getPost('viber_number'),
-            'address' => $this->request->getPost('address'),
+            'street_address' => $this->request->getPost('street_address'),
+            'barangay' => $this->request->getPost('barangay'),
+            'municipality' => $this->request->getPost('municipality'),
+            'province' => $this->request->getPost('province'),
             'birthdate' => $this->request->getPost('birthdate'),
             'bpo_experience' => $this->request->getPost('bpo_experience'),
             'educational_attainment' => $this->request->getPost('educational_attainment'),
