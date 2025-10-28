@@ -2,9 +2,7 @@
     RewriteEngine On
     RewriteBase /rsd/
     
-    # If not accessing public folder already
-    RewriteCond %{REQUEST_URI} !^/rsd/public/
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Redirect everything to public folder
+    RewriteRule ^$ public/ [L]
+    RewriteRule (.*) public/$1 [L]
 </IfModule>
