@@ -191,55 +191,14 @@
                     <div class="stat-card">
                         <div class="stat-icon" style="background: #fece83;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="15" y1="9" x2="9" y2="15"/>
-                                <line x1="9" y1="9" x2="15" y2="15"/>
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
                             </svg>
                         </div>
                         <div class="stat-info">
-                            <h3>Rejected</h3>
-                            <p class="stat-number">0</p>
+                            <h3>Profile</h3>
+                            <p class="stat-number">Complete</p>
                         </div>
-                    </div>
-                </div>
-
-                <div class="content-section">
-                    <h2>My Applications</h2>
-                    <div class="applications-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Application ID</th>
-                                    <th>Title</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#001</td>
-                                    <td>Job Application</td>
-                                    <td>Oct 20, 2025</td>
-                                    <td><span class="status-badge approved">Approved</span></td>
-                                    <td><button class="view-btn">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>#002</td>
-                                    <td>Scholarship Form</td>
-                                    <td>Oct 25, 2025</td>
-                                    <td><span class="status-badge pending">Pending</span></td>
-                                    <td><button class="view-btn">View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>#003</td>
-                                    <td>Internship Request</td>
-                                    <td>Oct 28, 2025</td>
-                                    <td><span class="status-badge pending">Pending</span></td>
-                                    <td><button class="view-btn">View</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
