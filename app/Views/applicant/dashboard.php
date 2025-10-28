@@ -10,66 +10,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <aside class="sidebar applicant-sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <svg width="40" height="40" viewBox="0 0 200 200" fill="none">
-                        <circle cx="100" cy="100" r="95" fill="rgba(255,255,255,0.3)"/>
-                        <circle cx="100" cy="85" r="75" fill="rgba(255,255,255,0.4)"/>
-                        <circle cx="85" cy="100" r="70" fill="rgba(255,255,255,0.4)"/>
-                        <circle cx="115" cy="100" r="70" fill="rgba(255,255,255,0.4)"/>
-                        <circle cx="100" cy="115" r="75" fill="rgba(255,255,255,0.4)"/>
-                        <rect x="70" y="70" width="60" height="60" rx="8" fill="white"/>
-                        <rect x="75" y="75" width="50" height="50" rx="6" fill="#fece83" opacity="0.5"/>
-                    </svg>
-                </div>
-                <h2>RSD <span>Portal</span></h2>
-            </div>
-            <nav class="sidebar-nav">
-                <a href="<?= base_url('applicant/dashboard') ?>" class="nav-item active">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"/>
-                        <rect x="14" y="3" width="7" height="7"/>
-                        <rect x="14" y="14" width="7" height="7"/>
-                        <rect x="3" y="14" width="7" height="7"/>
-                    </svg>
-                    Dashboard
-                </a>
-                <?php if (!isset($application)): ?>
-                <a href="<?= base_url('application/form') ?>" class="nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2v20M2 12h20"/>
-                    </svg>
-                    Apply Now
-                </a>
-                <?php elseif ($application && $application['status'] === 'approved'): ?>
-                <a href="#" class="nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                    </svg>
-                    Learnings
-                </a>
-                <?php endif; ?>
-                <a href="#" class="nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    Profile
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <a href="<?= base_url('auth/logout') ?>" class="logout-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    Logout
-                </a>
-            </div>
-        </aside>
+        <?= view('components/applicant_sidebar', ['application' => $application ?? null]) ?>
 
         <main class="main-content">
             <header class="top-bar">
@@ -204,5 +145,6 @@
             </div>
         </main>
     </div>
+    <?= view('components/sidebar_script') ?>
 </body>
 </html>

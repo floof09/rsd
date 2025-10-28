@@ -173,6 +173,15 @@ body {
     font-size: 15px;
 }
 
+.sidebar.collapsed .logout-btn {
+    justify-content: center;
+    padding: 14px 12px;
+}
+
+.sidebar.collapsed .logout-btn span {
+    display: none;
+}
+
 .logout-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: white;
@@ -183,6 +192,11 @@ body {
     flex: 1;
     margin-left: 260px;
     min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 70px;
 }
 
 .top-bar {
