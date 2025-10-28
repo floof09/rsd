@@ -4,6 +4,15 @@ Options -Indexes
 # Redirect all requests to public folder
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    
+    # Don't redirect if already in public folder
+    RewriteCond %{REQUEST_URI} !^/rsd/public/
+    
+    # Don't redirect if file exists in root
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Redirect to public folder
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
