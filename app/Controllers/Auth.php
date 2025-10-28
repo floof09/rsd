@@ -61,12 +61,8 @@ class Auth extends BaseController
         // Update last login
         $userModel->updateLastLogin($user['id']);
         
-        // Redirect based on user type
-        if ($user['user_type'] === 'admin') {
-            return redirect()->to('/admin/dashboard')->with('success', 'Welcome back, Admin!');
-        } else {
-            return redirect()->to('/applicant/dashboard')->with('success', 'Welcome back!');
-        }
+        // Redirect to admin dashboard
+        return redirect()->to('/admin/dashboard')->with('success', 'Welcome back!');
     }
 
     public function logout()
@@ -77,7 +73,6 @@ class Auth extends BaseController
     
     private function getDashboardRoute()
     {
-        $userType = session()->get('user_type');
-        return $userType === 'admin' ? '/admin/dashboard' : '/applicant/dashboard';
+        return '/admin/dashboard';
     }
 }

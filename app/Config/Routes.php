@@ -15,10 +15,3 @@ $routes->get('auth/logout', 'Auth::logout');
 
 // Admin Routes
 $routes->get('admin/dashboard', 'AdminDashboard::index');
-
-// Applicant Routes
-$routes->get('applicant/dashboard', 'ApplicantDashboard::index');
-
-// Application Routes
-$routes->get('application/form', 'Application::index');
-$routes->post('application/submit', 'Application::submit');

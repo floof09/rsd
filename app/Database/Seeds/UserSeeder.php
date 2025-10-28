@@ -19,16 +19,6 @@ class UserSeeder extends Seeder
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ],
-            [
-                'email' => 'applicant@rsd.com',
-                'password' => password_hash('applicant123', PASSWORD_DEFAULT),
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'user_type' => 'applicant',
-                'status' => 'active',
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-            ],
         ];
 
         $this->db->table('users')->insertBatch($data);

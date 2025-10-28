@@ -7,20 +7,16 @@
 - **Password:** admin123
 - **Dashboard:** /admin/dashboard
 
-### Applicant Account
-- **Email:** applicant@rsd.com
-- **Password:** applicant123
-- **Dashboard:** /applicant/dashboard
-
 ## Features
-- ✅ Two user types (Admin & Applicant)
+- ✅ Admin user type only
 - ✅ Secure password hashing
 - ✅ Session-based authentication
-- ✅ Separate dashboards for each user type
+- ✅ Admin dashboard with collapsible sidebar
 - ✅ Responsive design
 - ✅ Custom color scheme (#fece83, #c5c5c5, #dddddd)
+- ✅ Application management system
 
 ## URLs
 - Login: http://localhost/rsd/
 - Admin Dashboard: http://localhost/rsd/admin/dashboard
-- Applicant Dashboard: http://localhost/rsd/applicant/dashboard
+
