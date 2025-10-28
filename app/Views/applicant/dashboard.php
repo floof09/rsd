@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Applicant Dashboard - RSD Portal</title>
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -34,19 +35,22 @@
                     </svg>
                     Dashboard
                 </a>
-                <a href="#" class="nav-item">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    My Applications
-                </a>
-                <a href="#" class="nav-item">
+                <?php if (!isset($application)): ?>
+                <a href="<?= base_url('application/form') ?>" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 2v20M2 12h20"/>
                     </svg>
-                    New Application
+                    Apply Now
                 </a>
+                <?php elseif ($application && $application['status'] === 'approved'): ?>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    Learnings
+                </a>
+                <?php endif; ?>
                 <a href="#" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -82,7 +86,69 @@
                 </div>
             <?php endif; ?>
 
+            <?php if (session()->getFlashdata('info')): ?>
+                <div class="alert alert-info">
+                    <?= session()->getFlashdata('info') ?>
+                </div>
+            <?php endif; ?>
+
             <div class="dashboard-content">
+                <?php if (!isset($application)): ?>
+                    <!-- No Application Yet -->
+                    <div class="welcome-card">
+                        <h2>Welcome to RSD Portal!</h2>
+                        <p>You haven't submitted an application yet. Click the button below to get started.</p>
+                        <a href="<?= base_url('application/form') ?>" class="btn-apply">Apply Now</a>
+                    </div>
+                <?php else: ?>
+                    <!-- Application Status Card -->
+                    <div class="application-status-card">
+                        <h2>Your Application Status</h2>
+                        <div class="status-details">
+                            <div class="status-row">
+                                <span class="label">Application ID:</span>
+                                <span class="value">#<?= str_pad($application['id'], 4, '0', STR_PAD_LEFT) ?></span>
+                            </div>
+                            <div class="status-row">
+                                <span class="label">Submitted On:</span>
+                                <span class="value"><?= date('F d, Y', strtotime($application['created_at'])) ?></span>
+                            </div>
+                            <div class="status-row">
+                                <span class="label">Status:</span>
+                                <span class="status-badge <?= $application['status'] ?>">
+                                    <?= ucfirst($application['status']) ?>
+                                </span>
+                            </div>
+                            <?php if ($application['status'] === 'approved'): ?>
+                                <div class="approved-message">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    <p>Congratulations! Your application has been approved. You now have access to the Learnings tab.</p>
+                                </div>
+                            <?php elseif ($application['status'] === 'pending'): ?>
+                                <div class="pending-message">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    <p>Your application is under review. We'll notify you once it's been processed.</p>
+                                </div>
+                            <?php elseif ($application['status'] === 'rejected'): ?>
+                                <div class="rejected-message">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="15" y1="9" x2="9" y2="15"/>
+                                        <line x1="9" y1="9" x2="15" y2="15"/>
+                                    </svg>
+                                    <p>Unfortunately, your application was not approved. <?= $application['review_notes'] ?? 'Please contact admin for more details.' ?></p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon" style="background: #fece83;">
@@ -92,8 +158,8 @@
                             </svg>
                         </div>
                         <div class="stat-info">
-                            <h3>Total Applications</h3>
-                            <p class="stat-number">5</p>
+                            <h3>Application Status</h3>
+                            <p class="stat-number"><?= isset($application) ? ucfirst($application['status']) : 'Not Applied' ?></p>
                         </div>
                     </div>
 
@@ -105,8 +171,8 @@
                             </svg>
                         </div>
                         <div class="stat-info">
-                            <h3>Pending</h3>
-                            <p class="stat-number">2</p>
+                            <h3>Access Level</h3>
+                            <p class="stat-number"><?= (isset($application) && $application['status'] === 'approved') ? 'Full' : 'Limited' ?></p>
                         </div>
                     </div>
 
@@ -117,8 +183,8 @@
                             </svg>
                         </div>
                         <div class="stat-info">
-                            <h3>Approved</h3>
-                            <p class="stat-number">3</p>
+                            <h3>Learnings</h3>
+                            <p class="stat-number"><?= (isset($application) && $application['status'] === 'approved') ? 'Unlocked' : 'Locked' ?></p>
                         </div>
                     </div>
 

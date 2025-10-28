@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Models\ApplicationModel;
+
 class ApplicantDashboard extends BaseController
 {
     public function __construct()
@@ -16,6 +18,16 @@ class ApplicantDashboard extends BaseController
             return redirect()->to('/auth/login')->with('error', 'Please login as applicant to access this page');
         }
         
-        return view('applicant/dashboard');
+        $applicationModel = new ApplicationModel();
+        $userId = session()->get('user_id');
+        
+        // Get user's application if exists
+        $application = $applicationModel->getUserApplication($userId);
+        
+        $data = [
+            'application' => $application
+        ];
+        
+        return view('applicant/dashboard', $data);
     }
 }

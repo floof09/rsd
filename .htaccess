@@ -1,17 +1,8 @@
-# Disable directory browsing
-Options -Indexes
-
-# Redirect all requests to public folder
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /rsd/
     
-    # If not a file or directory, redirect to public
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # Redirect to public folder
+    RewriteCond %{REQUEST_URI} !^/rsd/public/
     RewriteRule ^(.*)$ public/$1 [L]
-</IfModule>
-
-<IfModule !mod_rewrite.c>
-    ErrorDocument 404 public/index.php
 </IfModule>

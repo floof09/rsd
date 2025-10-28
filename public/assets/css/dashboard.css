@@ -383,6 +383,134 @@ td {
     transform: translateY(-2px);
 }
 
+/* Welcome and Application Status Cards */
+.welcome-card {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #f4a261 100%);
+    padding: 60px 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 32px;
+    color: var(--dark-text);
+}
+
+.welcome-card h2 {
+    font-size: 32px;
+    margin-bottom: 16px;
+}
+
+.welcome-card p {
+    font-size: 18px;
+    margin-bottom: 32px;
+    opacity: 0.9;
+}
+
+.btn-apply {
+    display: inline-block;
+    padding: 16px 48px;
+    background: white;
+    color: var(--dark-text);
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-apply:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.application-status-card {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 32px;
+}
+
+.application-status-card h2 {
+    font-size: 24px;
+    color: var(--dark-text);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.status-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.status-row .label {
+    font-weight: 600;
+    color: var(--light-text);
+}
+
+.status-row .value {
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.approved-message,
+.pending-message,
+.rejected-message {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+.approved-message {
+    background: #d4edda;
+    color: #155724;
+}
+
+.pending-message {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.rejected-message {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.approved-message svg,
+.pending-message svg,
+.rejected-message svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.approved-message p,
+.pending-message p,
+.rejected-message p {
+    margin: 0;
+    line-height: 1.6;
+}
+
 /* Responsive */
 @media (max-width: 968px) {
     .sidebar {
