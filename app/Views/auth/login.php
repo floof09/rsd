@@ -88,10 +88,17 @@
         <div class="right-section">
             <div class="brand-container">
                 <div class="brand-logo">
-                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                        <rect width="60" height="60" rx="15" fill="white"/>
-                        <path d="M20 30C20 23.3726 25.3726 18 32 18H38C41.3137 18 44 20.6863 44 24V30C44 36.6274 38.6274 42 32 42H26C22.6863 42 20 39.3137 20 36V30Z" fill="#2563eb"/>
-                        <path d="M28 24C28 22.3431 29.3431 21 31 21H37C38.6569 21 40 22.3431 40 24V30C40 33.3137 37.3137 36 34 36H28V24Z" fill="#1e40af"/>
+                    <svg width="80" height="80" viewBox="0 0 200 200" fill="none">
+                        <!-- Outer circles (gray layers) -->
+                        <circle cx="100" cy="100" r="95" fill="#c5c5c5" opacity="0.4"/>
+                        <circle cx="100" cy="85" r="75" fill="#b5b5b5" opacity="0.5"/>
+                        <circle cx="85" cy="100" r="70" fill="#a5a5a5" opacity="0.5"/>
+                        <circle cx="115" cy="100" r="70" fill="#a5a5a5" opacity="0.5"/>
+                        <circle cx="100" cy="115" r="75" fill="#b5b5b5" opacity="0.5"/>
+                        <!-- Center square (orange/gold) -->
+                        <rect x="70" y="70" width="60" height="60" rx="8" fill="#fece83"/>
+                        <!-- Add some depth to center -->
+                        <rect x="75" y="75" width="50" height="50" rx="6" fill="#f4a261" opacity="0.3"/>
                     </svg>
                 </div>
                 <h2>RSD <span>Portal</span></h2>

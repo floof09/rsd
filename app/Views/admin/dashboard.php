@@ -11,6 +11,17 @@
     <div class="dashboard-container">
         <aside class="sidebar">
             <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <svg width="40" height="40" viewBox="0 0 200 200" fill="none">
+                        <circle cx="100" cy="100" r="95" fill="#c5c5c5" opacity="0.3"/>
+                        <circle cx="100" cy="85" r="75" fill="#b5b5b5" opacity="0.4"/>
+                        <circle cx="85" cy="100" r="70" fill="#a5a5a5" opacity="0.4"/>
+                        <circle cx="115" cy="100" r="70" fill="#a5a5a5" opacity="0.4"/>
+                        <circle cx="100" cy="115" r="75" fill="#b5b5b5" opacity="0.4"/>
+                        <rect x="70" y="70" width="60" height="60" rx="8" fill="#fece83"/>
+                        <rect x="75" y="75" width="50" height="50" rx="6" fill="#f4a261" opacity="0.3"/>
+                    </svg>
+                </div>
                 <h2>RSD <span>Admin</span></h2>
             </div>
             <nav class="sidebar-nav">
