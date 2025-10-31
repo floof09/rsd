@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\ApplicationModel;
+use App\Models\SystemLogModel;
 
 class AdminDashboard extends BaseController
 {
@@ -22,13 +23,15 @@ class AdminDashboard extends BaseController
         // Get statistics from database
         $userModel = new UserModel();
         $applicationModel = new ApplicationModel();
+        $systemLogModel = new SystemLogModel();
         
         $data = [
             'total_users' => $userModel->countAll(),
             'total_applications' => $applicationModel->countAll(),
             'pending_applications' => $applicationModel->where('status', 'pending')->countAllResults(false),
             'approved_applications' => $applicationModel->where('status', 'approved')->countAllResults(),
-            'recent_applications' => $applicationModel->orderBy('created_at', 'DESC')->limit(5)->find()
+            'recent_applications' => $applicationModel->orderBy('created_at', 'DESC')->limit(5)->find(),
+            'recent_logs' => $systemLogModel->getRecentActivity(5)
         ];
         
         return view('admin/dashboard', $data);

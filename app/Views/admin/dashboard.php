@@ -105,6 +105,50 @@
                         <?php endif; ?>
                     </div>
                 </div>
+
+                <div class="content-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>System Activity</h2>
+                        <a href="<?= base_url('admin/system-logs') ?>" style="color: #fece83; text-decoration: none; font-size: 14px;">View All →</a>
+                    </div>
+                    <div class="activity-list">
+                        <?php if (!empty($recent_logs)): ?>
+                            <?php foreach ($recent_logs as $log): ?>
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <?php
+                                        $icons = [
+                                            'auth' => '🔐',
+                                            'application' => '📝',
+                                            'user' => '👤',
+                                            'system' => '⚙️'
+                                        ];
+                                        echo $icons[$log['module']] ?? '📋';
+                                        ?>
+                                    </div>
+                                    <div class="activity-details">
+                                        <h4><?= esc($log['action']) ?></h4>
+                                        <p>
+                                            <?php if (!empty($log['email'])): ?>
+                                                <strong><?= esc($log['email']) ?></strong> - 
+                                            <?php endif; ?>
+                                            <?= esc($log['description']) ?>
+                                        </p>
+                                        <span class="activity-time"><?= time_ago($log['created_at']) ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="activity-item">
+                                <div class="activity-icon">📋</div>
+                                <div class="activity-details">
+                                    <h4>No system activity yet</h4>
+                                    <p>System logs will appear here once actions are performed</p>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

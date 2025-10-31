@@ -124,7 +124,7 @@ class App extends BaseConfig
 
     /**
      * --------------------------------------------------------------------------
-     * Application Timezone
+     * Default Timezone
      * --------------------------------------------------------------------------
      *
      * The default timezone that will be used in your application to display
@@ -133,7 +133,7 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
-    public string $appTimezone = 'UTC';
+    public string $appTimezone = 'Asia/Manila';
 
     /**
      * --------------------------------------------------------------------------

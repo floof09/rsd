@@ -1,0 +1,47 @@
+========================================
+MYSQL DATABASE REPAIR INSTRUCTIONS
+========================================
+
+Your MySQL database is severely corrupted. Follow these steps:
+
+STEP 1: Stop MySQL (ALREADY DONE)
+----------------------------------
+MySQL has been stopped.
+
+STEP 2: Edit MySQL Configuration
+----------------------------------
+1. Open: C:\xampp\mysql\bin\my.ini
+2. Find the [mysqld] section
+3. Add this line under [mysqld]:
+   innodb_force_recovery = 1
+   
+4. Save the file
+
+STEP 3: Restart MySQL
+----------------------------------
+Open XAMPP Control Panel and start MySQL
+
+STEP 4: Create the table
+----------------------------------
+Run this command:
+C:\xampp\mysql\bin\mysql.exe -u root ci4 -e "CREATE TABLE IF NOT EXISTS system_logs (id INT UNSIGNED NOT NULL AUTO_INCREMENT, user_id INT UNSIGNED NULL, action VARCHAR(100) NOT NULL, module VARCHAR(50) NOT NULL, description TEXT NULL, ip_address VARCHAR(45) NULL, user_agent TEXT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id), INDEX idx_user_id (user_id), INDEX idx_module (module), INDEX idx_created_at (created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;"
+
+STEP 5: Remove Recovery Mode
+----------------------------------
+1. Stop MySQL again
+2. Open C:\xampp\mysql\bin\my.ini
+3. Remove or comment out: innodb_force_recovery = 1
+4. Start MySQL again
+
+========================================
+WHAT DOES innodb_force_recovery DO?
+========================================
+This forces MySQL to start even with corrupted InnoDB tables.
+Mode 1 allows you to:
+- Read data
+- Create tables
+- Cannot do full repairs but enough to work
+
+If Mode 1 doesn't work, try Mode 2, 3, or 4 (but don't go higher).
+
+========================================

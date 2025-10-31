@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\SystemLogModel;
 
 class Auth extends BaseController
 {
@@ -38,11 +39,29 @@ class Auth extends BaseController
         $user = $userModel->verifyPassword($email, $password);
         
         if (!$user) {
+            // Log failed login attempt
+            $systemLog = new SystemLogModel();
+            $systemLog->logActivity(
+                'Failed Login',
+                'auth',
+                'Failed login attempt for email: ' . $email,
+                null
+            );
+            
             return redirect()->back()->with('error', 'Invalid email or password');
         }
         
         // Check if user is active
         if ($user['status'] !== 'active') {
+            // Log inactive account access attempt
+            $systemLog = new SystemLogModel();
+            $systemLog->logActivity(
+                'Inactive Account Login Attempt',
+                'auth',
+                'Login attempt on inactive account: ' . $email,
+                $user['id']
+            );
+            
             return redirect()->back()->with('error', 'Your account is inactive. Please contact administrator.');
         }
         
@@ -61,12 +80,35 @@ class Auth extends BaseController
         // Update last login
         $userModel->updateLastLogin($user['id']);
         
+        // Log successful login
+        $systemLog = new SystemLogModel();
+        $systemLog->logActivity(
+            'Login',
+            'auth',
+            'User logged in successfully',
+            $user['id']
+        );
+        
         // Redirect to admin dashboard
         return redirect()->to('/admin/dashboard')->with('success', 'Welcome back!');
     }
 
     public function logout()
     {
+        // Get user ID before destroying session
+        $userId = session()->get('user_id');
+        
+        // Log logout
+        if ($userId) {
+            $systemLog = new SystemLogModel();
+            $systemLog->logActivity(
+                'Logout',
+                'auth',
+                'User logged out',
+                $userId
+            );
+        }
+        
         session()->destroy();
         return redirect()->to('/auth/login')->with('success', 'You have been logged out successfully');
     }
