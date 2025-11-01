@@ -270,6 +270,11 @@
                 }
             });
         });
+
+        // Clear application form data from localStorage on login page load
+        <?php if (session()->getFlashdata('clearFormData')): ?>
+            localStorage.removeItem('applicationFormData');
+        <?php endif; ?>
     </script>
 </body>
 </html>

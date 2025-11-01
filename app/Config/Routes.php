@@ -21,3 +21,11 @@ $routes->get('admin/applications', 'AdminApplication::list');
 $routes->get('admin/system-logs', 'SystemLogs::index');
 $routes->get('admin/system-logs/filter/(:any)', 'SystemLogs::filterByModule/$1');
 $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
+
+// Interviewer Routes
+$routes->get('interviewer/dashboard', 'InterviewerDashboard::index');
+$routes->get('interviewer/application', 'AdminApplication::index');
+
+// Geocoding API proxy routes
+$routes->get('api/geocode/reverse', 'Geocode::reverse');
+$routes->get('api/geocode/search', 'Geocode::search');

@@ -73,6 +73,7 @@ class Auth extends BaseController
             'last_name' => $user['last_name'],
             'user_type' => $user['user_type'],
             'isLoggedIn' => true,
+            'justLoggedIn' => true,  // Flag for clearing form data
         ];
         
         session()->set($sessionData);
@@ -89,8 +90,9 @@ class Auth extends BaseController
             $user['id']
         );
         
-        // Redirect to admin dashboard
-        return redirect()->to('/admin/dashboard')->with('success', 'Welcome back!');
+        // Redirect based on user type
+        $redirectUrl = $this->getDashboardRoute($user['user_type']);
+        return redirect()->to($redirectUrl)->with('success', 'Welcome back!');
     }
 
     public function logout()
@@ -110,11 +112,20 @@ class Auth extends BaseController
         }
         
         session()->destroy();
-        return redirect()->to('/auth/login')->with('success', 'You have been logged out successfully');
+        return redirect()->to('/auth/login')->with('success', 'You have been logged out successfully')->with('clearFormData', true);
     }
     
-    private function getDashboardRoute()
+    private function getDashboardRoute($userType)
     {
-        return '/admin/dashboard';
+        switch ($userType) {
+            case 'admin':
+                return '/admin/dashboard';
+            case 'interviewer':
+                return '/interviewer/dashboard';
+            case 'applicant':
+                return '/applicant/dashboard';
+            default:
+                return '/admin/dashboard';
+        }
     }
 }

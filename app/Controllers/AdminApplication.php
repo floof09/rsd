@@ -9,8 +9,8 @@ class AdminApplication extends BaseController
 {
     public function index()
     {
-        // Check if user is logged in and is admin
-        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'admin') {
+        // Check if user is logged in and is admin or interviewer
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
             return redirect()->to('/auth/login');
         }
 
@@ -19,8 +19,8 @@ class AdminApplication extends BaseController
 
     public function save()
     {
-        // Check if user is logged in and is admin
-        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'admin') {
+        // Check if user is logged in and is admin or interviewer
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
             return redirect()->to('/auth/login');
         }
 

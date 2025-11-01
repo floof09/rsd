@@ -41,7 +41,7 @@ class UserModel extends Model
         'password' => 'required|min_length[8]',
         'first_name' => 'required|min_length[2]',
         'last_name' => 'required|min_length[2]',
-        'user_type' => 'required|in_list[admin,applicant]',
+        'user_type' => 'required|in_list[admin,applicant,interviewer]',
     ];
     
     protected $validationMessages = [];
