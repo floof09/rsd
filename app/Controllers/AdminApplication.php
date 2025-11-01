@@ -400,6 +400,36 @@ class AdminApplication extends BaseController
             ->setBody(file_get_contents($absolutePath));
     }
 
+    // ========== Admin: Update application status ==========
+    public function updateStatus($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'admin') {
+            return redirect()->to('/auth/login');
+        }
+
+        $status = $this->request->getPost('status');
+        $allowed = ['pending', 'pending_for_next_interview', 'for_review', 'hired', 'rejected'];
+        if (!in_array($status, $allowed, true)) {
+            return redirect()->back()->with('error', 'Invalid status value');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            return redirect()->to('/admin/applications')->with('error', 'Application not found');
+        }
+
+        try {
+            $applicationModel->update($id, [
+                'status' => $status,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Status update error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update status');
+        }
+
+        return redirect()->back()->with('success', 'Status updated to ' . str_replace('_', ' ', $status));
+    }
     // ========== IGT ADDITIONAL INTERVIEW (Interviewer Only) ==========
     public function igtForm($id)
     {

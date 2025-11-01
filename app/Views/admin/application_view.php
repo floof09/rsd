@@ -70,6 +70,16 @@
         </header>
 
         <div class="dashboard-content">
+            <?php if (session()->getFlashdata('success')): ?>
+                <div class="alert alert-success" style="margin-bottom:12px;">
+                    <?= esc(session()->getFlashdata('success')) ?>
+                </div>
+            <?php endif; ?>
+            <?php if (session()->getFlashdata('error')): ?>
+                <div class="alert alert-error" style="margin-bottom:12px;">
+                    <?= esc(session()->getFlashdata('error')) ?>
+                </div>
+            <?php endif; ?>
             <div class="form-card">
                 <div class="header-flex">
                     <div>
@@ -84,6 +94,13 @@
                         <?php endif; ?>
                         <?php if ($rolePrefix === 'interviewer' && (isset($application['company_name']) && strtoupper($application['company_name']) === 'IGT')): ?>
                             <a class="btn-link" href="<?= base_url('interviewer/applications/' . $application['id'] . '/igt') ?>">➕ IGT Interview</a>
+                        <?php endif; ?>
+                        <?php if ($rolePrefix === 'admin'): ?>
+                            <form method="post" action="<?= base_url('admin/applications/' . $application['id'] . '/status') ?>" style="display:inline;">
+                                <?php if (function_exists('csrf_field')) { echo csrf_field(); } ?>
+                                <input type="hidden" name="status" value="pending_for_next_interview" />
+                                <button type="submit" class="btn-link">⏭️ Set: Pending for Next Interview</button>
+                            </form>
                         <?php endif; ?>
                     </div>
                 </div>

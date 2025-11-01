@@ -20,6 +20,8 @@ $routes->post('admin/application/save', 'AdminApplication::save');
 $routes->get('admin/applications', 'AdminApplication::list');
 $routes->get('admin/applications/(:num)', 'AdminApplication::show/$1');
 $routes->get('admin/applications/(:num)/resume', 'AdminApplication::resume/$1');
+// Admin: Update status
+$routes->post('admin/applications/(:num)/status', 'AdminApplication::updateStatus/$1');
 $routes->get('admin/system-logs', 'SystemLogs::index');
 $routes->get('admin/system-logs/filter/(:any)', 'SystemLogs::filterByModule/$1');
 $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
