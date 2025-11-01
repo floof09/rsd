@@ -20,7 +20,8 @@ class InterviewerDashboard extends BaseController
         $data = [
             'total_applications' => $applicationModel->countAll(),
             'igt_applications' => $applicationModel->where('company_name', 'IGT')->countAllResults(false),
-            'rsd_applications' => $applicationModel->where('company_name', 'RSD')->countAllResults(false),
+            // Updated from RSD to Everise to reflect current company names
+            'rsd_applications' => $applicationModel->where('company_name', 'Everise')->countAllResults(false),
             'recent_applications' => $applicationModel->orderBy('created_at', 'DESC')->findAll(5)
         ];
 

@@ -11,7 +11,11 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <?= view('components/admin_sidebar') ?>
+        <?php if (session()->get('user_type') === 'interviewer'): ?>
+            <?= view('components/interviewer_sidebar') ?>
+        <?php else: ?>
+            <?= view('components/admin_sidebar') ?>
+        <?php endif; ?>
 
         <main class="main-content">
             <header class="top-bar">
@@ -26,7 +30,7 @@
                 <div class="applications-container">
                     <div class="list-header">
                         <div class="header-left">
-                            <h2>All Applications</h2>
+                            <h2><?= session()->get('user_type') === 'interviewer' ? 'My Applications' : 'All Applications' ?></h2>
                             <span class="count-badge"><?= count($applications) ?> Total</span>
                         </div>
                         <div class="header-actions">
@@ -38,19 +42,17 @@
                                 </svg>
                                 Export CSV
                             </button>
-                            <a href="<?= base_url('admin/application') ?>" class="btn btn-primary">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="5" x2="12" y2="19"/>
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                </svg>
-                                New Application
-                            </a>
                         </div>
                     </div>
 
                     <?php if (session()->getFlashdata('success')): ?>
                         <div class="alert alert-success">
                             <?= session()->getFlashdata('success') ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (session()->getFlashdata('error')): ?>
+                        <div class="alert alert-error">
+                            <?= session()->getFlashdata('error') ?>
                         </div>
                     <?php endif; ?>
 
@@ -80,8 +82,10 @@
                                 <polyline points="14 2 14 8 20 8"/>
                             </svg>
                             <h3>No Applications Yet</h3>
-                            <p>Start by creating a new application form</p>
-                            <a href="<?= base_url('admin/application') ?>" class="btn btn-primary">Create Application</a>
+                            <p><?= session()->get('user_type') === 'interviewer' ? 'Start by creating a new application' : 'No applications found' ?></p>
+                            <?php if (session()->get('user_type') === 'interviewer'): ?>
+                                <a href="<?= base_url('interviewer/application') ?>" class="btn btn-primary">Create Application</a>
+                            <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="table-container">
@@ -155,6 +159,8 @@
     <?= view('components/sidebar_script') ?>
     
     <script>
+        const BASE_URL = '<?= rtrim(base_url(), '/') ?>/';
+        const ROLE_PREFIX = '<?= session()->get('user_type') === 'interviewer' ? 'interviewer' : 'admin' ?>';
         function filterTable() {
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
@@ -209,7 +215,7 @@
         }
 
         function viewApplication(id) {
-            alert('View application #' + id + ' - Feature coming soon!');
+            window.location.href = BASE_URL + ROLE_PREFIX + '/applications/' + id;
         }
 
         function editApplication(id) {

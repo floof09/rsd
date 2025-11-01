@@ -11,7 +11,9 @@ class Auth extends BaseController
     {
         // If already logged in, redirect to dashboard
         if (session()->get('isLoggedIn')) {
-            return redirect()->to($this->getDashboardRoute());
+            // Pass the current session user_type to avoid ArgumentCountError
+            $userType = session()->get('user_type');
+            return redirect()->to($this->getDashboardRoute($userType));
         }
         
         return view('auth/login');
@@ -115,8 +117,12 @@ class Auth extends BaseController
         return redirect()->to('/auth/login')->with('success', 'You have been logged out successfully')->with('clearFormData', true);
     }
     
-    private function getDashboardRoute($userType)
+    private function getDashboardRoute($userType = null)
     {
+        // Fallback to session if not provided
+        if ($userType === null) {
+            $userType = session()->get('user_type');
+        }
         switch ($userType) {
             case 'admin':
                 return '/admin/dashboard';

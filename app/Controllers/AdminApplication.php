@@ -9,9 +9,14 @@ class AdminApplication extends BaseController
 {
     public function index()
     {
-        // Check if user is logged in and is admin or interviewer
-        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
+        // Only interviewers can open the application form
+        if (!session()->get('isLoggedIn')) {
             return redirect()->to('/auth/login');
+        }
+
+        if (session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/admin/applications')
+                ->with('error', 'Only interviewers can access the application form.');
         }
 
         return view('admin/application_form');
@@ -19,18 +24,36 @@ class AdminApplication extends BaseController
 
     public function save()
     {
-        // Check if user is logged in and is admin or interviewer
-        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
+        // Only interviewers can submit the application form
+        if (!session()->get('isLoggedIn')) {
             return redirect()->to('/auth/login');
+        }
+        if (session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/admin/applications')->with('error', 'Only interviewers can submit the application form.');
         }
 
         $applicationModel = new ApplicationModel();
-        $validation = \Config\Services::validation();
+    $validation = \Config\Services::validation();
+
+        // Pre-clean phone and viber numbers (strip spaces/dashes and leading zeros) BEFORE validation
+        $rawPhone = (string) $this->request->getPost('phone_number');
+        $rawViber = (string) $this->request->getPost('viber_number');
+        $cleanPhone = preg_replace('/\D/', '', $rawPhone);
+        $cleanViber = preg_replace('/\D/', '', $rawViber);
+        if (strpos($cleanPhone, '0') === 0) { $cleanPhone = substr($cleanPhone, 1); }
+        if (strpos($cleanViber, '0') === 0) { $cleanViber = substr($cleanViber, 1); }
+        // Inject cleaned values so validator sees sanitized numbers
+        if (method_exists($this->request, 'setGlobal')) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost(), [
+                'phone_number' => $cleanPhone,
+                'viber_number' => $cleanViber,
+            ]));
+        }
 
         // Define comprehensive validation rules
         $validationRules = [
             'company_name' => [
-                'rules' => 'required|in_list[RSD,IGT]',
+                'rules' => 'required|in_list[Everise,IGT]',
                 'errors' => [
                     'required' => 'Please select a company',
                     'in_list' => 'Invalid company selection'
@@ -63,65 +86,57 @@ class AdminApplication extends BaseController
                 ]
             ],
             'phone_number' => [
-                'rules' => 'required|regex_match[/^9\d{9}$/]',
+                // Require strict 10 digits starting with 9 (since +63 prefix is displayed separately)
+                'rules' => 'permit_empty|regex_match[/^9\d{9}$/]',
                 'errors' => [
-                    'required' => 'Phone number is required',
-                    'regex_match' => 'Phone number must be 10 digits starting with 9'
+                    'regex_match' => 'Phone number must be exactly 10 digits and start with 9'
                 ]
             ],
             'viber_number' => [
-                'rules' => 'required|regex_match[/^9\d{9}$/]',
+                'rules' => 'permit_empty|regex_match[/^9\d{9}$/]',
                 'errors' => [
-                    'required' => 'Viber number is required',
-                    'regex_match' => 'Viber number must be 10 digits starting with 9'
+                    'regex_match' => 'Viber number must be exactly 10 digits and start with 9'
                 ]
             ],
             'street_address' => [
-                'rules' => 'required|max_length[255]',
+                'rules' => 'permit_empty|max_length[255]',
                 'errors' => [
-                    'required' => 'Street address is required',
                     'max_length' => 'Street address is too long'
                 ]
             ],
             'barangay' => [
-                'rules' => 'required|max_length[100]',
+                'rules' => 'permit_empty|max_length[100]',
                 'errors' => [
-                    'required' => 'Barangay is required',
                     'max_length' => 'Barangay name is too long'
                 ]
             ],
             'municipality' => [
-                'rules' => 'required|max_length[100]',
+                'rules' => 'permit_empty|max_length[100]',
                 'errors' => [
-                    'required' => 'Municipality/City is required',
                     'max_length' => 'Municipality name is too long'
                 ]
             ],
             'province' => [
-                'rules' => 'required|max_length[100]',
+                'rules' => 'permit_empty|max_length[100]',
                 'errors' => [
-                    'required' => 'Province is required',
                     'max_length' => 'Province name is too long'
                 ]
             ],
             'birthdate' => [
-                'rules' => 'required|valid_date',
+                'rules' => 'permit_empty|valid_date',
                 'errors' => [
-                    'required' => 'Birthdate is required',
                     'valid_date' => 'Please enter a valid date'
                 ]
             ],
             'bpo_experience' => [
-                'rules' => 'required|max_length[100]',
+                'rules' => 'permit_empty|max_length[100]',
                 'errors' => [
-                    'required' => 'BPO experience is required',
                     'max_length' => 'BPO experience description is too long'
                 ]
             ],
             'educational_attainment' => [
-                'rules' => 'required|max_length[100]',
+                'rules' => 'permit_empty|max_length[100]',
                 'errors' => [
-                    'required' => 'Educational attainment is required',
                     'max_length' => 'Educational attainment description is too long'
                 ]
             ],
@@ -139,7 +154,8 @@ class AdminApplication extends BaseController
         if (!$this->validate($validationRules)) {
             return redirect()->back()
                 ->withInput()
-                ->with('errors', $validation->getErrors())
+        // Use the validator attached by $this->validate() so we always have the actual errors
+        ->with('errors', $this->validator ? $this->validator->getErrors() : $validation->getErrors())
                 ->with('error', 'Please correct the errors below');
         }
 
@@ -181,8 +197,25 @@ class AdminApplication extends BaseController
             'first_name' => esc(trim($this->request->getPost('first_name'))),
             'last_name' => esc(trim($this->request->getPost('last_name'))),
             'email_address' => filter_var($this->request->getPost('email_address'), FILTER_SANITIZE_EMAIL),
-            'phone_number' => $this->request->getPost('phone_number') ? '+63' . preg_replace('/\D/', '', $this->request->getPost('phone_number')) : null,
-            'viber_number' => $this->request->getPost('viber_number') ? '+63' . preg_replace('/\D/', '', $this->request->getPost('viber_number')) : null,
+            // Normalize contact numbers to E.164 +63 format. Accept inputs like 916..., 0916..., 63916..., +63916...
+            'phone_number' => (function () {
+                $raw = (string) $this->request->getPost('phone_number');
+                $digits = preg_replace('/\D/', '', $raw ?? '');
+                if ($digits === '' ) { return null; }
+                // Strip leading country code or trunk prefix if present
+                if (strpos($digits, '63') === 0) { $digits = substr($digits, 2); }
+                if (strpos($digits, '0') === 0) { $digits = substr($digits, 1); }
+                // At this point we expect 10 digits starting with 9
+                return '+63' . $digits;
+            })(),
+            'viber_number' => (function () {
+                $raw = (string) $this->request->getPost('viber_number');
+                $digits = preg_replace('/\D/', '', $raw ?? '');
+                if ($digits === '' ) { return null; }
+                if (strpos($digits, '63') === 0) { $digits = substr($digits, 2); }
+                if (strpos($digits, '0') === 0) { $digits = substr($digits, 1); }
+                return '+63' . $digits;
+            })(),
             'street_address' => esc(trim($this->request->getPost('street_address'))),
             'barangay' => esc(trim($this->request->getPost('barangay'))),
             'municipality' => esc(trim($this->request->getPost('municipality'))),
@@ -262,9 +295,12 @@ class AdminApplication extends BaseController
                 
                 return redirect()->back()->with('success', 'Application saved successfully!');
             } else {
+                // Surface model-level errors if any (in case of DB/Model validation)
+                $modelErrors = method_exists($applicationModel, 'errors') ? $applicationModel->errors() : [];
                 return redirect()->back()
                     ->withInput()
-                    ->with('error', 'Failed to save application. Please try again.');
+                    ->with('errors', $modelErrors)
+                    ->with('error', 'Failed to save application. Please review the highlighted fields.');
             }
         } catch (\Exception $e) {
             // Log error for debugging
@@ -287,5 +323,195 @@ class AdminApplication extends BaseController
         $data['applications'] = $applicationModel->findAll();
 
         return view('admin/applications_list', $data);
+    }
+
+    public function interviewerList()
+    {
+        // Interviewers can view only their submitted applications
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $data['applications'] = $applicationModel
+            ->where('interviewed_by', session()->get('user_id'))
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
+
+        return view('admin/applications_list', $data);
+    }
+
+    public function show($id)
+    {
+        // Admins and interviewers can view records
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+
+        if (!$application) {
+            return redirect()->to('/admin/applications')->with('error', 'Application not found');
+        }
+
+        // Decode notes JSON for any stage data (e.g., IGT interview)
+        $application['decoded_notes'] = [];
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $application['decoded_notes'] = $decoded;
+            }
+        }
+        $data['application'] = $application;
+        return view('admin/application_view', $data);
+    }
+
+    public function resume($id)
+    {
+        // Admins and interviewers can view resumes
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+
+        if (!$application || empty($application['resume_path'])) {
+            return redirect()->to('/admin/applications')->with('error', 'Resume not found');
+        }
+
+        // Build the absolute path and ensure it stays within WRITEPATH/uploads/resumes for safety
+        $relativePath = $application['resume_path']; // e.g. writable/uploads/resumes/xyz.pdf
+        $absolutePath = realpath(ROOTPATH . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath));
+        $safeBase = realpath(WRITEPATH . 'uploads' . DIRECTORY_SEPARATOR . 'resumes');
+
+        if (!$absolutePath || !$safeBase || strpos($absolutePath, $safeBase) !== 0 || !is_file($absolutePath)) {
+            return redirect()->to('/admin/applications')->with('error', 'Invalid resume path');
+        }
+
+        // Stream PDF; inline or as download based on query param
+        $forceDownload = (bool) $this->request->getGet('download');
+        $disposition = $forceDownload ? 'attachment' : 'inline';
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('X-Frame-Options', 'SAMEORIGIN')
+            ->setHeader('Content-Disposition', $disposition . '; filename="' . basename($absolutePath) . '"')
+            ->setBody(file_get_contents($absolutePath));
+    }
+
+    // ========== IGT ADDITIONAL INTERVIEW (Interviewer Only) ==========
+    public function igtForm($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
+        }
+
+        $existing = [];
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded) && isset($decoded['igt'])) {
+                $existing = $decoded['igt'];
+            }
+        }
+
+        return view('interviewer/igt_form', [
+            'application' => $application,
+            'igt' => $existing,
+        ]);
+    }
+
+    public function igtSave($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
+        }
+
+        // Basic validation for IGT fields
+        $validator = \Config\Services::validation();
+        $rules = [
+            // Core IGT fields (based on previous IGT application questions)
+            'igt_program' => 'required|max_length[255]',
+            'igt_application_date' => 'required|valid_date',
+            'igt_tag_result' => 'required|in_list[Passed,Failed]',
+            'igt_interviewer_name' => 'permit_empty|max_length[255]',
+            'igt_basic_checkpoints' => 'permit_empty|max_length[255]',
+            'igt_opportunity' => 'permit_empty|max_length[255]',
+            'igt_availability' => 'permit_empty|max_length[255]',
+            'igt_validated_source' => 'permit_empty|in_list[RSD,Other]',
+            'igt_shift_preference' => 'permit_empty|max_length[255]',
+            'igt_work_preference' => 'permit_empty|max_length[255]',
+            'igt_expected_salary' => 'permit_empty|numeric',
+            'igt_on_hold_salary' => 'permit_empty|numeric',
+            'igt_pending_applications' => 'permit_empty|in_list[NONE,Pending]',
+            'igt_current_location' => 'permit_empty|max_length[255]',
+            'igt_commute' => 'permit_empty|max_length[255]',
+            'igt_govt_numbers' => 'permit_empty|max_length[255]',
+            'igt_education' => 'permit_empty|max_length[1500]',
+            'igt_work_experience' => 'permit_empty|max_length[2000]',
+            'igt_communication' => 'permit_empty|in_list[Good,Excellent,Fair,Poor]',
+        ];
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors())->with('error', 'Please correct the errors below');
+        }
+
+        // Merge existing notes and add/update the IGT section
+        $notes = [];
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $notes = $decoded;
+            }
+        }
+        $notes['igt'] = [
+            'candidate' => trim(($application['first_name'] ?? '') . ' ' . ($application['last_name'] ?? '')) ?: null,
+            'program' => trim((string) $this->request->getPost('igt_program')) ?: null,
+            'application_date' => $this->request->getPost('igt_application_date') ?: null,
+            'tag_result' => $this->request->getPost('igt_tag_result') ?: null,
+            'interviewer_name' => trim((string) ($this->request->getPost('igt_interviewer_name') ?: (session()->get('first_name') . ' ' . session()->get('last_name')))) ?: null,
+            'basic_checkpoints' => trim((string) $this->request->getPost('igt_basic_checkpoints')) ?: null,
+            'opportunity' => trim((string) $this->request->getPost('igt_opportunity')) ?: null,
+            'availability' => trim((string) $this->request->getPost('igt_availability')) ?: null,
+            'validated_source' => $this->request->getPost('igt_validated_source') ?: null,
+            'shift_preference' => trim((string) $this->request->getPost('igt_shift_preference')) ?: null,
+            'work_preference' => trim((string) $this->request->getPost('igt_work_preference')) ?: null,
+            'expected_salary' => $this->request->getPost('igt_expected_salary') !== '' ? (float) $this->request->getPost('igt_expected_salary') : null,
+            'on_hold_salary' => $this->request->getPost('igt_on_hold_salary') !== '' ? (float) $this->request->getPost('igt_on_hold_salary') : null,
+            'pending_applications' => $this->request->getPost('igt_pending_applications') ?: null,
+            'current_location' => trim((string) $this->request->getPost('igt_current_location')) ?: null,
+            'commute' => trim((string) $this->request->getPost('igt_commute')) ?: null,
+            'govt_numbers' => trim((string) $this->request->getPost('igt_govt_numbers')) ?: null,
+            'education' => trim((string) $this->request->getPost('igt_education')) ?: null,
+            'work_experience' => trim((string) $this->request->getPost('igt_work_experience')) ?: null,
+            'communication' => $this->request->getPost('igt_communication') ?: null,
+            'updated_by' => session()->get('user_id'),
+            'updated_at' => date('c'),
+        ];
+
+        try {
+            $applicationModel->update($id, [
+                'notes' => json_encode($notes),
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'IGT save error: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to save IGT interview.');
+        }
+
+        // Optional: update status if desired (commented out)
+        // $applicationModel->update($id, ['status' => 'for_review']);
+
+        return redirect()->to('/interviewer/applications/' . $id)->with('success', 'IGT interview saved.');
     }
 }

@@ -16,7 +16,11 @@ Options -Indexes
 	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
 	RewriteBase /rsd/
 
-	# Redirect Trailing Slashes...
+	# Note: Do NOT force-remove the trailing slash for the base folder.
+	# Apache's DirectorySlash (mod_dir) adds it automatically for directories.
+	# Forcing a redirect here would conflict and cause redirect loops.
+
+	# Redirect Trailing Slashes for non-directories...
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_URI} (.+)/$
 	RewriteRule ^ %1 [L,R=301]

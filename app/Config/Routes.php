@@ -18,6 +18,8 @@ $routes->get('admin/dashboard', 'AdminDashboard::index');
 $routes->get('admin/application', 'AdminApplication::index');
 $routes->post('admin/application/save', 'AdminApplication::save');
 $routes->get('admin/applications', 'AdminApplication::list');
+$routes->get('admin/applications/(:num)', 'AdminApplication::show/$1');
+$routes->get('admin/applications/(:num)/resume', 'AdminApplication::resume/$1');
 $routes->get('admin/system-logs', 'SystemLogs::index');
 $routes->get('admin/system-logs/filter/(:any)', 'SystemLogs::filterByModule/$1');
 $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
@@ -25,6 +27,12 @@ $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
 // Interviewer Routes
 $routes->get('interviewer/dashboard', 'InterviewerDashboard::index');
 $routes->get('interviewer/application', 'AdminApplication::index');
+$routes->get('interviewer/applications', 'AdminApplication::interviewerList');
+$routes->get('interviewer/applications/(:num)', 'AdminApplication::show/$1');
+$routes->get('interviewer/applications/(:num)/resume', 'AdminApplication::resume/$1');
+	// IGT additional interview (interviewer only)
+	$routes->get('interviewer/applications/(:num)/igt', 'AdminApplication::igtForm/$1');
+	$routes->post('interviewer/applications/(:num)/igt/save', 'AdminApplication::igtSave/$1');
 
 // Geocoding API proxy routes
 $routes->get('api/geocode/reverse', 'Geocode::reverse');
