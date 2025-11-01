@@ -133,6 +133,8 @@
                         <div class="detail-item"><span class="detail-label">Last Updated</span><span class="detail-value"><?= date('M d, Y H:i', strtotime($application['updated_at'])) ?></span></div>
                     </div>
 
+                    <?php /* Next interview scheduling removed as requested */ ?>
+
                     <?php if (!empty($application['decoded_notes']['igt'])): $igt = $application['decoded_notes']['igt']; ?>
                         <h3 class="section-title">IGT Interview</h3>
                         <div class="detail-grid">
@@ -158,6 +160,8 @@
                             <div class="detail-item"><span class="detail-label">Updated At</span><span class="detail-value"><?= !empty($igt['updated_at']) ? date('M d, Y H:i', strtotime($igt['updated_at'])) : '—' ?></span></div>
                         </div>
                     <?php endif; ?>
+
+                    <?php /* Scheduling form removed as requested */ ?>
                 </div>
             </div>
         </div>

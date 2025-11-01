@@ -544,4 +544,6 @@ class AdminApplication extends BaseController
 
         return redirect()->to('/interviewer/applications/' . $id)->with('success', 'IGT interview saved.');
     }
+
+    
 }
