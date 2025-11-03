@@ -149,6 +149,15 @@ tbody td {
     font-weight: 600;
     font-size: 14px;
     color: var(--dark-text);
+    /* Prevent flexbox from squeezing the circle into an ellipse */
+    flex: 0 0 32px; /* no grow, no shrink, fixed basis */
+    min-width: 32px; /* ensure it never gets narrower */
+    aspect-ratio: 1 / 1; /* keep 1:1 even if the container plays with sizing */
+}
+
+/* Ensure the text can take remaining space without forcing the avatar to shrink */
+.applicant-info span {
+    flex: 1 1 auto;
 }
 
 .status-badge {

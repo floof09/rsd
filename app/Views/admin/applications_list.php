@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/interviewer-dashboard.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/applications-list.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/applications-list.css') ?>?v=<?= time() ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
