@@ -255,6 +255,19 @@ body {
     font-size: 16px;
 }
 
+/* Dark theme overrides (shared) */
+body.theme-dark {
+    background: #0f172a;
+    color: #f1f5f9;
+}
+.theme-dark .top-bar {
+    background: #1e293b;
+    box-shadow: none;
+    border-bottom: 1px solid #1f2937;
+}
+.theme-dark .top-bar h1 { color: #e5e7eb; }
+.theme-dark .user-info span { color: #94a3b8; }
+
 /* Dashboard Content */
 .dashboard-content {
     padding: 32px;

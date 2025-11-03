@@ -212,6 +212,31 @@ tbody td {
     border-radius: 8px;
 }
 
+/* Dark theme overrides */
+.theme-dark .list-header,
+.theme-dark .filter-bar,
+.theme-dark .table-container,
+.theme-dark .empty-state {
+    background: #1e293b;
+    border-color: #334155;
+    box-shadow: none;
+}
+.theme-dark .header-left h2,
+.theme-dark .empty-state h3,
+.theme-dark tbody td { color: #e5e7eb; }
+.theme-dark thead { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); }
+.theme-dark thead th { color: #e5e7eb; border-bottom-color: #334155; }
+.theme-dark tbody tr { border-bottom-color: #111827; }
+.theme-dark tbody tr:hover { background: rgba(99,102,241,.06); }
+.theme-dark .search-box input,
+.theme-dark .filter-group select {
+    background: transparent;
+    border-color: #334155;
+    color: #e5e7eb;
+}
+.theme-dark .btn-icon { color: #cbd5e1; }
+.theme-dark .btn-icon:hover { background: rgba(99,102,241,.06); }
+
 .empty-state svg {
     color: #cbd5e0;
     margin-bottom: 16px;

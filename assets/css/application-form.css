@@ -657,6 +657,42 @@ input[readonly]:focus {
     cursor: text;
 }
 
+/* Dark theme overrides */
+.theme-dark .form-card,
+.theme-dark .file-preview,
+.theme-dark .modal-content,
+.theme-dark .empty-state {
+    background: #1e293b;
+    color: #e5e7eb;
+    border-color: #334155;
+}
+.theme-dark .form-header { color: #e5e7eb; }
+.theme-dark .form-header p { color: #cbd5e1; }
+.theme-dark .form-group label { color: #e5e7eb; }
+.theme-dark .field-hint { color: #94a3b8; }
+.theme-dark .phone-prefix { background: #0f172a; color: #e5e7eb; border-right: 1px solid #334155; }
+.theme-dark .phone-input-wrapper { border-color: #334155; }
+.theme-dark .file-upload-display { background: #0f172a; border-color: #334155; }
+.theme-dark .file-upload-display:hover,
+.theme-dark .file-upload-wrapper.drag-over .file-upload-display { background: rgba(99,102,241,.06); }
+.theme-dark .file-upload-display .file-name { color: #e5e7eb; }
+.theme-dark .file-upload-display .file-size { color: #94a3b8; }
+.theme-dark .preview-filename { color: #e5e7eb; }
+.theme-dark .preview-filesize { color: #94a3b8; }
+.theme-dark .preview-actions .btn-preview { color: #111827; }
+.theme-dark .modal-footer { background: #111827; border-top-color: #1f2937; }
+.theme-dark .form-group input,
+.theme-dark .form-group select,
+.theme-dark .form-group textarea {
+    background-color: transparent;
+    color: #e5e7eb;
+    border-color: #334155;
+}
+.theme-dark .form-group input::placeholder,
+.theme-dark .form-group textarea::placeholder { color: #64748b; }
+.theme-dark .btn-outline { color: #e5e7eb; border-color: #334155; }
+.theme-dark .recruiter-box { background: #0f172a; border-color: #334155; }
+
 @media (max-width: 768px) {
     .address-search-wrapper {
         flex-direction: column;
