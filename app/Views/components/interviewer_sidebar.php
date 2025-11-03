@@ -1,5 +1,6 @@
+<?php $seg2 = service('uri')->getSegment(2); ?>
 <aside class="sidebar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-pressed="false">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -17,7 +18,7 @@
         </div>
     </div>
     <nav class="sidebar-nav">
-        <a href="<?= base_url('interviewer/dashboard') ?>" class="nav-item <?= url_is('interviewer/dashboard') ? 'active' : '' ?>">
+    <a href="<?= base_url('interviewer/dashboard') ?>" class="nav-item <?= (service('uri')->getSegment(2) === 'dashboard') ? 'active' : '' ?>">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="7" height="7"/>
                 <rect x="14" y="3" width="7" height="7"/>
@@ -26,7 +27,7 @@
             </svg>
             <span>Dashboard</span>
         </a>
-        <a href="<?= base_url('interviewer/application') ?>" class="nav-item <?= url_is('interviewer/application*') ? 'active' : '' ?>">
+    <a href="<?= base_url('interviewer/application') ?>" class="nav-item <?= ($seg2 === 'application') ? 'active' : '' ?>">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
@@ -36,7 +37,7 @@
             </svg>
             <span>Application Form</span>
         </a>
-        <a href="<?= base_url('interviewer/applications') ?>" class="nav-item <?= url_is('interviewer/applications*') ? 'active' : '' ?>">
+    <a href="<?= base_url('interviewer/applications') ?>" class="nav-item <?= ($seg2 === 'applications') ? 'active' : '' ?>">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="14" rx="2" ry="2"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>

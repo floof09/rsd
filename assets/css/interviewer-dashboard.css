@@ -1,0 +1,93 @@
+:root { --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#ffffff; --brandA:#f59e0b; --brandB:#f97316; --accent:#6366f1; --ok:#10b981; --warn:#f59e0b; --shadow:0 1px 3px rgba(0,0,0,.04), 0 10px 25px rgba(0,0,0,.06); }
+.theme-dark { --ink:#f1f5f9; --muted:#94a3b8; --border:#1e293b; --bg:#0f172a; --card:#1e293b; --shadow:0 1px 3px rgba(0,0,0,.2), 0 10px 25px rgba(0,0,0,.3); }
+
+body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+/* Layout polish overrides: scoped to interviewer dashboard */
+.interviewer-dashboard .main-content { padding-inline: 24px; }
+.interviewer-dashboard .main-content .dashboard-content { max-width: 1200px; margin-inline: auto; }
+.interviewer-dashboard .top-bar h1 { color: var(--ink); }
+.interviewer-dashboard .panel h3 { color: var(--ink); }
+
+.interviewer-dashboard .dashboard-content{ background:linear-gradient(180deg, rgba(99,102,241,.02) 0%, transparent 40%); position:relative; }
+.interviewer-dashboard .dashboard-content::before{ content:""; position:fixed; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity:.6; pointer-events:none; z-index:-1; }
+
+.interviewer-dashboard .hero{ position:relative; border-radius:20px; padding:32px 28px; display:flex; align-items:center; justify-content:space-between; gap:18px; background:rgba(255,255,255,.7); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.6); box-shadow:0 8px 32px rgba(0,0,0,.06); overflow:hidden; }
+.theme-dark .interviewer-dashboard .hero{ background:rgba(30,41,59,.6); border-color:rgba(100,116,139,.2); }
+.interviewer-dashboard .hero::after{ content:""; position:absolute; top:-40%; right:-10%; width:300px; height:300px; background:radial-gradient(circle, rgba(99,102,241,.15), transparent 70%); pointer-events:none; }
+.interviewer-dashboard .hero h1{ margin:0; font-weight:800; font-size:28px; letter-spacing:-.3px; color:var(--ink); }
+.interviewer-dashboard .hero .hint{ color:var(--muted); font-size:14px; margin-top:6px; line-height:1.5; }
+
+.interviewer-dashboard .kpi-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:16px; margin-top:18px; }
+.interviewer-dashboard .kpi-card{ position:relative; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; display:flex; flex-direction:column; gap:12px; box-shadow:var(--shadow); transition: all .2s cubic-bezier(.4,0,.2,1); }
+.interviewer-dashboard .kpi-card:hover{ transform: translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.1); border-color: rgba(99,102,241,.3); }
+.interviewer-dashboard .kpi-top{ display:flex; align-items:center; justify-content:space-between; }
+.interviewer-dashboard .kpi-ico{ width:48px; height:48px; border-radius:14px; display:grid; place-items:center; color:#fff; background:linear-gradient(135deg, var(--accent), #8b5cf6); box-shadow:0 4px 14px rgba(99,102,241,.3); }
+.interviewer-dashboard .kpi-ico--green{ background: linear-gradient(135deg,#10b981,#34d399); box-shadow: 0 4px 14px rgba(16,185,129,.3); }
+.interviewer-dashboard .kpi-ico--cyan{ background: linear-gradient(135deg,#0ea5e9,#22d3ee); box-shadow: 0 4px 14px rgba(14,165,233,.3); }
+.interviewer-dashboard .kpi-trend{ display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; background:#ecfdf5; color:#065f46; }
+.interviewer-dashboard .kpi-meta h3{ margin:0; font-size:36px; font-weight:900; color:var(--ink); letter-spacing:-.5px; line-height:1; }
+.interviewer-dashboard .kpi-meta p{ margin:6px 0 0; font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.2px; text-transform:uppercase; }
+
+.interviewer-dashboard .panel-grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:16px; margin-top:18px; }
+.interviewer-dashboard .panel{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; box-shadow:var(--shadow); }
+.interviewer-dashboard .panel h3{ margin:0 0 14px; font-size:16px; letter-spacing:-.2px; color:var(--ink); font-weight:800; }
+
+.interviewer-dashboard .action-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; }
+.interviewer-dashboard .action-card{ display:flex; flex-direction:column; align-items:center; gap:10px; padding:18px 14px; border:1px solid var(--border); border-radius:14px; text-decoration:none; color:var(--ink); background:var(--card); transition: all .2s cubic-bezier(.4,0,.2,1); text-align:center; }
+.interviewer-dashboard .action-card:hover{ transform: translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.08); border-color: rgba(99,102,241,.3); }
+.interviewer-dashboard .action-ico{ width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:linear-gradient(135deg, rgba(245,158,11,.1), rgba(99,102,241,.1)); color:var(--accent); }
+.interviewer-dashboard .action-card strong{ font-size:14px; font-weight:800; }
+
+.interviewer-dashboard .badge{ display:inline-block; padding:4px 8px; font-size:11px; font-weight:700; border-radius:999px; }
+.interviewer-dashboard .b-ok{ background:#ecfdf5; color:#065f46; }
+.interviewer-dashboard .b-warn{ background:#fffbeb; color:#92400e; }
+
+.interviewer-dashboard .activity{ display:flex; flex-direction:column; gap:12px; }
+.interviewer-dashboard .activity-row{ display:flex; align-items:center; gap:12px; padding:12px; border-radius:12px; transition:background .15s ease; }
+.interviewer-dashboard .activity-row:hover{ background: rgba(99,102,241,.04); }
+.interviewer-dashboard .activity-avatar{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:13px; color:#fff; background: linear-gradient(135deg, var(--accent), #8b5cf6); flex-shrink:0; }
+.interviewer-dashboard .activity-info{ flex:1; min-width:0; }
+.interviewer-dashboard .activity-title{ font-weight:700; color:var(--ink); font-size:14px; }
+.interviewer-dashboard .activity-meta{ color:var(--muted); font-size:12px; margin-top:2px; }
+.interviewer-dashboard .activity-badge{ padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; text-transform:capitalize; background:#eef2ff; color:#3730a3; white-space:nowrap; }
+
+.interviewer-dashboard .btn-primary{ display:inline-flex; align-items:center; gap:10px; padding:12px 18px; background:linear-gradient(90deg, var(--brandA), var(--brandB)); color:#fff; border-radius:12px; text-decoration:none; font-weight:800; border:0; box-shadow:0 4px 14px rgba(245,158,11,.3); transition: all .2s ease; }
+.interviewer-dashboard .btn-primary:hover{ transform: translateY(-1px); box-shadow:0 6px 20px rgba(245,158,11,.4); }
+
+.interviewer-dashboard .divider{ height:1px; background:var(--border); margin:14px 0; }
+
+/* Tip/hint callout inside panels */
+.interviewer-dashboard .panel .hint{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin-top:10px;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(99,102,241,.03), rgba(245,158,11,.03));
+  color: var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+
+.interviewer-dashboard .theme-toggle{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background: var(--card); color:var(--ink); cursor:pointer; font-weight:700; transition: all .15s ease; }
+.interviewer-dashboard .theme-toggle:hover{ background: linear-gradient(90deg, rgba(245,158,11,.06), rgba(99,102,241,.06)); }
+
+/* Dark theme fixes for legacy light styles */
+.theme-dark .interviewer-dashboard .top-bar{
+  background: var(--card);
+  box-shadow: none;
+  border-bottom: 1px solid var(--border);
+}
+.theme-dark .interviewer-dashboard .top-bar h1{ color: var(--ink); }
+.theme-dark .interviewer-dashboard .user-info span{ color: var(--muted); }
+
+@media (max-width:1200px){
+  .interviewer-dashboard .main-content .dashboard-content{ max-width: 100%; }
+}
+@media (max-width:860px){
+  .interviewer-dashboard .panel-grid{ grid-template-columns:1fr; }
+  .interviewer-dashboard .action-grid{ grid-template-columns:1fr; }
+}

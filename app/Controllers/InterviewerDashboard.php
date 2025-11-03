@@ -25,6 +25,7 @@ class InterviewerDashboard extends BaseController
             'recent_applications' => $applicationModel->orderBy('created_at', 'DESC')->findAll(5)
         ];
 
-        return view('interviewer/dashboard', $data);
+        // Use clean dashboard view (isolated from legacy corruption)
+        return view('interviewer/dashboard2', $data);
     }
 }

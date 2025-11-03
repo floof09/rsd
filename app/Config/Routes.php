@@ -5,9 +5,11 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Auth::login');
+// Redirect root to /login so the URL reflects /login
+$routes->get('/', function() { return redirect()->to('/login'); });
 
 // Auth Routes
+$routes->get('login', 'Auth::login');
 $routes->get('auth/login', 'Auth::login');
 $routes->get('auth/register', 'Auth::register');
 $routes->post('auth/doLogin', 'Auth::doLogin');
