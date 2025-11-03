@@ -180,6 +180,8 @@ tbody td {
     color: #1e40af;
 }
 
+/* pending_for_next_interview removed */
+
 .action-buttons {
     display: flex;
     gap: 8px;

@@ -124,8 +124,9 @@
                                             <td><?= esc($app['phone_number'] ?? 'N/A') ?></td>
                                             <td><?= esc($app['municipality'] ?? 'N/A') ?></td>
                                             <td>
-                                                <span class="status-badge status-<?= $app['status'] ?>">
-                                                    <?= ucfirst(str_replace('_', ' ', $app['status'])) ?>
+                                                <?php $status = trim($app['status'] ?? '') ?: 'pending'; ?>
+                                                <span class="status-badge status-<?= esc($status) ?>">
+                                                    <?= ucfirst(str_replace('_', ' ', $status)) ?>
                                                 </span>
                                             </td>
                                             <td><?= date('M d, Y', strtotime($app['created_at'])) ?></td>

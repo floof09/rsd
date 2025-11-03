@@ -408,7 +408,8 @@ class AdminApplication extends BaseController
         }
 
         $status = $this->request->getPost('status');
-        $allowed = ['pending', 'pending_for_next_interview', 'for_review', 'hired', 'rejected'];
+        // Removed deprecated 'pending_for_next_interview'
+        $allowed = ['pending', 'for_review', 'hired', 'rejected'];
         if (!in_array($status, $allowed, true)) {
             return redirect()->back()->with('error', 'Invalid status value');
         }
