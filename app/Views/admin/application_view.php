@@ -95,6 +95,12 @@
                         <?php if ($rolePrefix === 'interviewer' && (isset($application['company_name']) && strtoupper($application['company_name']) === 'IGT')): ?>
                             <a class="btn-link" href="<?= base_url('interviewer/applications/' . $application['id'] . '/igt') ?>">➕ IGT Interview</a>
                         <?php endif; ?>
+                        <?php if ($rolePrefix === 'interviewer' && ($application['status'] ?? '') !== 'approved_for_endorsement'): ?>
+                            <form action="<?= base_url('interviewer/applications/' . $application['id'] . '/approve') ?>" method="post" style="display:inline;">
+                                <?php if (function_exists('csrf_field')) { echo csrf_field(); } ?>
+                                <button type="submit" class="btn-link" title="Mark as Approved for Endorsement">✅ Approve for Endorsement</button>
+                            </form>
+                        <?php endif; ?>
                         <?php /* Deprecated quick-set removed: pending_for_next_interview */ ?>
                     </div>
                 </div>

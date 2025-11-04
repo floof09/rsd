@@ -12,12 +12,28 @@ class EmailTest extends BaseController
         }
 
         $to = trim((string) $this->request->getGet('to'));
+        $config = config('Email');
         if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            return redirect()->back()->with('error', 'Provide a valid recipient email via ?to=address@example.com');
+            // Fall back to logged-in user's email or configured sender
+            $to = (string) (session()->get('email') ?: $config->fromEmail ?: $config->SMTPUser ?: '');
+            if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                return redirect()->back()->with('error', 'Provide a valid recipient email via ?to=address@example.com');
+            }
         }
 
-        $email = service('email');
-        $config = config('Email');
+    $email = service('email');
+
+        // Quick sanity check for placeholder values
+        $placeholders = [
+            'yourgmailaddress@gmail.com',
+            'your-app-password-here',
+            'no-reply@example.com'
+        ];
+        $hasPlaceholders = in_array((string)$config->SMTPUser, $placeholders, true)
+            || in_array((string)$config->SMTPPass, $placeholders, true);
+        if ($hasPlaceholders) {
+            return redirect()->back()->with('error', 'SMTP is not configured yet. Update .env: email.SMTPUser, email.SMTPPass (Gmail App Password), and email.fromEmail, then restart Apache.');
+        }
 
         $email->setFrom($config->fromEmail ?: $config->SMTPUser, $config->fromName ?: 'RSD Notifications');
         $email->setTo($to);

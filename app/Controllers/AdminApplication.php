@@ -356,56 +356,78 @@ class AdminApplication extends BaseController
                     $recruiterTo = $data['recruiter_email'] ?? null;
                     if ($recruiterTo) {
                         $subject = 'New Application: ' . $applicantName . ' for ' . $company;
-                        $html = '<p>Hello,</p>'
-                            . '<p>A new application has been submitted by <strong>' . esc($applicantName) . '</strong> for <strong>' . esc($company) . '</strong>.</p>'
-                            . '<ul>'
-                            . '<li>Email: ' . esc($data['email_address'] ?? '') . '</li>'
-                            . '<li>Phone: ' . esc($data['phone_number'] ?? 'N/A') . '</li>'
-                            . '<li>Location: ' . esc(trim(($data['street_address'] ?? '') . ', ' . ($data['barangay'] ?? '') . ', ' . ($data['municipality'] ?? '') . ', ' . ($data['province'] ?? '')), 'html') . '</li>'
-                            . '</ul>'
-                            . '<p>View application:</p>'
-                            . '<p><a href="' . $viewLinkInterviewer . '">Interviewer view</a> | <a href="' . $viewLinkAdmin . '">Admin view</a></p>'
-                            . '<p>— RSD System</p>';
-                        Mailer::send($recruiterTo, $subject, $html, ['log' => true]);
+                        $location = trim(($data['street_address'] ?? '') . ', ' . ($data['barangay'] ?? '') . ', ' . ($data['municipality'] ?? '') . ', ' . ($data['province'] ?? ''));
+                        $html = view('emails/recruiter_notice', [
+                            'applicantName' => $applicantName,
+                            'company' => $company,
+                            'email' => $data['email_address'] ?? '',
+                            'phone' => $data['phone_number'] ?? 'N/A',
+                            'location' => $location,
+                            'linkAdmin' => $viewLinkAdmin,
+                            'linkInterviewer' => $viewLinkInterviewer,
+                        ]);
+                        Mailer::send($recruiterTo, $subject, $html, ['log' => true, 'replyTo' => $data['email_address'] ?? null]);
                     }
 
                     // Acknowledgement to applicant (include schedule if provided)
                     $applicantTo = $data['email_address'] ?? null;
                     if ($applicantTo) {
                         $subjectApplicant = 'We received your application' . ($company ? (' — ' . $company) : '') . ' | RSD';
-                        $scheduleSection = '';
+                        $htmlApplicant = view('emails/applicant_ack', [
+                            'firstName' => $data['first_name'] ?? 'there',
+                            'company' => $company,
+                            'scheduleHuman' => $nextInterview['human'] ?? null,
+                            'notes' => $nextInterview['notes'] ?? null,
+                        ]);
+                        $opts = ['log' => true];
+                        // Attach ICS to applicant too if schedule exists
                         if ($nextInterview) {
-                            $scheduleSection = '<p><strong>Second interview scheduled</strong></p>'
-                                . '<ul>'
-                                . '<li>Date/Time: ' . esc($nextInterview['human'] ?? '') . '</li>'
-                                . (!empty($nextInterview['notes']) ? ('<li>Notes: ' . esc($nextInterview['notes']) . '</li>') : '')
-                                . '</ul>';
+                            $opts['ics'] = [
+                                'summary' => 'Interview — ' . $company,
+                                'description' => 'Interview with ' . $company . ' for ' . $applicantName,
+                                'start' => $nextInterview['datetime'] ?? null,
+                                'end' => null, // default +1h
+                                'organizer' => [
+                                    'name' => trim((session()->get('first_name') . ' ' . session()->get('last_name'))),
+                                    'email' => config('Email')->fromEmail ?: config('Email')->SMTPUser,
+                                ],
+                                'attendees' => [ ['name' => $data['first_name'] ?? 'Applicant', 'email' => $applicantTo] ],
+                            ];
                         }
-                        $htmlApplicant = '<p>Hi ' . esc($data['first_name'] ?? 'there') . ',</p>'
-                            . '<p>Thanks for submitting your application to <strong>' . esc($company) . '</strong>. Your information has been saved.</p>'
-                            . $scheduleSection
-                            . '<p>If you have questions, reply to this email.</p>'
-                            . '<p>— RSD Recruitment</p>';
-                        Mailer::send($applicantTo, $subjectApplicant, $htmlApplicant, ['log' => true]);
+                        Mailer::send($applicantTo, $subjectApplicant, $htmlApplicant, $opts);
                     }
 
                     // Schedule email to another interviewer, if provided
                     if ($nextInterview && !empty($nextInterview['email'])) {
                         $subjectNI = 'Interview scheduled: ' . $applicantName . ' — ' . ($nextInterview['human'] ?? '');
-                        $htmlNI = '<p>Hello,</p>'
-                            . '<p>' . esc(session()->get('first_name') . ' ' . session()->get('last_name')) . ' scheduled an interview for <strong>' . esc($applicantName) . '</strong>.</p>'
-                            . '<ul>'
-                            . '<li>Company: ' . esc($company) . '</li>'
-                            . '<li>Date/Time: ' . esc($nextInterview['human'] ?? '') . '</li>'
-                            . '<li>Applicant Email: ' . esc($data['email_address'] ?? '') . '</li>'
-                            . '<li>Applicant Phone: ' . esc($data['phone_number'] ?? 'N/A') . '</li>'
-                            . '</ul>'
-                            . (!empty($nextInterview['notes']) ? ('<p><strong>Notes:</strong> ' . esc($nextInterview['notes']) . '</p>') : '')
-                            . '<p>View application:</p>'
-                            . '<p><a href="' . $viewLinkInterviewer . '">Interviewer view</a> | <a href="' . $viewLinkAdmin . '">Admin view</a></p>'
-                            . '<p>— RSD System</p>';
+                        $htmlNI = view('emails/interviewer_schedule', [
+                            'scheduledBy' => trim((session()->get('first_name') . ' ' . session()->get('last_name'))),
+                            'applicantName' => $applicantName,
+                            'company' => $company,
+                            'scheduleHuman' => $nextInterview['human'] ?? '',
+                            'notes' => $nextInterview['notes'] ?? null,
+                            'email' => $data['email_address'] ?? '',
+                            'phone' => $data['phone_number'] ?? 'N/A',
+                            'linkAdmin' => $viewLinkAdmin,
+                            'linkInterviewer' => $viewLinkInterviewer,
+                        ]);
                         $opts = ['log' => true];
                         if (!empty($data['recruiter_email'])) { $opts['cc'] = $data['recruiter_email']; }
+                        // Attach ICS invite
+                        $opts['ics'] = [
+                            'summary' => 'Interview — ' . $company . ' — ' . $applicantName,
+                            'description' => 'Interview for ' . $applicantName . ' (' . $company . ')',
+                            'start' => $nextInterview['datetime'] ?? null,
+                            'end' => null,
+                            'organizer' => [
+                                'name' => trim((session()->get('first_name') . ' ' . session()->get('last_name'))),
+                                'email' => config('Email')->fromEmail ?: config('Email')->SMTPUser,
+                            ],
+                            'attendees' => [
+                                ['name' => $applicantName, 'email' => $data['email_address'] ?? ''],
+                                ['name' => 'Interviewer', 'email' => $nextInterview['email']]
+                            ],
+                        ];
                         Mailer::send($nextInterview['email'], $subjectNI, $htmlNI, $opts);
                     }
                 } catch (\Throwable $e) {
@@ -528,8 +550,8 @@ class AdminApplication extends BaseController
         }
 
         $status = $this->request->getPost('status');
-        // Removed deprecated 'pending_for_next_interview'
-        $allowed = ['pending', 'for_review', 'hired', 'rejected'];
+        // Allowed statuses (interviewer-triggered approval uses a dedicated endpoint)
+        $allowed = ['pending', 'for_review', 'hired', 'rejected', 'approved_for_endorsement'];
         if (!in_array($status, $allowed, true)) {
             return redirect()->back()->with('error', 'Invalid status value');
         }
@@ -544,12 +566,122 @@ class AdminApplication extends BaseController
             $applicationModel->update($id, [
                 'status' => $status,
             ]);
+            // Log status change
+            try {
+                $log = new SystemLogModel();
+                $log->logActivity(
+                    'Status Update',
+                    'application',
+                    'Updated application #' . $id . ' to ' . $status,
+                    session()->get('user_id')
+                );
+            } catch (\Throwable $e) {
+                // non-blocking
+            }
         } catch (\Exception $e) {
             log_message('error', 'Status update error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to update status');
         }
 
         return redirect()->back()->with('success', 'Status updated to ' . str_replace('_', ' ', $status));
+    }
+    
+    // ========== Interviewer: Approve for endorsement ==========
+    public function approveForEndorsement($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
+        }
+
+        // Optional: scope so interviewers can only endorse their own candidates
+        if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications/' . $id)->with('error', 'You can only endorse applications you created.');
+        }
+
+        // Require evidence of a second interview step (schedule or IGT Passed)
+        $hasNextInterview = false;
+        $igtPassed = false;
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $hasNextInterview = !empty($decoded['next_interview']) && !empty($decoded['next_interview']['datetime']);
+                if (!empty($decoded['igt']) && is_array($decoded['igt'])) {
+                    $igtPassed = (isset($decoded['igt']['tag_result']) && strtoupper($decoded['igt']['tag_result']) === 'PASSED');
+                }
+            }
+        }
+
+        if (!$hasNextInterview && !$igtPassed) {
+            return redirect()->to('/interviewer/applications/' . $id)
+                ->with('error', 'Please complete the second interview (schedule or IGT with Passed result) before endorsing.');
+        }
+
+        try {
+            $applicationModel->update($id, [ 'status' => 'approved_for_endorsement' ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Approval error: ' . $e->getMessage());
+            return redirect()->to('/interviewer/applications/' . $id)->with('error', 'Failed to set status.');
+        }
+
+        // Log action
+        try {
+            $systemLog = new SystemLogModel();
+            $systemLog->logActivity(
+                'Approved for Endorsement',
+                'application',
+                'Application #' . $id . ' marked as approved for endorsement',
+                session()->get('user_id')
+            );
+        } catch (\Throwable $e) { /* ignore */ }
+
+        // Notify recruiter and applicant
+        try {
+            helper('url');
+            $applicantName = trim(($application['first_name'] ?? '') . ' ' . ($application['last_name'] ?? ''));
+            $company = $application['company_name'] ?? 'Company';
+            $viewLinkAdmin = base_url('admin/applications/' . $id);
+            $viewLinkInterviewer = base_url('interviewer/applications/' . $id);
+
+            // To recruiter (primary)
+            $recruiterTo = $application['recruiter_email'] ?? null;
+            if ($recruiterTo) {
+                $subject = 'Endorsed: ' . $applicantName . ' — ' . $company;
+                $html = view('emails/endorsement_recruiter', [
+                    'applicantName' => $applicantName,
+                    'company' => $company,
+                    'email' => $application['email_address'] ?? '',
+                    'phone' => $application['phone_number'] ?? 'N/A',
+                    'linkAdmin' => $viewLinkAdmin,
+                    'linkInterviewer' => $viewLinkInterviewer,
+                ]);
+                $opts = ['log' => true, 'replyTo' => $application['email_address'] ?? null];
+                // CC the interviewer who endorsed
+                if (session()->get('email')) { $opts['cc'] = session()->get('email'); }
+                \App\Libraries\Mailer::send($recruiterTo, $subject, $html, $opts);
+            }
+
+            // Inform applicant
+            $applicantTo = $application['email_address'] ?? null;
+            if ($applicantTo) {
+                $subjectA = 'You have been endorsed — ' . $company;
+                $htmlA = view('emails/endorsement_applicant', [
+                    'firstName' => $application['first_name'] ?? 'there',
+                    'company' => $company,
+                    'recruiterEmail' => $application['recruiter_email'] ?? null,
+                ]);
+                \App\Libraries\Mailer::send($applicantTo, $subjectA, $htmlA, ['log' => true]);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Endorsement email error: ' . $e->getMessage());
+        }
+
+        return redirect()->to('/interviewer/applications/' . $id)->with('success', 'Marked as Approved for Endorsement and notifications sent.');
     }
     // ========== IGT ADDITIONAL INTERVIEW (Interviewer Only) ==========
     public function igtForm($id)
@@ -655,6 +787,18 @@ class AdminApplication extends BaseController
             $applicationModel->update($id, [
                 'notes' => json_encode($notes),
             ]);
+            // Log IGT save
+            try {
+                $log = new SystemLogModel();
+                $log->logActivity(
+                    'IGT Saved',
+                    'application',
+                    'Saved IGT for application #' . $id . ' (' . ($notes['igt']['program'] ?? 'N/A') . ')',
+                    session()->get('user_id')
+                );
+            } catch (\Throwable $e) {
+                // non-blocking
+            }
         } catch (\Exception $e) {
             log_message('error', 'IGT save error: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Failed to save IGT interview.');
@@ -671,15 +815,13 @@ class AdminApplication extends BaseController
             $to = $application['email_address'] ?? null;
             if ($to) {
                 $subject = 'Your additional interview details — ' . $company;
-                $html = '<p>Hi ' . esc($application['first_name'] ?? 'there') . ',</p>'
-                    . '<p>We updated your additional interview details for <strong>' . esc($company) . '</strong>.</p>'
-                    . '<ul>'
-                    . '<li>Program: ' . esc($notes['igt']['program'] ?? 'N/A') . '</li>'
-                    . '<li>Interview Date: ' . esc($notes['igt']['application_date'] ?? 'TBA') . '</li>'
-                    . '<li>Result/Tag: ' . esc($notes['igt']['tag_result'] ?? 'TBA') . '</li>'
-                    . '</ul>'
-                    . '<p>If you have questions, just reply to this email.</p>'
-                    . '<p>— RSD Recruitment</p>';
+                $html = view('emails/igt_update', [
+                    'firstName' => $application['first_name'] ?? 'there',
+                    'company' => $company,
+                    'program' => $notes['igt']['program'] ?? 'N/A',
+                    'applicationDate' => $notes['igt']['application_date'] ?? 'TBA',
+                    'tagResult' => $notes['igt']['tag_result'] ?? 'TBA',
+                ]);
                 // CC recruiter if available
                 $opts = [];
                 if (!empty($application['recruiter_email'])) {

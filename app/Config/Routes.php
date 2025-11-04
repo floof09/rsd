@@ -31,6 +31,10 @@ $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
 $routes->get('admin/recruiters', 'AdminUsers::activeList');
 // Admin: Email Test
 $routes->get('admin/email/test', 'EmailTest::send');
+// Admin: Reports
+$routes->get('admin/reports', 'Reports::index');
+$routes->get('admin/reports/data', 'Reports::data');
+$routes->get('admin/reports/export', 'Reports::export');
 
 // Interviewer Routes
 $routes->get('interviewer/dashboard', 'InterviewerDashboard::index');
@@ -41,6 +45,8 @@ $routes->get('interviewer/applications/(:num)/resume', 'AdminApplication::resume
 	// IGT additional interview (interviewer only)
 	$routes->get('interviewer/applications/(:num)/igt', 'AdminApplication::igtForm/$1');
 	$routes->post('interviewer/applications/(:num)/igt/save', 'AdminApplication::igtSave/$1');
+// Interviewer: Approve for endorsement
+$routes->post('interviewer/applications/(:num)/approve', 'AdminApplication::approveForEndorsement/$1');
 
 // Geocoding API proxy routes
 $routes->get('api/geocode/reverse', 'Geocode::reverse');

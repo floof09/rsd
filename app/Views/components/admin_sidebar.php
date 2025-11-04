@@ -52,7 +52,14 @@
             </svg>
             <span>System Logs</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="<?= base_url('admin/email/test') ?>" class="nav-item <?= url_is('admin/email/test') ? 'active' : '' ?>">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="5" width="18" height="14" rx="2" ry="2"/>
+                <polyline points="3 7 12 13 21 7"/>
+            </svg>
+            <span>Email Test</span>
+        </a>
+        <a href="<?= base_url('admin/reports') ?>" class="nav-item <?= url_is('admin/reports*') ? 'active' : '' ?>">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <polyline points="12 6 12 12 16 14"/>

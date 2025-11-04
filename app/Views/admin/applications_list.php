@@ -72,6 +72,7 @@
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                                 <option value="for_review">For Review</option>
+                                <option value="approved_for_endorsement">Approved for Endorsement</option>
                             </select>
                         </div>
                     </div>
@@ -99,7 +100,7 @@
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Municipality</th>
-                                        <th>Status</th>
+                                        <th class="status-col">Status</th>
                                         <th>Date Applied</th>
                                         <th>Actions</th>
                                     </tr>
@@ -118,10 +119,21 @@
                                             <td><?= esc($app['email_address']) ?></td>
                                             <td><?= esc($app['phone_number'] ?? 'N/A') ?></td>
                                             <td><?= esc($app['municipality'] ?? 'N/A') ?></td>
-                                            <td>
-                                                <?php $status = trim($app['status'] ?? '') ?: 'pending'; ?>
-                                                <span class="status-badge status-<?= esc($status) ?>">
-                                                    <?= ucfirst(str_replace('_', ' ', $status)) ?>
+                                            <td class="status-col">
+                                                <?php 
+                                                    $status = trim($app['status'] ?? '') ?: 'pending';
+                                                    $labels = [
+                                                        'approved_for_endorsement' => 'Endorsed',
+                                                        'for_review' => 'For Review',
+                                                        'pending' => 'Pending',
+                                                        'approved' => 'Approved',
+                                                        'rejected' => 'Rejected',
+                                                    ];
+                                                    $full = ucfirst(str_replace('_', ' ', $status));
+                                                    $label = $labels[$status] ?? $full;
+                                                ?>
+                                                <span class="status-badge status-<?= esc($status) ?>" title="<?= esc($full) ?>">
+                                                    <?= esc($label) ?>
                                                 </span>
                                             </td>
                                             <td><?= date('M d, Y', strtotime($app['created_at'])) ?></td>

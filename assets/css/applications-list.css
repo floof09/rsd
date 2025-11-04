@@ -167,6 +167,10 @@ tbody td {
     font-weight: 600;
     text-transform: capitalize;
     white-space: nowrap;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .status-pending {
@@ -187,6 +191,16 @@ tbody td {
 .status-for_review {
     background: #dbeafe;
     color: #1e40af;
+}
+
+.status-approved_for_endorsement {
+    background: #dcfce7; /* green-100 */
+    color: #166534;      /* green-700 */
+}
+
+/* Fix status column width to avoid layout shift with longer labels */
+.status-col {
+    width: 160px;
 }
 
 /* pending_for_next_interview removed */

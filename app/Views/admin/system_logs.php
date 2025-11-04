@@ -51,6 +51,7 @@
                                 <option value="application" <?= isset($filter_module) && $filter_module === 'application' ? 'selected' : '' ?>>Applications</option>
                                 <option value="user" <?= isset($filter_module) && $filter_module === 'user' ? 'selected' : '' ?>>Users</option>
                                 <option value="system" <?= isset($filter_module) && $filter_module === 'system' ? 'selected' : '' ?>>System</option>
+                                <option value="email" <?= isset($filter_module) && $filter_module === 'email' ? 'selected' : '' ?>>Email</option>
                             </select>
                         </div>
                         <button class="btn btn-secondary" onclick="window.location.href='<?= base_url('admin/system-logs/clear-old') ?>'">

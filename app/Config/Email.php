@@ -118,6 +118,9 @@ class Email extends BaseConfig
      * Enable notify message from server
      */
     public bool $DSN = false;
+    // Allow using a From address different from the authenticated SMTP user (e.g., Gmail alias)
+    // WARNING: For Gmail, this only works if you've added and verified the alias in Gmail settings.
+    public bool $allowAlias = false;
 
     public function __construct()
     {
@@ -137,6 +140,7 @@ class Email extends BaseConfig
         $this->mailType     = env('email.mailType', 'html');
         $this->charset      = env('email.charset', 'UTF-8');
         $this->validate     = (bool) env('email.validate', false);
+    $this->allowAlias   = (bool) env('email.allowAlias', false);
 
         // If fromEmail isn't set, default to SMTPUser (common for Gmail)
         if (empty($this->fromEmail) && !empty($this->SMTPUser)) {
