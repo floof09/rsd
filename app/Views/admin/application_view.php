@@ -54,21 +54,21 @@
         .status-pending { background:#fef3c7; color:#92400e; }
         .header-flex { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 
-        /* Modal viewer (themed) */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.6); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn .15s ease-out; }
-        .modal { background: var(--white); width: 92vw; max-width: 1100px; height: 90vh; border-radius: 14px; box-shadow: var(--shadow); display:flex; flex-direction: column; overflow: hidden; border:1px solid var(--border); }
-        .modal-header { display:flex; align-items:center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, var(--bg-soft), #fff); }
-        .modal-title { font-weight: 700; color: var(--ink); letter-spacing: .2px; }
-        .modal-actions { display:flex; gap: 8px; align-items:center; }
-        .modal-btn { padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--white); cursor:pointer; font-weight:600; color: var(--ink); transition: all .15s ease; }
-        .modal-btn:hover { background: var(--bg-soft); }
-        .modal-btn.primary { background: linear-gradient(90deg, var(--brand-start), var(--brand-end)); color:#fff; border-color: transparent; }
-        .modal-btn.primary:hover { filter: brightness(.97); }
-        .modal-btn.ghost { background: transparent; border-color: var(--border); }
-        .modal-content { position: relative; flex: 1; background:#111827; }
-        .modal-iframe { width: 100%; height: 100%; border: 0; background:#fff; }
-        .loader { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.85); }
-        .spinner { width:40px; height:40px; border:3px solid #e2e8f0; border-top-color: var(--brand-end); border-radius:50%; animation: spin 1s linear infinite; }
+    /* Resume modal (scoped classes to avoid conflicts) */
+    .resume-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; padding: 24px; background: rgba(17,24,39,0.65); backdrop-filter: blur(2px); display:none; align-items:center; justify-content:center; z-index: 2000; animation: fadeIn .15s ease-out; box-sizing: border-box; }
+    .resume-modal { background: var(--white); width: min(1100px, 96vw); height: min(92vh, 880px); border-radius: 14px; box-shadow: var(--shadow); display:flex; flex-direction: column; overflow: hidden; border:1px solid var(--border); }
+    .resume-header { display:flex; align-items:center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: linear-gradient(90deg, var(--bg-soft), #fff); }
+    .resume-title { font-weight: 700; color: var(--ink); letter-spacing: .2px; }
+    .resume-actions { display:flex; gap: 8px; align-items:center; }
+    .resume-btn { padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--white); cursor:pointer; font-weight:600; color: var(--ink); transition: all .15s ease; }
+    .resume-btn:hover { background: var(--bg-soft); }
+    .resume-btn.primary { background: linear-gradient(90deg, var(--brand-start), var(--brand-end)); color:#fff; border-color: transparent; }
+    .resume-btn.primary:hover { filter: brightness(.97); }
+    .resume-btn.ghost { background: transparent; border-color: var(--border); }
+    .resume-content { position: relative; flex: 1; background:#111827; }
+    .resume-iframe { width: 100%; height: 100%; border: 0; background:#fff; }
+    .resume-loader { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.85); }
+    .resume-spinner { width:40px; height:40px; border:3px solid #e2e8f0; border-top-color: var(--brand-end); border-radius:50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
     </style>
@@ -216,31 +216,31 @@
 </div>
 
 <?= view('components/sidebar_script') ?>
-<div id="resumeOverlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title" id="resumeTitle">Resume Preview</div>
-            <div class="modal-actions">
-                <a id="openNewTabBtn" class="modal-btn ghost" href="#" target="_blank" rel="noopener">Open in new tab</a>
-                <a id="downloadResumeBtn" class="modal-btn" href="#">Download</a>
-                <button id="closeResumeBtn" class="modal-btn primary" onclick="closeResumeModal()">Close</button>
+<div id="resumeOverlay" class="resume-overlay" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
+    <div class="resume-modal">
+        <div class="resume-header">
+            <div class="resume-title" id="resumeTitle">Resume Preview</div>
+            <div class="resume-actions">
+                <a id="openNewTabBtn" class="resume-btn ghost" href="#" target="_blank" rel="noopener">Open in new tab</a>
+                <a id="downloadResumeBtn" class="resume-btn" href="#">Download</a>
+                <button id="closeResumeBtn" class="resume-btn primary" onclick="closeResumeModal()">Close</button>
             </div>
         </div>
-        <div class="modal-content">
-            <div id="resumeLoader" class="loader" aria-hidden="true"><div class="spinner"></div></div>
-            <iframe id="resumeFrame" class="modal-iframe"></iframe>
+        <div class="resume-content">
+            <div id="resumeLoader" class="resume-loader" aria-hidden="true"><div class="resume-spinner"></div></div>
+            <iframe id="resumeFrame" class="resume-iframe"></iframe>
         </div>
     </div>
     
 </div>
 <script>
     (function() {
-        const overlay = document.getElementById('resumeOverlay');
-        const frame = document.getElementById('resumeFrame');
-        const loader = document.getElementById('resumeLoader');
-        const downloadBtn = document.getElementById('downloadResumeBtn');
-        const openTabBtn = document.getElementById('openNewTabBtn');
-        const closeBtn = document.getElementById('closeResumeBtn');
+    const overlay = document.getElementById('resumeOverlay');
+    const frame = document.getElementById('resumeFrame');
+    const loader = document.getElementById('resumeLoader');
+    const downloadBtn = document.getElementById('downloadResumeBtn');
+    const openTabBtn = document.getElementById('openNewTabBtn');
+    const closeBtn = document.getElementById('closeResumeBtn');
     const base = '<?= base_url($rolePrefix . '/applications/' . $application['id']) ?>';
 
         window.openResumeModal = function() {
@@ -265,7 +265,7 @@
         function escHandler(e) { if (e.key === 'Escape') closeResumeModal(); }
 
         // Close when clicking outside the modal
-        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeResumeModal(); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeResumeModal(); });
 
         frame.addEventListener('load', () => { loader.style.display = 'none'; });
     })();
