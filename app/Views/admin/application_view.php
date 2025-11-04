@@ -26,25 +26,30 @@
         .detail-value { font-size: 14px; color: #2d3748; font-weight: 500; word-break: break-word; }
         .section-title { margin: 18px 0 8px; color: #2d3748; font-weight: 700; }
         .toolbar { display:flex; gap: 12px; }
-        /* Refined chip-style buttons */
+        /* Polished chip buttons inspired by modern design systems */
         .action-btn { 
-            display:inline-flex; align-items:center; gap:10px; height:38px; padding:0 16px; 
-            border-radius:9999px; border:1px solid #e5e7eb; background:#ffffff; color:#111827;
-            text-decoration:none; font-weight:600; font-size:14px; letter-spacing:.2px;
-            box-shadow:0 1px 1px rgba(17,24,39,0.04); transition: background .15s ease, border-color .15s ease, transform .08s ease;
+            display:inline-flex; align-items:center; gap:10px; height:40px; padding:0 18px; 
+            border-radius:9999px; border:1px solid #e5e7eb; background:#fff; color:#0f172a;
+            text-decoration:none; font-weight:700; font-size:14px; letter-spacing:.2px;
+            box-shadow: 0 2px 4px rgba(15,23,42,0.04);
+            transition: background .18s ease, border-color .18s ease, transform .08s ease, box-shadow .18s ease;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
-        .action-btn:focus { outline: 3px solid rgba(99,102,241,.35); outline-offset: 2px; }
-        .action-btn:hover { background:#f3f4f6; border-color:#d1d5db; }
+        .action-btn:hover { background:#f8fafc; border-color:#d1d5db; box-shadow: 0 6px 14px rgba(15,23,42,0.08); transform: translateY(-1px); }
+        .action-btn:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(15,23,42,0.06); }
+        .action-btn:focus { outline: none; box-shadow: 0 0 0 4px rgba(99,102,241,.15), 0 2px 6px rgba(15,23,42,0.06); }
         .action-btn .icon-bubble { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; }
         .action-btn .icon-bubble svg { width:14px; height:14px; }
-        .action-btn.ghost .icon-bubble { background:#eef2f7; color:#111827; }
-        .action-btn.solid-accent { border-color:transparent; color:#fff; background: linear-gradient(90deg,#6d28d9,#7c3aed); }
-        .action-btn.solid-accent:hover { filter:brightness(.99); }
-        .action-btn.solid-accent .icon-bubble { background: rgba(255,255,255,.18); color:#fff; }
-        .action-btn.solid-success { border-color:transparent; color:#fff; background: linear-gradient(90deg,#16a34a,#22c55e); }
-        .action-btn.solid-success:hover { filter:brightness(.99); }
-        .action-btn.solid-success .icon-bubble { background: rgba(255,255,255,.18); color:#fff; }
-        .action-btn[disabled], .action-btn[disabled]:hover { opacity:.6; cursor:not-allowed; background:#f4f4f5; border-color:#e5e7eb; }
+        .action-btn.ghost { background:#fff; }
+        .action-btn.ghost .icon-bubble { background:#eef2f7; color:#0f172a; }
+        .action-btn.solid-accent { border-color:transparent; color:#fff; background: linear-gradient(135deg,#5b21b6,#7c3aed 55%, #8b5cf6); }
+        .action-btn.solid-accent .icon-bubble { background: rgba(255,255,255,.22); color:#fff; }
+        .action-btn.solid-success { border-color:transparent; color:#fff; background: linear-gradient(135deg,#16a34a,#22c55e 60%, #34d399); }
+        .action-btn.solid-success .icon-bubble { background: rgba(255,255,255,.22); color:#fff; }
+        .action-btn.solid-accent:hover, .action-btn.solid-success:hover { filter: brightness(.98); box-shadow: 0 10px 20px rgba(15,23,42,0.12); transform: translateY(-1px); }
+        .action-btn[disabled], .action-btn[disabled]:hover { opacity:.6; cursor:not-allowed; background:#f8fafc; border-color:#e5e7eb; box-shadow:none; transform:none; }
         .status-badge { padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: capitalize; display:inline-block; }
         .status-pending { background:#fef3c7; color:#92400e; }
         .header-flex { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
