@@ -618,6 +618,31 @@
     overflow: hidden;
 }
 
+/* Map pane layout: toolbar + map area */
+.map-pane {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.map-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #fff;
+}
+
+.map-toolbar .search-box {
+    flex: 1;
+}
+
+#mapPicker {
+    width: 100%;
+    height: 100%;
+}
+
 .modal-footer {
     display: flex;
     align-items: center;
@@ -666,6 +691,7 @@ input[readonly]:focus {
     color: #e5e7eb;
     border-color: #334155;
 }
+.theme-dark .map-toolbar { background: #111827; border-bottom-color: #1f2937; }
 .theme-dark .form-header { color: #e5e7eb; }
 .theme-dark .form-header p { color: #cbd5e1; }
 .theme-dark .form-group label { color: #e5e7eb; }
