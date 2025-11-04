@@ -158,6 +158,11 @@
             </header>
 
             <div class="dashboard-content">
+                <?php 
+                    // Cache flashdata to avoid multiple reads changing availability
+                    $flashSuccess = session()->getFlashdata('success');
+                    $flashError = session()->getFlashdata('error');
+                ?>
                 <div class="application-form-container">
                     <div class="form-card">
                         <div class="form-header">
@@ -165,15 +170,15 @@
                             <p>Fill in the applicant details below</p>
                         </div>
 
-                        <?php if (session()->getFlashdata('success')): ?>
+                        <?php if (!empty($flashSuccess)): ?>
                             <div class="alert alert-success">
-                                <?= session()->getFlashdata('success') ?>
+                                <?= esc($flashSuccess) ?>
                             </div>
                         <?php endif; ?>
 
-                        <?php if (session()->getFlashdata('error')): ?>
+                        <?php if (!empty($flashError)): ?>
                             <div class="alert alert-error">
-                                <?= session()->getFlashdata('error') ?>
+                                <?= esc($flashError) ?>
                             </div>
                         <?php endif; ?>
 
@@ -184,7 +189,7 @@
                             $birthdateFieldError = session()->getFlashdata('field_error_birthdate');
                             $resumeFieldError = session()->getFlashdata('field_error_resume');
                         ?>
-                        <form action="<?= base_url('admin/application/save') ?>" method="POST" id="applicationForm" enctype="multipart/form-data">
+                        <form action="<?= base_url('admin/application/save') ?>" method="POST" id="applicationForm" enctype="multipart/form-data" autocomplete="off">
                             
                             <!-- Company Selection at Top -->
                             <div class="form-row">
@@ -701,7 +706,7 @@
         }
         // Auto-save and restore form data
         // If previous request succeeded, clear saved data BEFORE attempting to load
-        const submissionSuccess = <?= session()->getFlashdata('success') ? 'true' : 'false' ?>;
+        const submissionSuccess = <?= !empty($flashSuccess) ? 'true' : 'false' ?>;
         if (submissionSuccess) {
             localStorage.removeItem('applicationFormData');
         }

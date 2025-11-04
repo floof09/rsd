@@ -917,13 +917,14 @@ class AdminApplication extends BaseController
         $existing = [];
         if (!empty($application['notes'])) {
             $decoded = json_decode($application['notes'], true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded) && isset($decoded['igt'])) {
-                $existing = $decoded['igt'];
-            }
-            // If IGT already exists, block re-entry to enforce single-interview rule
-            if (!empty($decoded['igt']) || !empty($decoded['next_interview'])) {
-                return redirect()->to('/interviewer/applications/' . $id)
-                    ->with('error', 'An additional interview record already exists for this application.');
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                if (isset($decoded['igt'])) { $existing = $decoded['igt']; }
+                // New rule: IGT is the required second interview. Allow creating IGT
+                // regardless of any scheduled next interview; block only if IGT already exists.
+                if (!empty($decoded['igt'])) {
+                    return redirect()->to('/interviewer/applications/' . $id)
+                        ->with('error', 'IGT already exists for this application.');
+                }
             }
         }
 

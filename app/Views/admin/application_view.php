@@ -25,9 +25,26 @@
         .detail-label { font-size: 12px; color: #718096; margin-bottom: 4px; }
         .detail-value { font-size: 14px; color: #2d3748; font-weight: 500; word-break: break-word; }
         .section-title { margin: 18px 0 8px; color: #2d3748; font-weight: 700; }
-        .toolbar { display:flex; gap: 8px; }
-        .btn-link { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px; background:#fff; color:#2d3748; text-decoration:none; font-weight:500; }
-        .btn-link:hover { background:#f7fafc; }
+        .toolbar { display:flex; gap: 12px; }
+        /* Refined chip-style buttons */
+        .action-btn { 
+            display:inline-flex; align-items:center; gap:10px; height:38px; padding:0 16px; 
+            border-radius:9999px; border:1px solid #e5e7eb; background:#ffffff; color:#111827;
+            text-decoration:none; font-weight:600; font-size:14px; letter-spacing:.2px;
+            box-shadow:0 1px 1px rgba(17,24,39,0.04); transition: background .15s ease, border-color .15s ease, transform .08s ease;
+        }
+        .action-btn:focus { outline: 3px solid rgba(99,102,241,.35); outline-offset: 2px; }
+        .action-btn:hover { background:#f3f4f6; border-color:#d1d5db; }
+        .action-btn .icon-bubble { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; }
+        .action-btn .icon-bubble svg { width:14px; height:14px; }
+        .action-btn.ghost .icon-bubble { background:#eef2f7; color:#111827; }
+        .action-btn.solid-accent { border-color:transparent; color:#fff; background: linear-gradient(90deg,#6d28d9,#7c3aed); }
+        .action-btn.solid-accent:hover { filter:brightness(.99); }
+        .action-btn.solid-accent .icon-bubble { background: rgba(255,255,255,.18); color:#fff; }
+        .action-btn.solid-success { border-color:transparent; color:#fff; background: linear-gradient(90deg,#16a34a,#22c55e); }
+        .action-btn.solid-success:hover { filter:brightness(.99); }
+        .action-btn.solid-success .icon-bubble { background: rgba(255,255,255,.18); color:#fff; }
+        .action-btn[disabled], .action-btn[disabled]:hover { opacity:.6; cursor:not-allowed; background:#f4f4f5; border-color:#e5e7eb; }
         .status-badge { padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: capitalize; display:inline-block; }
         .status-pending { background:#fef3c7; color:#92400e; }
         .header-flex { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -87,27 +104,46 @@
                         <div class="status-badge status-<?= esc($application['status']) ?>"><?= ucfirst(str_replace('_',' ',$application['status'])) ?></div>
                     </div>
                     <div class="toolbar">
-                        <a class="btn-link" href="<?= base_url($rolePrefix . '/applications') ?>">← Back to list</a>
-                        <?php if (!empty($application['resume_path'])): ?>
-                            <button type="button" class="btn-link" onclick="openResumeModal()">📄 View Resume</button>
-                            <a class="btn-link" href="<?= base_url($rolePrefix . '/applications/' . $application['id'] . '/resume?download=1') ?>">⬇️ Download</a>
-                        <?php endif; ?>
+                        <a class="action-btn ghost" href="<?= base_url($rolePrefix . '/applications') ?>" title="Back to list">
+                            <span class="icon-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></span>
+                            <span>Back</span>
+                        </a>
                         <?php 
                             $isIGT = isset($application['company_name']) && strtoupper($application['company_name']) === 'IGT';
                             $notes = $application['decoded_notes'] ?? [];
                             $hasIGT = !empty($notes['igt']);
-                            $hasSecond = !empty($notes['next_interview']);
+                            $hasSecond = !empty($notes['next_interview']) && !empty(($notes['next_interview']['datetime'] ?? null));
+                            $igtPassed = !empty($notes['igt']['tag_result']) && strtoupper($notes['igt']['tag_result']) === 'PASSED';
+                            $canEndorse = (($hasSecond || $igtPassed) && (($application['status'] ?? '') !== 'approved_for_endorsement'));
                         ?>
-                        <?php if ($rolePrefix === 'interviewer' && $isIGT && !$hasIGT && !$hasSecond): ?>
-                            <a class="btn-link" href="<?= base_url('interviewer/applications/' . $application['id'] . '/igt') ?>">➕ IGT Interview</a>
+                        <?php if (!empty($application['resume_path'])): ?>
+                            <button type="button" class="action-btn ghost" onclick="openResumeModal()" title="View resume">
+                                <span class="icon-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                                <span>Resume</span>
+                            </button>
+                        <?php endif; ?>
+                        <?php if ($rolePrefix === 'interviewer' && $isIGT): ?>
+                            <?php if (!$hasIGT): ?>
+                                <a class="action-btn solid-accent" href="<?= base_url('interviewer/applications/' . $application['id'] . '/igt') ?>" title="Add IGT interview">
+                                    <span class="icon-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+                                    <span>IGT</span>
+                                </a>
+                            <?php else: ?>
+                                <button type="button" class="action-btn solid-accent" disabled title="IGT already exists for this application.">
+                                    <span class="icon-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+                                    <span>IGT</span>
+                                </button>
+                            <?php endif; ?>
                         <?php endif; ?>
                         <?php if ($rolePrefix === 'interviewer' && ($application['status'] ?? '') !== 'approved_for_endorsement'): ?>
                             <form action="<?= base_url('interviewer/applications/' . $application['id'] . '/approve') ?>" method="post" style="display:inline;">
                                 <?php if (function_exists('csrf_field')) { echo csrf_field(); } ?>
-                                <button type="submit" class="btn-link" title="Mark as Approved for Endorsement">✅ Approve for Endorsement</button>
+                                <button type="submit" class="action-btn solid-success" title="Approve for Endorsement" <?= $canEndorse ? '' : 'disabled' ?> onclick="return <?= $canEndorse ? 'confirm(\'Endorse this application?\')' : 'false' ?>;">
+                                    <span class="icon-bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                                    <span>Endorse</span>
+                                </button>
                             </form>
                         <?php endif; ?>
-                        <?php /* Deprecated quick-set removed: pending_for_next_interview */ ?>
                     </div>
                 </div>
 
