@@ -92,7 +92,13 @@
                             <button type="button" class="btn-link" onclick="openResumeModal()">📄 View Resume</button>
                             <a class="btn-link" href="<?= base_url($rolePrefix . '/applications/' . $application['id'] . '/resume?download=1') ?>">⬇️ Download</a>
                         <?php endif; ?>
-                        <?php if ($rolePrefix === 'interviewer' && (isset($application['company_name']) && strtoupper($application['company_name']) === 'IGT')): ?>
+                        <?php 
+                            $isIGT = isset($application['company_name']) && strtoupper($application['company_name']) === 'IGT';
+                            $notes = $application['decoded_notes'] ?? [];
+                            $hasIGT = !empty($notes['igt']);
+                            $hasSecond = !empty($notes['next_interview']);
+                        ?>
+                        <?php if ($rolePrefix === 'interviewer' && $isIGT && !$hasIGT && !$hasSecond): ?>
                             <a class="btn-link" href="<?= base_url('interviewer/applications/' . $application['id'] . '/igt') ?>">➕ IGT Interview</a>
                         <?php endif; ?>
                         <?php if ($rolePrefix === 'interviewer' && ($application['status'] ?? '') !== 'approved_for_endorsement'): ?>

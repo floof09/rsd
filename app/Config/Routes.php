@@ -21,6 +21,8 @@ $routes->get('admin/application', 'AdminApplication::index');
 $routes->post('admin/application/save', 'AdminApplication::save');
 $routes->get('admin/applications', 'AdminApplication::list');
 $routes->get('admin/applications/(:num)', 'AdminApplication::show/$1');
+$routes->get('admin/applications/(:num)/edit', 'AdminApplication::edit/$1');
+$routes->post('admin/applications/(:num)/update', 'AdminApplication::update/$1');
 $routes->get('admin/applications/(:num)/resume', 'AdminApplication::resume/$1');
 // Admin: Update status
 $routes->post('admin/applications/(:num)/status', 'AdminApplication::updateStatus/$1');
@@ -41,6 +43,8 @@ $routes->get('interviewer/dashboard', 'InterviewerDashboard::index');
 $routes->get('interviewer/application', 'AdminApplication::index');
 $routes->get('interviewer/applications', 'AdminApplication::interviewerList');
 $routes->get('interviewer/applications/(:num)', 'AdminApplication::show/$1');
+$routes->get('interviewer/applications/(:num)/edit', 'AdminApplication::edit/$1');
+$routes->post('interviewer/applications/(:num)/update', 'AdminApplication::update/$1');
 $routes->get('interviewer/applications/(:num)/resume', 'AdminApplication::resume/$1');
 	// IGT additional interview (interviewer only)
 	$routes->get('interviewer/applications/(:num)/igt', 'AdminApplication::igtForm/$1');

@@ -234,7 +234,7 @@
         }
 
         function editApplication(id) {
-            alert('Edit application #' + id + ' - Feature coming soon!');
+            window.location.href = BASE_URL + ROLE_PREFIX + '/applications/' + id + '/edit';
         }
 
         function deleteApplication(id) {

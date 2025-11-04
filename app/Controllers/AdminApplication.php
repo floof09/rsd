@@ -23,6 +23,224 @@ class AdminApplication extends BaseController
         return view('admin/application_form');
     }
 
+    public function edit($id)
+    {
+        // Admins and interviewers can edit; interviewers only their own
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            $prefix = session()->get('user_type') === 'interviewer' ? 'interviewer' : 'admin';
+            return redirect()->to('/' . $prefix . '/applications')->with('error', 'Application not found');
+        }
+
+        if (session()->get('user_type') === 'interviewer' && (int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications/' . $id)->with('error', 'You can only edit applications you created.');
+        }
+
+        // Decode notes for scheduling/igt checks
+        $application['decoded_notes'] = [];
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $application['decoded_notes'] = $decoded;
+            }
+        }
+
+        return view('admin/application_edit', [ 'application' => $application ]);
+    }
+
+    public function update($id)
+    {
+        // Admins and interviewers can update; interviewers only their own
+        if (!session()->get('isLoggedIn') || !in_array(session()->get('user_type'), ['admin', 'interviewer'])) {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            $prefix = session()->get('user_type') === 'interviewer' ? 'interviewer' : 'admin';
+            return redirect()->to('/' . $prefix . '/applications')->with('error', 'Application not found');
+        }
+        if (session()->get('user_type') === 'interviewer' && (int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications/' . $id)->with('error', 'You can only update applications you created.');
+        }
+
+        // Pre-clean mobile numbers
+        $rawPhone = (string) $this->request->getPost('phone_number');
+        $rawViber = (string) $this->request->getPost('viber_number');
+        $cleanPhone = preg_replace('/\D/', '', $rawPhone);
+        $cleanViber = preg_replace('/\D/', '', $rawViber);
+        if (strpos($cleanPhone, '0') === 0) { $cleanPhone = substr($cleanPhone, 1); }
+        if (strpos($cleanViber, '0') === 0) { $cleanViber = substr($cleanViber, 1); }
+        if (method_exists($this->request, 'setGlobal')) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost(), [
+                'phone_number' => $cleanPhone,
+                'viber_number' => $cleanViber,
+            ]));
+        }
+
+        // Validation rules (same as save)
+        $rules = [
+            'company_name' => 'required|in_list[Everise,IGT]',
+            'first_name' => 'required|min_length[2]|max_length[100]|alpha_space',
+            'last_name' => 'required|min_length[2]|max_length[100]|alpha_space',
+            'email_address' => 'required|valid_email|max_length[255]',
+            'phone_number' => 'permit_empty|regex_match[/^9\d{9}$/]',
+            'viber_number' => 'permit_empty|regex_match[/^9\d{9}$/]',
+            'street_address' => 'permit_empty|max_length[255]',
+            'barangay' => 'permit_empty|max_length[100]',
+            'municipality' => 'permit_empty|max_length[100]',
+            'province' => 'permit_empty|max_length[100]',
+            'birthdate' => 'permit_empty|valid_date',
+            'bpo_experience' => 'permit_empty|max_length[100]',
+            'educational_attainment' => 'permit_empty|max_length[100]',
+            'recruiter_email' => 'required|valid_email|max_length[255]',
+            'next_interviewer_email' => 'permit_empty|valid_email|max_length[255]',
+            'next_interview_datetime' => 'permit_empty',
+            'next_interview_notes' => 'permit_empty|max_length[1000]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors())->with('error', 'Please correct the errors below');
+        }
+
+        // Age check
+        $birthdate = $this->request->getPost('birthdate');
+        if ($birthdate) {
+            try {
+                $birthdateObj = new \DateTime($birthdate);
+                $today = new \DateTime();
+                if ($birthdateObj > $today) {
+                    return redirect()->back()->withInput()->with('error', 'Birthdate cannot be in the future')->with('field_error_birthdate', 'Birthdate cannot be in the future');
+                }
+                if ($today->diff($birthdateObj)->y < 18) {
+                    return redirect()->back()->withInput()->with('error', 'Applicant must be at least 18 years old')->with('field_error_birthdate', 'Applicant must be at least 18 years old');
+                }
+            } catch (\Throwable $e) {
+                return redirect()->back()->withInput()->with('error', 'Invalid birthdate format')->with('field_error_birthdate', 'Invalid birthdate format');
+            }
+        }
+
+        // Handle optional schedule update, but only if none exists yet (respect single-interview rule)
+        $existingNotes = [];
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $existingNotes = $decoded;
+            }
+        }
+        $hasExistingSecond = !empty($existingNotes['next_interview']) || !empty($existingNotes['igt']);
+
+        $nextInterviewerEmail = trim((string) $this->request->getPost('next_interviewer_email'));
+        $nextInterviewDTInput = trim((string) $this->request->getPost('next_interview_datetime'));
+        $nextInterviewNotes   = trim((string) $this->request->getPost('next_interview_notes'));
+        $nextInterview = null;
+
+        if (!$hasExistingSecond && ($nextInterviewerEmail !== '' || $nextInterviewDTInput !== '' || $nextInterviewNotes !== '')) {
+            if ($nextInterviewerEmail === '' || $nextInterviewDTInput === '') {
+                return redirect()->back()->withInput()->with('error', 'To schedule another interview, provide the interviewer email and date/time.');
+            }
+            try {
+                $dt = new \DateTime($nextInterviewDTInput);
+                $iso = $dt->format(DATE_ATOM);
+                $human = $dt->format('M d, Y g:i A');
+                $nextInterview = [
+                    'email' => $nextInterviewerEmail,
+                    'datetime' => $iso,
+                    'human' => $human,
+                    'notes' => $nextInterviewNotes ?: null,
+                    'created_by' => session()->get('user_id'),
+                    'created_at' => date('c'),
+                ];
+            } catch (\Throwable $e) {
+                return redirect()->back()->withInput()->with('error', 'Invalid date/time for the next interview.');
+            }
+        }
+
+        // Prepare update data
+        $data = [
+            'company_name' => esc($this->request->getPost('company_name')),
+            'first_name' => esc(trim($this->request->getPost('first_name'))),
+            'last_name' => esc(trim($this->request->getPost('last_name'))),
+            'email_address' => filter_var($this->request->getPost('email_address'), FILTER_SANITIZE_EMAIL),
+            'phone_number' => (function () {
+                $raw = (string) $this->request->getPost('phone_number');
+                $digits = preg_replace('/\D/', '', $raw ?? '');
+                if ($digits === '') { return null; }
+                if (strpos($digits, '63') === 0) { $digits = substr($digits, 2); }
+                if (strpos($digits, '0') === 0) { $digits = substr($digits, 1); }
+                return '+63' . $digits;
+            })(),
+            'viber_number' => (function () {
+                $raw = (string) $this->request->getPost('viber_number');
+                $digits = preg_replace('/\D/', '', $raw ?? '');
+                if ($digits === '') { return null; }
+                if (strpos($digits, '63') === 0) { $digits = substr($digits, 2); }
+                if (strpos($digits, '0') === 0) { $digits = substr($digits, 1); }
+                return '+63' . $digits;
+            })(),
+            'street_address' => esc(trim($this->request->getPost('street_address'))),
+            'barangay' => esc(trim($this->request->getPost('barangay'))),
+            'municipality' => esc(trim($this->request->getPost('municipality'))),
+            'province' => esc(trim($this->request->getPost('province'))),
+            'birthdate' => $birthdate,
+            'bpo_experience' => esc(trim($this->request->getPost('bpo_experience'))),
+            'educational_attainment' => esc(trim($this->request->getPost('educational_attainment'))),
+            'recruiter_email' => filter_var($this->request->getPost('recruiter_email'), FILTER_SANITIZE_EMAIL),
+        ];
+
+        // Merge notes for new schedule if applicable
+        if ($nextInterview) {
+            $existingNotes['next_interview'] = $nextInterview;
+            $data['notes'] = json_encode($existingNotes);
+        }
+
+        // Handle resume replacement (optional)
+        $resume = $this->request->getFile('resume');
+        if ($resume && $resume->isValid() && !$resume->hasMoved()) {
+            $allowedMimeTypes = ['application/pdf'];
+            $fileMimeType = $resume->getMimeType();
+            if (!in_array($fileMimeType, $allowedMimeTypes)) {
+                return redirect()->back()->withInput()->with('error', 'Only PDF files are allowed for resume')->with('field_error_resume', 'Only PDF files are allowed');
+            }
+            if (strtolower($resume->getExtension()) !== 'pdf') {
+                return redirect()->back()->withInput()->with('error', 'Only PDF files are allowed for resume')->with('field_error_resume', 'Only PDF files are allowed');
+            }
+            if ($resume->getSize() > 5 * 1024 * 1024) {
+                return redirect()->back()->withInput()->with('error', 'Resume file size must not exceed 5MB')->with('field_error_resume', 'File size must not exceed 5MB');
+            }
+            $safeName = $resume->getRandomName();
+            $uploadPath = WRITEPATH . 'uploads/resumes';
+            if (!is_dir($uploadPath)) { mkdir($uploadPath, 0755, true); }
+            try {
+                $resume->move($uploadPath, $safeName);
+                $data['resume_path'] = 'writable/uploads/resumes/' . $safeName;
+            } catch (\Throwable $e) {
+                return redirect()->back()->withInput()->with('error', 'Failed to upload resume file')->with('field_error_resume', 'Upload failed');
+            }
+        }
+
+        try {
+            $applicationModel->update($id, $data);
+            // Log update
+            try {
+                $log = new SystemLogModel();
+                $log->logActivity('Application Updated', 'application', 'Updated application #' . $id, session()->get('user_id'));
+            } catch (\Throwable $e) { /* ignore */ }
+        } catch (\Throwable $e) {
+            log_message('error', 'Application update error: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to update application');
+        }
+
+        $prefix = session()->get('user_type') === 'interviewer' ? 'interviewer' : 'admin';
+        return redirect()->to('/' . $prefix . '/applications/' . $id)->with('success', 'Application updated successfully.');
+    }
+
     public function save()
     {
         // Only interviewers can submit the application form
@@ -701,6 +919,11 @@ class AdminApplication extends BaseController
             $decoded = json_decode($application['notes'], true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded) && isset($decoded['igt'])) {
                 $existing = $decoded['igt'];
+            }
+            // If IGT already exists, block re-entry to enforce single-interview rule
+            if (!empty($decoded['igt']) || !empty($decoded['next_interview'])) {
+                return redirect()->to('/interviewer/applications/' . $id)
+                    ->with('error', 'An additional interview record already exists for this application.');
             }
         }
 
