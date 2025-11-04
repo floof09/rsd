@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ApplicationModel;
 use App\Models\SystemLogModel;
+use App\Libraries\Mailer;
 
 class AdminApplication extends BaseController
 {
@@ -147,7 +148,24 @@ class AdminApplication extends BaseController
                     'valid_email' => 'Please enter a valid recruiter email address',
                     'max_length' => 'Recruiter email is too long'
                 ]
-            ]
+            ],
+            // Optional scheduling for another interviewer
+            'next_interviewer_email' => [
+                'rules' => 'permit_empty|valid_email|max_length[255]',
+                'errors' => [
+                    'valid_email' => 'Please enter a valid interviewer email address',
+                    'max_length' => 'Email is too long'
+                ]
+            ],
+            'next_interview_datetime' => [
+                'rules' => 'permit_empty', // will be parsed with DateTime below for extra validation
+            ],
+            'next_interview_notes' => [
+                'rules' => 'permit_empty|max_length[1000]',
+                'errors' => [
+                    'max_length' => 'Notes are too long'
+                ]
+            ],
         ];
 
         // Validate input
@@ -191,6 +209,34 @@ class AdminApplication extends BaseController
             }
         }
 
+        // Validate/normalize next interview schedule
+        $nextInterviewerEmail = trim((string) $this->request->getPost('next_interviewer_email'));
+        $nextInterviewDTInput = trim((string) $this->request->getPost('next_interview_datetime'));
+        $nextInterviewNotes   = trim((string) $this->request->getPost('next_interview_notes'));
+        $nextInterview = null;
+        if ($nextInterviewerEmail !== '' || $nextInterviewDTInput !== '' || $nextInterviewNotes !== '') {
+            // If any scheduling fields provided, require at least email + datetime to proceed with scheduling
+            if ($nextInterviewerEmail === '' || $nextInterviewDTInput === '') {
+                return redirect()->back()->withInput()->with('error', 'To schedule another interview, provide the interviewer email and date/time.');
+            }
+            try {
+                // HTML datetime-local is like 2025-11-04T14:30
+                $dt = new \DateTime($nextInterviewDTInput);
+                $iso = $dt->format(DATE_ATOM); // ISO8601 with timezone
+                $human = $dt->format('M d, Y g:i A');
+                $nextInterview = [
+                    'email' => $nextInterviewerEmail,
+                    'datetime' => $iso,
+                    'human' => $human,
+                    'notes' => $nextInterviewNotes ?: null,
+                    'created_by' => session()->get('user_id'),
+                    'created_at' => date('c'),
+                ];
+            } catch (\Throwable $e) {
+                return redirect()->back()->withInput()->with('error', 'Invalid date/time for the next interview.');
+            }
+        }
+
         // Sanitize inputs (protect against XSS)
         $data = [
             'company_name' => esc($this->request->getPost('company_name')),
@@ -227,6 +273,11 @@ class AdminApplication extends BaseController
             'interviewed_by' => session()->get('user_id'),
             'status' => 'pending',
         ];
+
+        // Include notes payload for next interview if provided
+        if ($nextInterview) {
+            $data['notes'] = json_encode(['next_interview' => $nextInterview]);
+        }
 
         // Handle file upload with strict validation
         $resume = $this->request->getFile('resume');
@@ -292,6 +343,75 @@ class AdminApplication extends BaseController
                     'Created application for ' . $data['first_name'] . ' ' . $data['last_name'] . ' (ID: ' . $applicationId . ')',
                     session()->get('user_id')
                 );
+
+                // Fire-and-forget email notifications (errors are logged but won't block the flow)
+                try {
+                    helper('url');
+                    $applicantName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+                    $company = $data['company_name'] ?? 'Company';
+                    $viewLinkAdmin = base_url('admin/applications/' . $applicationId);
+                    $viewLinkInterviewer = base_url('interviewer/applications/' . $applicationId);
+
+                    // Email to recruiter
+                    $recruiterTo = $data['recruiter_email'] ?? null;
+                    if ($recruiterTo) {
+                        $subject = 'New Application: ' . $applicantName . ' for ' . $company;
+                        $html = '<p>Hello,</p>'
+                            . '<p>A new application has been submitted by <strong>' . esc($applicantName) . '</strong> for <strong>' . esc($company) . '</strong>.</p>'
+                            . '<ul>'
+                            . '<li>Email: ' . esc($data['email_address'] ?? '') . '</li>'
+                            . '<li>Phone: ' . esc($data['phone_number'] ?? 'N/A') . '</li>'
+                            . '<li>Location: ' . esc(trim(($data['street_address'] ?? '') . ', ' . ($data['barangay'] ?? '') . ', ' . ($data['municipality'] ?? '') . ', ' . ($data['province'] ?? '')), 'html') . '</li>'
+                            . '</ul>'
+                            . '<p>View application:</p>'
+                            . '<p><a href="' . $viewLinkInterviewer . '">Interviewer view</a> | <a href="' . $viewLinkAdmin . '">Admin view</a></p>'
+                            . '<p>— RSD System</p>';
+                        Mailer::send($recruiterTo, $subject, $html, ['log' => true]);
+                    }
+
+                    // Acknowledgement to applicant (include schedule if provided)
+                    $applicantTo = $data['email_address'] ?? null;
+                    if ($applicantTo) {
+                        $subjectApplicant = 'We received your application' . ($company ? (' — ' . $company) : '') . ' | RSD';
+                        $scheduleSection = '';
+                        if ($nextInterview) {
+                            $scheduleSection = '<p><strong>Second interview scheduled</strong></p>'
+                                . '<ul>'
+                                . '<li>Date/Time: ' . esc($nextInterview['human'] ?? '') . '</li>'
+                                . (!empty($nextInterview['notes']) ? ('<li>Notes: ' . esc($nextInterview['notes']) . '</li>') : '')
+                                . '</ul>';
+                        }
+                        $htmlApplicant = '<p>Hi ' . esc($data['first_name'] ?? 'there') . ',</p>'
+                            . '<p>Thanks for submitting your application to <strong>' . esc($company) . '</strong>. Your information has been saved.</p>'
+                            . $scheduleSection
+                            . '<p>If you have questions, reply to this email.</p>'
+                            . '<p>— RSD Recruitment</p>';
+                        Mailer::send($applicantTo, $subjectApplicant, $htmlApplicant, ['log' => true]);
+                    }
+
+                    // Schedule email to another interviewer, if provided
+                    if ($nextInterview && !empty($nextInterview['email'])) {
+                        $subjectNI = 'Interview scheduled: ' . $applicantName . ' — ' . ($nextInterview['human'] ?? '');
+                        $htmlNI = '<p>Hello,</p>'
+                            . '<p>' . esc(session()->get('first_name') . ' ' . session()->get('last_name')) . ' scheduled an interview for <strong>' . esc($applicantName) . '</strong>.</p>'
+                            . '<ul>'
+                            . '<li>Company: ' . esc($company) . '</li>'
+                            . '<li>Date/Time: ' . esc($nextInterview['human'] ?? '') . '</li>'
+                            . '<li>Applicant Email: ' . esc($data['email_address'] ?? '') . '</li>'
+                            . '<li>Applicant Phone: ' . esc($data['phone_number'] ?? 'N/A') . '</li>'
+                            . '</ul>'
+                            . (!empty($nextInterview['notes']) ? ('<p><strong>Notes:</strong> ' . esc($nextInterview['notes']) . '</p>') : '')
+                            . '<p>View application:</p>'
+                            . '<p><a href="' . $viewLinkInterviewer . '">Interviewer view</a> | <a href="' . $viewLinkAdmin . '">Admin view</a></p>'
+                            . '<p>— RSD System</p>';
+                        $opts = ['log' => true];
+                        if (!empty($data['recruiter_email'])) { $opts['cc'] = $data['recruiter_email']; }
+                        Mailer::send($nextInterview['email'], $subjectNI, $htmlNI, $opts);
+                    }
+                } catch (\Throwable $e) {
+                    // Log but do not interrupt the user flow
+                    log_message('error', 'Post-save email notifications failed: ' . $e->getMessage());
+                }
                 
                 return redirect()->back()->with('success', 'Application saved successfully!');
             } else {
@@ -542,6 +662,34 @@ class AdminApplication extends BaseController
 
         // Optional: update status if desired (commented out)
         // $applicationModel->update($id, ['status' => 'for_review']);
+
+        // Notify applicant about the scheduled/updated IGT interview details (non-blocking)
+        try {
+            helper('url');
+            $company = $application['company_name'] ?? 'Company';
+            $applicantName = trim(($application['first_name'] ?? '') . ' ' . ($application['last_name'] ?? ''));
+            $to = $application['email_address'] ?? null;
+            if ($to) {
+                $subject = 'Your additional interview details — ' . $company;
+                $html = '<p>Hi ' . esc($application['first_name'] ?? 'there') . ',</p>'
+                    . '<p>We updated your additional interview details for <strong>' . esc($company) . '</strong>.</p>'
+                    . '<ul>'
+                    . '<li>Program: ' . esc($notes['igt']['program'] ?? 'N/A') . '</li>'
+                    . '<li>Interview Date: ' . esc($notes['igt']['application_date'] ?? 'TBA') . '</li>'
+                    . '<li>Result/Tag: ' . esc($notes['igt']['tag_result'] ?? 'TBA') . '</li>'
+                    . '</ul>'
+                    . '<p>If you have questions, just reply to this email.</p>'
+                    . '<p>— RSD Recruitment</p>';
+                // CC recruiter if available
+                $opts = [];
+                if (!empty($application['recruiter_email'])) {
+                    $opts['cc'] = $application['recruiter_email'];
+                }
+                Mailer::send($to, $subject, $html, $opts);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'IGT email notification failed: ' . $e->getMessage());
+        }
 
         return redirect()->to('/interviewer/applications/' . $id)->with('success', 'IGT interview saved.');
     }

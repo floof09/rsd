@@ -1,5 +1,5 @@
 <aside class="sidebar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()">
+    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-pressed="false">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -36,7 +36,7 @@
             </svg>
             <span>All Applications</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="<?= base_url('admin/recruiters') ?>" class="nav-item <?= url_is('admin/recruiters*') ? 'active' : '' ?>">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>

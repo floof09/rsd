@@ -152,11 +152,6 @@
             <header class="top-bar">
                 <h1>Application Form</h1>
                 <div class="user-info" style="gap:8px;">
-                    <button id="themeBtn" class="theme-toggle" type="button" aria-pressed="false" aria-label="Toggle theme">
-                        <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                        <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                        Theme
-                    </button>
                     <span>Welcome, <?= esc(session()->get('first_name')) ?> <?= esc(session()->get('last_name')) ?></span>
                     <div class="user-avatar"><?= strtoupper(substr(session()->get('first_name'), 0, 1)) ?></div>
                 </div>
@@ -394,10 +389,35 @@
                                 <?php endif; ?>
                             </div>
 
+                            <!-- Optional: Schedule another interview -->
+                            <div class="form-section" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
+                                <h3 style="margin:0 0 12px; font-size:16px; color:#2d3748;">Schedule another interview (optional)</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="next_interviewer_email">Interviewer Email</label>
+                                        <input type="email" id="next_interviewer_email" name="next_interviewer_email" value="<?= old('next_interviewer_email') ?>" placeholder="colleague@gmail.com">
+                                        <?php if (!empty($errors['next_interviewer_email'])): ?>
+                                            <div class="field-error"><?= esc($errors['next_interviewer_email']) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="next_interview_datetime">Interview Date & Time</label>
+                                        <input type="datetime-local" id="next_interview_datetime" name="next_interview_datetime" value="<?= old('next_interview_datetime') ?>">
+                                        <?php if (!empty($errors['next_interview_datetime'])): ?>
+                                            <div class="field-error"><?= esc($errors['next_interview_datetime']) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label for="next_interview_notes">Notes for the interviewer</label>
+                                        <textarea id="next_interview_notes" name="next_interview_notes" rows="3" placeholder="Anything the interviewer should know..."><?= old('next_interview_notes') ?></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">Save Entry</button>
-                                <button type="button" class="btn btn-secondary" onclick="downloadCSV()">Download CSV</button>
-                                <button type="button" class="btn btn-primary" onclick="emailInfo()">Email This Info</button>
                                 <button type="button" class="btn btn-outline" onclick="clearFormData()">Clear Form</button>
                             </div>
                         </form>
@@ -779,43 +799,7 @@
             filePreview.style.display = 'none';
         }
 
-        function downloadCSV() {
-            const form = document.getElementById('applicationForm');
-            const formData = new FormData(form);
-            
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Field,Value\n";
-            
-            for (let [key, value] of formData.entries()) {
-                if (key !== 'resume') {
-                    csvContent += `"${key}","${value}"\n`;
-                }
-            }
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "application_data.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function emailInfo() {
-            const recruiterEmail = document.getElementById('recruiter_email').value;
-            if (!recruiterEmail) {
-                alert('Please enter a recruiter email address');
-                return;
-            }
-            
-            const form = document.getElementById('applicationForm');
-            // Final sanitize before submit to avoid any stray spaces from auto-fill/localStorage
-            const pn = document.getElementById('phone_number');
-            const vn = document.getElementById('viber_number');
-            if (pn) sanitizeMobile(pn);
-            if (vn) sanitizeMobile(vn);
-            form.submit();
-        }
+        // (downloadCSV and emailInfo removed — no longer used)
 
         // Sanitize mobile numbers: keep digits only, drop leading zero, enforce max 10, must start with 9
         function sanitizeMobile(el) {

@@ -1,5 +1,5 @@
 (function(){
-  // Theme toggle
+  // Theme toggle (temporarily disabled: force light theme for all users)
   const btn = document.getElementById('themeBtn');
   const sun = document.getElementById('sunIcon');
   const moon = document.getElementById('moonIcon');
@@ -13,15 +13,13 @@
     if (moon) moon.style.display = dark ? '' : 'none';
   }
 
-  const preferred = localStorage.getItem(key) || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  applyTheme(preferred);
-
+  // Force light theme and remove preference
+  localStorage.removeItem(key);
+  applyTheme('light');
   if (btn) {
-    btn.addEventListener('click', ()=>{
-      const next = document.body.classList.contains('theme-dark') ? 'light' : 'dark';
-      localStorage.setItem(key, next);
-      applyTheme(next);
-    });
+    // Hide/disable the control entirely for now
+    btn.style.display = 'none';
+    btn.disabled = true;
   }
 
   // Sidebar toggle (no inline handlers)

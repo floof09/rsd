@@ -27,6 +27,10 @@ $routes->post('admin/applications/(:num)/status', 'AdminApplication::updateStatu
 $routes->get('admin/system-logs', 'SystemLogs::index');
 $routes->get('admin/system-logs/filter/(:any)', 'SystemLogs::filterByModule/$1');
 $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
+// Admin: Recruiters/Users
+$routes->get('admin/recruiters', 'AdminUsers::activeList');
+// Admin: Email Test
+$routes->get('admin/email/test', 'EmailTest::send');
 
 // Interviewer Routes
 $routes->get('interviewer/dashboard', 'InterviewerDashboard::index');

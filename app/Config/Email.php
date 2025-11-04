@@ -118,4 +118,29 @@ class Email extends BaseConfig
      * Enable notify message from server
      */
     public bool $DSN = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Pull from .env with sensible Gmail-friendly defaults
+        $this->fromEmail    = env('email.fromEmail', $this->fromEmail);
+        $this->fromName     = env('email.fromName', $this->fromName ?: 'RSD Notifications');
+        $this->protocol     = env('email.protocol', 'smtp');
+        $this->SMTPHost     = env('email.SMTPHost', 'smtp.gmail.com');
+        $this->SMTPUser     = env('email.SMTPUser', $this->SMTPUser);
+        $this->SMTPPass     = env('email.SMTPPass', $this->SMTPPass);
+        $this->SMTPPort     = (int) env('email.SMTPPort', 587);
+        $this->SMTPTimeout  = (int) env('email.SMTPTimeout', 15);
+        $this->SMTPKeepAlive = (bool) env('email.SMTPKeepAlive', false);
+        $this->SMTPCrypto   = env('email.SMTPCrypto', 'tls');
+        $this->mailType     = env('email.mailType', 'html');
+        $this->charset      = env('email.charset', 'UTF-8');
+        $this->validate     = (bool) env('email.validate', false);
+
+        // If fromEmail isn't set, default to SMTPUser (common for Gmail)
+        if (empty($this->fromEmail) && !empty($this->SMTPUser)) {
+            $this->fromEmail = $this->SMTPUser;
+        }
+    }
 }

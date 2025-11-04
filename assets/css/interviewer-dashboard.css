@@ -75,6 +75,9 @@ body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui
 .interviewer-dashboard .theme-toggle{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background: var(--card); color:var(--ink); cursor:pointer; font-weight:700; transition: all .15s ease; }
 .interviewer-dashboard .theme-toggle:hover{ background: linear-gradient(90deg, rgba(245,158,11,.06), rgba(99,102,241,.06)); }
 
+/* Temporarily hide theme toggle control across the app */
+.theme-toggle{ display:none !important; }
+
 /* Dark theme fixes for legacy light styles */
 .theme-dark .interviewer-dashboard .top-bar{
   background: var(--card);
