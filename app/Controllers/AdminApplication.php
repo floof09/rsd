@@ -195,8 +195,45 @@ class AdminApplication extends BaseController
         ];
 
         // Merge notes for new schedule if applicable
+        $notesChanged = false;
         if ($nextInterview) {
             $existingNotes['next_interview'] = $nextInterview;
+            $notesChanged = true;
+        }
+
+        // Apply IGT edits if present in the edit form
+        if ($this->request->getPost('igt_present')) {
+            $newIgt = [
+                'candidate' => trim(($application['first_name'] ?? '') . ' ' . ($application['last_name'] ?? '')) ?: null,
+                'program' => trim((string) $this->request->getPost('igt_program')) ?: null,
+                'application_date' => $this->request->getPost('igt_application_date') ?: null,
+                'tag_result' => $this->request->getPost('igt_tag_result') ?: null,
+                'interviewer_name' => trim((string) ($this->request->getPost('igt_interviewer_name') ?: ($existingNotes['igt']['interviewer_name'] ?? ''))) ?: null,
+                'basic_checkpoints' => trim((string) $this->request->getPost('igt_basic_checkpoints')) ?: null,
+                'opportunity' => trim((string) $this->request->getPost('igt_opportunity')) ?: null,
+                'availability' => trim((string) $this->request->getPost('igt_availability')) ?: null,
+                'validated_source' => $this->request->getPost('igt_validated_source') ?: null,
+                'shift_preference' => $existingNotes['igt']['shift_preference'] ?? null,
+                'work_preference' => $existingNotes['igt']['work_preference'] ?? null,
+                'expected_salary' => $this->request->getPost('igt_expected_salary') !== '' ? (float) $this->request->getPost('igt_expected_salary') : ($existingNotes['igt']['expected_salary'] ?? null),
+                'on_hold_salary' => $this->request->getPost('igt_on_hold_salary') !== '' ? (float) $this->request->getPost('igt_on_hold_salary') : ($existingNotes['igt']['on_hold_salary'] ?? null),
+                'pending_applications' => $this->request->getPost('igt_pending_applications') ?: null,
+                'current_location' => trim((string) $this->request->getPost('igt_current_location')) ?: null,
+                'commute' => trim((string) $this->request->getPost('igt_commute')) ?: null,
+                'govt_numbers' => trim((string) $this->request->getPost('igt_govt_numbers')) ?: null,
+                'education' => trim((string) $this->request->getPost('igt_education')) ?: null,
+                'work_experience' => trim((string) $this->request->getPost('igt_work_experience')) ?: null,
+                'communication' => $this->request->getPost('igt_communication') ?: null,
+                'updated_by' => session()->get('user_id'),
+                'updated_at' => date('c'),
+            ];
+            $existingNotes['igt'] = array_merge($existingNotes['igt'] ?? [], $newIgt);
+            $notesChanged = true;
+
+            // If IGT tag_result becomes Passed, keep existing endorsement flow logic intact (no direct status change here)
+        }
+
+        if ($notesChanged) {
             $data['notes'] = json_encode($existingNotes);
         }
 
@@ -227,10 +264,13 @@ class AdminApplication extends BaseController
 
         try {
             $applicationModel->update($id, $data);
-            // Log update
+            // Log update and optionally IGT update
             try {
                 $log = new SystemLogModel();
                 $log->logActivity('Application Updated', 'application', 'Updated application #' . $id, session()->get('user_id'));
+                if ($this->request->getPost('igt_present')) {
+                    $log->logActivity('IGT Updated', 'application', 'Updated IGT for application #' . $id, session()->get('user_id'));
+                }
             } catch (\Throwable $e) { /* ignore */ }
         } catch (\Throwable $e) {
             log_message('error', 'Application update error: ' . $e->getMessage());
@@ -680,7 +720,26 @@ class AdminApplication extends BaseController
         }
 
         $applicationModel = new ApplicationModel();
-        $data['applications'] = $applicationModel->findAll();
+        $apps = $applicationModel->orderBy('created_at', 'DESC')->findAll();
+
+        // Map interviewer IDs to names/emails
+        $interviewers = [];
+        $ids = [];
+        foreach ($apps as $a) {
+            if (!empty($a['interviewed_by'])) { $ids[(int)$a['interviewed_by']] = true; }
+        }
+        if (!empty($ids)) {
+            $userModel = new \App\Models\UserModel();
+            $rows = $userModel->whereIn('id', array_keys($ids))->findAll();
+            foreach ($rows as $u) {
+                $label = trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? ''));
+                $email = $u['email'] ?? '';
+                $interviewers[(int)$u['id']] = $label !== '' ? ($label . ' (' . $email . ')') : $email;
+            }
+        }
+
+        $data['applications'] = $apps;
+        $data['interviewers'] = $interviewers;
 
         return view('admin/applications_list', $data);
     }
@@ -693,11 +752,14 @@ class AdminApplication extends BaseController
         }
 
         $applicationModel = new ApplicationModel();
-        $data['applications'] = $applicationModel
+        $apps = $applicationModel
             ->where('interviewed_by', session()->get('user_id'))
             ->orderBy('created_at', 'DESC')
             ->findAll();
-
+        $data['applications'] = $apps;
+        $label = trim((session()->get('first_name') . ' ' . session()->get('last_name')));
+        $email = session()->get('email');
+        $data['interviewers'] = [ (int)session()->get('user_id') => ($label ? ($label . ' (' . $email . ')') : $email) ];
         return view('admin/applications_list', $data);
     }
 
@@ -713,6 +775,13 @@ class AdminApplication extends BaseController
 
         if (!$application) {
             return redirect()->to('/admin/applications')->with('error', 'Application not found');
+        }
+
+        // Ownership check: interviewers can only view their own applications
+        if (session()->get('user_type') === 'interviewer') {
+            if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+                return redirect()->to('/interviewer/applications')->with('error', 'You can only view your own applications.');
+            }
         }
 
         // Decode notes JSON for any stage data (e.g., IGT interview)
@@ -739,6 +808,13 @@ class AdminApplication extends BaseController
 
         if (!$application || empty($application['resume_path'])) {
             return redirect()->to('/admin/applications')->with('error', 'Resume not found');
+        }
+
+        // Ownership check for interviewers
+        if (session()->get('user_type') === 'interviewer') {
+            if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+                return redirect()->to('/interviewer/applications')->with('error', 'You can only access resumes for your own applications.');
+            }
         }
 
         // Build the absolute path and ensure it stays within WRITEPATH/uploads/resumes for safety
@@ -914,6 +990,11 @@ class AdminApplication extends BaseController
             return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
         }
 
+        // Ownership check: interviewer may only add IGT to their own applications
+        if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications')->with('error', 'You can only add IGT to applications you created.');
+        }
+
         $existing = [];
         if (!empty($application['notes'])) {
             $decoded = json_decode($application['notes'], true);
@@ -944,6 +1025,11 @@ class AdminApplication extends BaseController
         $application = $applicationModel->find($id);
         if (!$application) {
             return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
+        }
+
+        // Ownership check
+        if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications')->with('error', 'You can only update IGT for applications you created.');
         }
 
         // Basic validation for IGT fields

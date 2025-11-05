@@ -11,6 +11,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Leaflet for map picker -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        /* Modernize edit page visuals */
+        .form-card.card { border:1px solid #e5e7eb; border-radius:12px; box-shadow:0 2px 6px rgba(15,23,42,0.04); }
+        .form-header p { color:#64748b; margin-top:4px; }
+        .section-title { margin:0 0 12px; font-size:16px; color:#0f172a; font-weight:700; }
+        .form-row { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px 20px; }
+        .form-row .form-group.full-width { grid-column: 1 / -1; }
+        .form-group label { font-size:13px; color:#334155; font-weight:600; margin-bottom:6px; display:block; }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="date"],
+        .form-group input[type="datetime-local"],
+        .form-group input[type="tel"],
+        .form-group select,
+        .form-group textarea { width:100%; padding:10px 12px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; color:#0f172a; outline:none; transition:border-color .15s ease, box-shadow .15s ease; }
+        .form-group textarea { resize:vertical; }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { border-color:#c7d2fe; box-shadow:0 0 0 3px rgba(99,102,241,.2); }
+        .form-section.card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(15,23,42,0.03); }
+        .hint { color:#94a3b8; font-size:12px; margin-top:6px; }
+        .btn { cursor:pointer; }
+
+        /* (Reverted) Use default button styles for resume actions to match prior design */
+    </style>
 </head>
 <body>
 <?php 
@@ -45,7 +70,7 @@
 
         <div class="dashboard-content">
             <div class="application-form-container">
-                <div class="form-card">
+                <div class="form-card card">
                     <div class="form-header" style="margin-bottom:12px;">
                         <h2>Update Applicant Details</h2>
                         <p>Make changes and save. Status updates are handled separately.</p>
@@ -57,7 +82,7 @@
                     <?php if (session()->getFlashdata('error')): ?>
                         <div class="alert alert-error"><?= esc(session()->getFlashdata('error')) ?></div>
                     <?php endif; ?>
-                    <?php $errors = session()->getFlashdata('errors') ?? []; ?>
+                    <?php $errors = session()->getFlashdata('errors') ?? []; $resumeFieldError = session()->getFlashdata('field_error_resume'); ?>
 
                     <form action="<?= base_url($rolePrefix . '/applications/' . $a['id'] . '/update') ?>" method="POST" enctype="multipart/form-data">
                         <?php if (function_exists('csrf_field')) { echo csrf_field(); } ?>
@@ -166,8 +191,8 @@
                         </div>
 
                         <?php if (!$hasSecond): ?>
-                        <div class="form-section" style="margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0;">
-                            <h3 style="margin:0 0 12px; font-size:16px; color:#2d3748;">Schedule another interview (optional)</h3>
+                        <div class="form-section card" style="margin-top:16px;">
+                            <div class="section-title">Schedule another interview (optional)</div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="next_interviewer_email">Interviewer Email</label>
@@ -190,9 +215,160 @@
                             <div class="alert alert-info" style="margin-top:16px;">An additional interview record already exists (scheduled or IGT). You can't add another here.</div>
                         <?php endif; ?>
 
+                        <?php $igt = $notes['igt'] ?? null; if ($igt): ?>
+                        <div class="form-section card" style="margin-top:16px;">
+                            <div class="section-title">IGT Interview</div>
+                            <input type="hidden" name="igt_present" value="1">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="igt_program">Program</label>
+                                    <input type="text" id="igt_program" name="igt_program" value="<?= esc(old('igt_program', $igt['program'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_application_date">Application Date</label>
+                                    <input type="date" id="igt_application_date" name="igt_application_date" value="<?= esc(old('igt_application_date', $igt['application_date'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_tag_result">TAG Result</label>
+                                    <?php $res = old('igt_tag_result', $igt['tag_result'] ?? ''); ?>
+                                    <select id="igt_tag_result" name="igt_tag_result">
+                                        <option value="">-- Select --</option>
+                                        <option value="Passed" <?= $res==='Passed'?'selected':'' ?>>Passed</option>
+                                        <option value="Failed" <?= $res==='Failed'?'selected':'' ?>>Failed</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_interviewer_name">Interviewer Name</label>
+                                    <input type="text" id="igt_interviewer_name" name="igt_interviewer_name" value="<?= esc(old('igt_interviewer_name', $igt['interviewer_name'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_expected_salary">Expected Salary</label>
+                                    <input type="text" id="igt_expected_salary" name="igt_expected_salary" value="<?= esc(old('igt_expected_salary', $igt['expected_salary'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_on_hold_salary">On-hold Salary</label>
+                                    <input type="text" id="igt_on_hold_salary" name="igt_on_hold_salary" value="<?= esc(old('igt_on_hold_salary', $igt['on_hold_salary'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_pending_applications">Pending Applications</label>
+                                    <?php $pa = old('igt_pending_applications', $igt['pending_applications'] ?? ''); ?>
+                                    <select id="igt_pending_applications" name="igt_pending_applications">
+                                        <option value="">-- Select --</option>
+                                        <option value="NONE" <?= $pa==='NONE'?'selected':'' ?>>NONE</option>
+                                        <option value="Pending" <?= $pa==='Pending'?'selected':'' ?>>Pending</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_communication">Communication</label>
+                                    <?php $comm = old('igt_communication', $igt['communication'] ?? ''); ?>
+                                    <select id="igt_communication" name="igt_communication">
+                                        <option value="">-- Select --</option>
+                                        <option value="Excellent" <?= $comm==='Excellent'?'selected':'' ?>>Excellent</option>
+                                        <option value="Good" <?= $comm==='Good'?'selected':'' ?>>Good</option>
+                                        <option value="Fair" <?= $comm==='Fair'?'selected':'' ?>>Fair</option>
+                                        <option value="Poor" <?= $comm==='Poor'?'selected':'' ?>>Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="igt_basic_checkpoints">Basic Checkpoints</label>
+                                    <input type="text" id="igt_basic_checkpoints" name="igt_basic_checkpoints" value="<?= esc(old('igt_basic_checkpoints', $igt['basic_checkpoints'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="igt_opportunity">Opportunity</label>
+                                    <input type="text" id="igt_opportunity" name="igt_opportunity" value="<?= esc(old('igt_opportunity', $igt['opportunity'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="igt_availability">Availability</label>
+                                    <input type="text" id="igt_availability" name="igt_availability" value="<?= esc(old('igt_availability', $igt['availability'] ?? '')) ?>">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="igt_validated_source">Validated Source</label>
+                                    <?php $vs = old('igt_validated_source', $igt['validated_source'] ?? ''); ?>
+                                    <select id="igt_validated_source" name="igt_validated_source">
+                                        <option value="">-- Select --</option>
+                                        <option value="RSD" <?= $vs==='RSD'?'selected':'' ?>>RSD</option>
+                                        <option value="Other" <?= $vs==='Other'?'selected':'' ?>>Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_current_location">Current Location</label>
+                                    <input type="text" id="igt_current_location" name="igt_current_location" value="<?= esc(old('igt_current_location', $igt['current_location'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label for="igt_commute">Commute</label>
+                                    <input type="text" id="igt_commute" name="igt_commute" value="<?= esc(old('igt_commute', $igt['commute'] ?? '')) ?>">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="igt_govt_numbers">Government Numbers</label>
+                                    <input type="text" id="igt_govt_numbers" name="igt_govt_numbers" value="<?= esc(old('igt_govt_numbers', $igt['govt_numbers'] ?? '')) ?>">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="igt_education">Education</label>
+                                    <textarea id="igt_education" name="igt_education" rows="3"><?= esc(old('igt_education', $igt['education'] ?? '')) ?></textarea>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="igt_work_experience">Work Experience</label>
+                                    <textarea id="igt_work_experience" name="igt_work_experience" rows="3"><?= esc(old('igt_work_experience', $igt['work_experience'] ?? '')) ?></textarea>
+                                </div>
+                            </div>
+                            <div class="hint">You can update the IGT details directly here.</div>
+                        </div>
+                        <?php endif; ?>
+
                         <div class="form-group full-width">
                             <label for="resume">Replace Resume (PDF only)</label>
-                            <input type="file" id="resume" name="resume" accept=".pdf">
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="resume" name="resume" accept=".pdf" onchange="updateFileName(this)">
+                                <div class="file-upload-display">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    <span class="file-name">Choose PDF file or drag here</span>
+                                    <span class="file-size"></span>
+                                </div>
+                            </div>
+                            <div class="file-preview" id="filePreview" style="display: none;">
+                                <div class="preview-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                    <div class="preview-info">
+                                        <span class="preview-filename"></span>
+                                        <span class="preview-filesize"></span>
+                                    </div>
+                                </div>
+                                <div class="preview-actions">
+                                    <button type="button" class="btn-preview" onclick="previewPDF()">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        Preview
+                                    </button>
+                                    <button type="button" class="btn-remove" onclick="removeFile()">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        </svg>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <?php if (!empty($resumeFieldError)): ?>
+                                <div class="field-error"><?= esc($resumeFieldError) ?></div>
+                            <?php endif; ?>
                             <?php if (!empty($a['resume_path'])): ?>
                                 <div style="margin-top:8px;">
                                     <a class="btn btn-outline" href="<?= base_url($rolePrefix . '/applications/' . $a['id'] . '/resume') ?>" target="_blank" rel="noopener">View current resume</a>
@@ -273,6 +449,26 @@
     function applySelectedLocation(){ if(!selectedLatLng){ const {lat,lng}=marker.getLatLng(); selectedLatLng={lat,lng}; }
         const street=document.getElementById('street_address'); if(street && !street.value){ street.value = `${selectedDisplayName||'Selected location'} (${selectedLatLng.lat.toFixed(5)}, ${selectedLatLng.lng.toFixed(5)})`; }
         closeMapModal(); }
+
+    // Resume uploader helpers (copied from interviewer application form)
+    function updateFileName(input) {
+        const filePreview = document.getElementById('filePreview');
+        const fileName = document.querySelector('.file-name');
+        const fileSize = document.querySelector('.file-size');
+        const previewFilename = document.querySelector('.preview-filename');
+        const previewFilesize = document.querySelector('.preview-filesize');
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileSizeKB = (file.size / 1024).toFixed(2);
+            fileName.textContent = file.name;
+            fileSize.textContent = `${fileSizeKB} KB`;
+            previewFilename.textContent = file.name;
+            previewFilesize.textContent = `${fileSizeKB} KB`;
+            filePreview.style.display = 'block';
+        }
+    }
+    function previewPDF(){ const fileInput=document.getElementById('resume'); if(fileInput.files && fileInput.files[0]){ const fileURL=URL.createObjectURL(fileInput.files[0]); window.open(fileURL,'_blank'); } }
+    function removeFile(){ const fi=document.getElementById('resume'); const fp=document.getElementById('filePreview'); const fn=document.querySelector('.file-name'); const fs=document.querySelector('.file-size'); fi.value=''; fn.textContent='Choose PDF file or drag here'; fs.textContent=''; fp.style.display='none'; }
 </script>
 </body>
 </html>

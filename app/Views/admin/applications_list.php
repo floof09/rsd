@@ -100,9 +100,10 @@
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Municipality</th>
+                                        <th class="interviewer-col">Interviewer</th>
                                         <th class="status-col">Status</th>
                                         <th>Date Applied</th>
-                                        <th>Actions</th>
+                                        <th class="actions-col">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -119,6 +120,7 @@
                                             <td><?= esc($app['email_address']) ?></td>
                                             <td><?= esc($app['phone_number'] ?? 'N/A') ?></td>
                                             <td><?= esc($app['municipality'] ?? 'N/A') ?></td>
+                                            <td class="interviewer-col"><?= esc(($interviewers[$app['interviewed_by']] ?? '—')) ?></td>
                                             <td class="status-col">
                                                 <?php 
                                                     $status = trim($app['status'] ?? '') ?: 'pending';
@@ -137,7 +139,7 @@
                                                 </span>
                                             </td>
                                             <td><?= date('M d, Y', strtotime($app['created_at'])) ?></td>
-                                            <td>
+                                            <td class="actions-col">
                                                 <div class="action-buttons">
                                                     <button class="btn-icon" onclick="viewApplication(<?= $app['id'] ?>)" title="View Details">
                                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
