@@ -12,6 +12,7 @@
 </head>
 <body>
     <div class="dashboard-container interviewer-dashboard">
+        <?php helper('name'); ?>
         <?php if (session()->get('user_type') === 'interviewer'): ?>
             <?= view('components/interviewer_sidebar') ?>
         <?php else: ?>
@@ -114,7 +115,9 @@
                                             <td>
                                                 <div class="applicant-info">
                                                     <div class="avatar"><?= strtoupper(substr($app['first_name'], 0, 1)) ?></div>
-                                                    <span><?= esc($app['first_name']) ?> <?= esc($app['last_name']) ?></span>
+                                                    <span>
+                                                        <?= esc(format_full_name($app['first_name'] ?? '', $app['middle_name'] ?? '', $app['last_name'] ?? '', $app['suffix'] ?? '', ['middleStyle' => 'initial'])) ?>
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td><?= esc($app['email_address']) ?></td>

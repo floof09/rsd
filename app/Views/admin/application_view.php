@@ -83,6 +83,7 @@
     <?php endif; ?>
 
     <main class="main-content">
+        <?php helper('name'); ?>
         <header class="top-bar">
             <h1>Application Details</h1>
             <div class="user-info">
@@ -105,7 +106,7 @@
             <div class="form-card">
                 <div class="header-flex">
                     <div>
-                        <h2>#<?= str_pad($application['id'], 4, '0', STR_PAD_LEFT) ?> • <?= esc($application['first_name'].' '.$application['last_name']) ?></h2>
+                        <h2>#<?= str_pad($application['id'], 4, '0', STR_PAD_LEFT) ?> • <?= esc(format_full_name($application['first_name'] ?? '', $application['middle_name'] ?? '', $application['last_name'] ?? '', $application['suffix'] ?? '', ['middleStyle' => 'full'])) ?></h2>
                         <div class="status-badge status-<?= esc($application['status']) ?>"><?= ucfirst(str_replace('_',' ',$application['status'])) ?></div>
                     </div>
                     <div class="toolbar">
@@ -155,6 +156,7 @@
                 <div class="detail-card">
                     <h3 class="section-title">Applicant</h3>
                     <div class="detail-grid">
+                        <div class="detail-item"><span class="detail-label">Full Name</span><span class="detail-value"><?= esc(format_full_name($application['first_name'] ?? '', $application['middle_name'] ?? '', $application['last_name'] ?? '', $application['suffix'] ?? '', ['middleStyle' => 'full'])) ?></span></div>
                         <div class="detail-item"><span class="detail-label">Company</span><span class="detail-value"><?= esc($application['company_name']) ?></span></div>
                         <div class="detail-item"><span class="detail-label">Email</span><span class="detail-value"><?= esc($application['email_address']) ?></span></div>
                         <div class="detail-item"><span class="detail-label">Phone</span><span class="detail-value"><?= esc($application['phone_number'] ?? '—') ?></span></div>

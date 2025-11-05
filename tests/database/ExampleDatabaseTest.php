@@ -7,6 +7,7 @@ use Tests\Support\Models\ExampleModel;
 
 /**
  * @internal
+ * @requires extension sqlite3
  */
 final class ExampleDatabaseTest extends CIUnitTestCase
 {

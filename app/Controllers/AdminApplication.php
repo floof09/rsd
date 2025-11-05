@@ -70,6 +70,29 @@ class AdminApplication extends BaseController
             return redirect()->to('/interviewer/applications/' . $id)->with('error', 'You can only update applications you created.');
         }
 
+        // Normalize human name inputs (trim, collapse spaces, NFC when available)
+        $normalize = function ($s) {
+            $s = is_string($s) ? $s : '';
+            $s = preg_replace('/\s+/u', ' ', trim($s));
+            if (class_exists('Normalizer')) {
+                $s = \Normalizer::normalize($s, \Normalizer::FORM_C);
+            }
+            return $s;
+        };
+        $fn = $normalize($this->request->getPost('first_name'));
+        $mn = $normalize($this->request->getPost('middle_name'));
+        $ln = $normalize($this->request->getPost('last_name'));
+        $sx = $normalize($this->request->getPost('suffix'));
+
+        if (method_exists($this->request, 'setGlobal')) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost(), [
+                'first_name' => $fn,
+                'middle_name' => $mn,
+                'last_name' => $ln,
+                'suffix' => $sx,
+            ]));
+        }
+
         // Pre-clean mobile numbers
         $rawPhone = (string) $this->request->getPost('phone_number');
         $rawViber = (string) $this->request->getPost('viber_number');
@@ -87,8 +110,39 @@ class AdminApplication extends BaseController
         // Validation rules (same as save)
         $rules = [
             'company_name' => 'required|in_list[Everise,IGT]',
-            'first_name' => 'required|min_length[2]|max_length[100]|alpha_space',
-            'last_name' => 'required|min_length[2]|max_length[100]|alpha_space',
+            // Unicode-friendly name validation
+            'first_name' => [
+                'rules' => "required|min_length[1]|max_length[100]|regex_match[/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$/u]",
+                'errors' => [
+                    'required' => 'First name is required.',
+                    'min_length' => 'First name must not be empty.',
+                    'max_length' => 'First name can be at most 100 characters.',
+                    'regex_match' => 'First name can include letters, spaces, hyphens, and apostrophes only.',
+                ],
+            ],
+            'middle_name' => [
+                'rules' => "permit_empty|max_length[100]|regex_match[/^([\\p{L}\\p{M}]\\.?|[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*)$/u]",
+                'errors' => [
+                    'max_length' => 'Middle name can be at most 100 characters.',
+                    'regex_match' => 'Middle name can include letters, a single initial with optional period, spaces, hyphens, and apostrophes.',
+                ],
+            ],
+            'last_name' => [
+                'rules' => "required|min_length[1]|max_length[100]|regex_match[/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$/u]",
+                'errors' => [
+                    'required' => 'Last name is required.',
+                    'min_length' => 'Last name must not be empty.',
+                    'max_length' => 'Last name can be at most 100 characters.',
+                    'regex_match' => 'Last name can include letters, spaces, hyphens, and apostrophes only.',
+                ],
+            ],
+            'suffix' => [
+                'rules' => "permit_empty|max_length[20]|regex_match[/^[A-Za-z0-9\.\\sIVXLCDMivxlcdm]{1,20}$/]",
+                'errors' => [
+                    'max_length' => 'Suffix can be at most 20 characters.',
+                    'regex_match' => 'Suffix may include letters, periods, spaces, roman numerals, or small digits (e.g., Jr., III, 2nd).',
+                ],
+            ],
             'email_address' => 'required|valid_email|max_length[255]',
             'phone_number' => 'permit_empty|regex_match[/^9\d{9}$/]',
             'viber_number' => 'permit_empty|regex_match[/^9\d{9}$/]',
@@ -166,7 +220,9 @@ class AdminApplication extends BaseController
         $data = [
             'company_name' => esc($this->request->getPost('company_name')),
             'first_name' => esc(trim($this->request->getPost('first_name'))),
+            'middle_name' => $mn !== '' ? esc($mn) : null,
             'last_name' => esc(trim($this->request->getPost('last_name'))),
+            'suffix' => $sx !== '' ? esc($sx) : null,
             'email_address' => filter_var($this->request->getPost('email_address'), FILTER_SANITIZE_EMAIL),
             'phone_number' => (function () {
                 $raw = (string) $this->request->getPost('phone_number');
@@ -294,6 +350,28 @@ class AdminApplication extends BaseController
         $applicationModel = new ApplicationModel();
     $validation = \Config\Services::validation();
 
+        // Normalize human name inputs (trim, collapse spaces, NFC when available)
+        $normalize = function ($s) {
+            $s = is_string($s) ? $s : '';
+            $s = preg_replace('/\s+/u', ' ', trim($s));
+            if (class_exists('Normalizer')) {
+                $s = \Normalizer::normalize($s, \Normalizer::FORM_C);
+            }
+            return $s;
+        };
+        $fn = $normalize($this->request->getPost('first_name'));
+        $mn = $normalize($this->request->getPost('middle_name'));
+        $ln = $normalize($this->request->getPost('last_name'));
+        $sx = $normalize($this->request->getPost('suffix'));
+        if (method_exists($this->request, 'setGlobal')) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost(), [
+                'first_name' => $fn,
+                'middle_name' => $mn,
+                'last_name' => $ln,
+                'suffix' => $sx,
+            ]));
+        }
+
         // Pre-clean phone and viber numbers (strip spaces/dashes and leading zeros) BEFORE validation
         $rawPhone = (string) $this->request->getPost('phone_number');
         $rawViber = (string) $this->request->getPost('viber_number');
@@ -309,7 +387,7 @@ class AdminApplication extends BaseController
             ]));
         }
 
-        // Define comprehensive validation rules
+        // Define comprehensive validation rules (Unicode-friendly)
         $validationRules = [
             'company_name' => [
                 'rules' => 'required|in_list[Everise,IGT]',
@@ -318,35 +396,37 @@ class AdminApplication extends BaseController
                     'in_list' => 'Invalid company selection'
                 ]
             ],
+            // Unicode-friendly name validation (match update())
             'first_name' => [
-                'rules' => 'required|min_length[2]|max_length[100]|alpha_space',
+                'rules' => "required|min_length[1]|max_length[100]|regex_match[/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$/u]",
                 'errors' => [
                     'required' => 'First name is required',
-                    'min_length' => 'First name must be at least 2 characters',
-                    'max_length' => 'First name cannot exceed 100 characters',
-                    'alpha_space' => 'First name can only contain letters and spaces'
+                    'min_length' => 'First name must not be empty',
+                    'max_length' => 'First name can be at most 100 characters',
+                    'regex_match' => 'First name can include letters, spaces, hyphens, and apostrophes only',
                 ]
             ],
             'middle_name' => [
-                'rules' => 'permit_empty|max_length[100]|alpha_space',
+                'rules' => "permit_empty|max_length[100]|regex_match[/^([\\p{L}\\p{M}]\\.?|[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*)$/u]",
                 'errors' => [
-                    'max_length' => 'Middle name cannot exceed 100 characters',
-                    'alpha_space' => 'Middle name can only contain letters and spaces'
+                    'max_length' => 'Middle name can be at most 100 characters',
+                    'regex_match' => 'Middle name can include letters, a single initial with optional period, spaces, hyphens, and apostrophes',
                 ]
             ],
             'last_name' => [
-                'rules' => 'required|min_length[2]|max_length[100]|alpha_space',
+                'rules' => "required|min_length[1]|max_length[100]|regex_match[/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$/u]",
                 'errors' => [
                     'required' => 'Last name is required',
-                    'min_length' => 'Last name must be at least 2 characters',
-                    'max_length' => 'Last name cannot exceed 100 characters',
-                    'alpha_space' => 'Last name can only contain letters and spaces'
+                    'min_length' => 'Last name must not be empty',
+                    'max_length' => 'Last name can be at most 100 characters',
+                    'regex_match' => 'Last name can include letters, spaces, hyphens, and apostrophes only',
                 ]
             ],
             'suffix' => [
-                'rules' => 'permit_empty|max_length[20]|alpha_numeric_punct',
+                'rules' => "permit_empty|max_length[20]|regex_match[/^[A-Za-z0-9\.\\sIVXLCDMivxlcdm]{1,20}$/]",
                 'errors' => [
-                    'max_length' => 'Suffix cannot exceed 20 characters'
+                    'max_length' => 'Suffix can be at most 20 characters',
+                    'regex_match' => 'Suffix may include letters, periods, spaces, roman numerals, or small digits (e.g., Jr., III, 2nd)',
                 ]
             ],
             'email_address' => [
