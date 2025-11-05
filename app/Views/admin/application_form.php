@@ -17,6 +17,12 @@
             font-size: 12px;
             margin-top: 6px;
         }
+        .form-group input.invalid,
+        .form-group select.invalid,
+        .form-group textarea.invalid {
+            border-color: #e53e3e !important;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+        }
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -212,6 +218,8 @@
                                     <input type="text" id="first_name" name="first_name" value="<?= old('first_name') ?>" placeholder="Enter first name" required>
                                     <?php if (!empty($errors['first_name'])): ?>
                                         <div class="field-error"><?= esc($errors['first_name']) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" data-live-error="first_name" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
 
@@ -220,6 +228,8 @@
                                     <input type="text" id="middle_name" name="middle_name" value="<?= old('middle_name') ?>" placeholder="Enter middle name (optional)">
                                     <?php if (!empty($errors['middle_name'])): ?>
                                         <div class="field-error"><?= esc($errors['middle_name']) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" data-live-error="middle_name" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -230,6 +240,8 @@
                                     <input type="text" id="last_name" name="last_name" value="<?= old('last_name') ?>" placeholder="Enter last name" required>
                                     <?php if (!empty($errors['last_name'])): ?>
                                         <div class="field-error"><?= esc($errors['last_name']) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" data-live-error="last_name" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
 
@@ -238,6 +250,8 @@
                                     <input type="text" id="suffix" name="suffix" value="<?= old('suffix') ?>" placeholder="e.g., Jr., Sr., II (optional)">
                                     <?php if (!empty($errors['suffix'])): ?>
                                         <div class="field-error"><?= esc($errors['suffix']) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" data-live-error="suffix" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -455,6 +469,91 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <script>
+        // Live inline validation mirroring server rules
+        const el = id => document.getElementById(id);
+        function getErrorEl(id) {
+            const group = el(id)?.closest('.form-group');
+            if (!group) return null;
+            let holder = group.querySelector(`.field-error[data-live-error="${id}"]`);
+            if (!holder) {
+                holder = document.createElement('div');
+                holder.className = 'field-error';
+                holder.dataset.liveError = id;
+                holder.style.display = 'none';
+                group.appendChild(holder);
+            }
+            return holder;
+        }
+
+        function showError(id, msg) {
+            const input = el(id); const holder = getErrorEl(id);
+            if (input) input.classList.add('invalid');
+            if (holder) { holder.textContent = msg; holder.style.display = 'block'; }
+        }
+        function clearError(id) {
+            const input = el(id); const holder = getErrorEl(id);
+            if (input) input.classList.remove('invalid');
+            if (holder) { holder.textContent = ''; holder.style.display = 'none'; }
+        }
+
+        // Unicode-friendly regexes (must use the 'u' flag)
+        const reName = new RegExp("^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$", 'u');
+        const reMiddle = new RegExp("^([\\p{L}\\p{M}]\\.?|[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*)$", 'u');
+        const reSuffix = /^[A-Za-z0-9\.\sIVXLCDMivxlcdm]{1,20}$/;
+
+        function validateFirst() {
+            const v = (el('first_name').value || '').trim();
+            if (v.length < 1) { showError('first_name', 'First name is required'); return false; }
+            if (v.length > 100) { showError('first_name', 'First name can be at most 100 characters'); return false; }
+            if (!reName.test(v)) { showError('first_name', 'First name can include letters, spaces, hyphens, and apostrophes only'); return false; }
+            clearError('first_name'); return true;
+        }
+        function validateMiddle() {
+            const v = (el('middle_name').value || '').trim();
+            if (v === '') { clearError('middle_name'); return true; }
+            if (v.length > 100) { showError('middle_name', 'Middle name can be at most 100 characters'); return false; }
+            if (!reMiddle.test(v)) { showError('middle_name', 'Middle name can include letters, a single initial with optional period, spaces, hyphens, and apostrophes'); return false; }
+            clearError('middle_name'); return true;
+        }
+        function validateLast() {
+            const v = (el('last_name').value || '').trim();
+            if (v.length < 1) { showError('last_name', 'Last name is required'); return false; }
+            if (v.length > 100) { showError('last_name', 'Last name can be at most 100 characters'); return false; }
+            if (!reName.test(v)) { showError('last_name', 'Last name can include letters, spaces, hyphens, and apostrophes only'); return false; }
+            clearError('last_name'); return true;
+        }
+        function validateSuffix() {
+            const v = (el('suffix').value || '').trim();
+            if (v === '') { clearError('suffix'); return true; }
+            if (v.length > 20) { showError('suffix', 'Suffix can be at most 20 characters'); return false; }
+            if (!reSuffix.test(v)) { showError('suffix', 'Suffix may include letters, periods, spaces, roman numerals, or small digits (e.g., Jr., III, 2nd)'); return false; }
+            clearError('suffix'); return true;
+        }
+
+        function validateAll() {
+            const results = [validateFirst(), validateMiddle(), validateLast(), validateSuffix()];
+            return results.every(Boolean);
+        }
+
+        // Attach listeners for live feedback
+        ['first_name','middle_name','last_name','suffix'].forEach(id => {
+            const i = el(id); if (!i) return;
+            i.addEventListener('input', () => {
+                // Only show errors once user has typed something or after blur
+                validateAll();
+            });
+            i.addEventListener('blur', () => validateAll());
+        });
+
+        // Validate on submit
+        const form = document.getElementById('applicationForm');
+        form.addEventListener('submit', (e) => {
+            if (!validateAll()) {
+                e.preventDefault();
+                const firstInvalid = document.querySelector('.form-group input.invalid');
+                if (firstInvalid) firstInvalid.focus();
+            }
+        });
         // Map Picker Modal
         let map, marker, mapInitialized = false;
         let selectedLatLng = null;
