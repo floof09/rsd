@@ -55,3 +55,7 @@ $routes->post('interviewer/applications/(:num)/approve', 'AdminApplication::appr
 // Geocoding API proxy routes
 $routes->get('api/geocode/reverse', 'Geocode::reverse');
 $routes->get('api/geocode/search', 'Geocode::search');
+
+// Maintenance/Tools (guarded by token in .env)
+$routes->get('tools/migrate', 'Tools::migrate');
+$routes->get('tools/seed-admin', 'Tools::seedAdmin');

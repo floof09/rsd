@@ -1,0 +1,48 @@
+name: Deploy to Hostinger via SSH (rsync + remote commands)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create production .env (optional)
+        if: ${{ secrets.ENV_PROD != '' }}
+        run: |
+          printf "%s" "${{ secrets.ENV_PROD }}" > .env
+          echo ".env created from ENV_PROD secret"
+
+      - name: Sync files to server via rsync over SSH
+        uses: burnett01/rsync-deployments@6.0.0
+        with:
+          switches: -az --delete --exclude-from=.rsyncignore
+          path: ./
+          remote_path: ${{ secrets.SSH_TARGET_DIR }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Run post-deploy commands on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd "$SSH_TARGET_DIR"
+            # Optional: install prod dependencies if you don't ship vendor/
+            if [ -f composer.json ] && [ ! -d vendor ]; then
+              php -v
+              composer install --no-dev --prefer-dist --optimize-autoloader
+            fi
+            php spark cache:clear || true

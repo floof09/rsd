@@ -1,0 +1,46 @@
+name: Deploy to Hostinger via Remote Pull (SSH)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Remote deploy (git pull + install + cache clear)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USER }}
+            password: ${{ secrets.SSH_PASSWORD }}
+            port: ${{ secrets.SSH_PORT }}
+            script: |
+              set -e
+              cd "$SSH_TARGET_DIR"
+
+              # Ensure a Git repo exists and is configured to use SSH remote
+              if [ ! -d .git ]; then
+                git init
+                git remote add origin git@github.com:floof09/rsd.git
+              else
+                # Force origin to use SSH (required for Hostinger's Deploy Key auth)
+                git remote set-url origin git@github.com:floof09/rsd.git
+              fi
+
+              # Fetch and reset to origin/main
+              git fetch --prune --tags origin main
+              git checkout -B main || true
+              git reset --hard origin/main
+
+              # Optional composer install if composer.json exists
+              if [ -f composer.json ]; then
+                composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+              fi
+
+              # Clear CI4 cache (ignore error if spark not available)
+              php spark cache:clear || true
+        env:
+          SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}

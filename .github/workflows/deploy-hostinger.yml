@@ -1,0 +1,50 @@
+name: Deploy to Hostinger via FTP
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create production .env (optional)
+        if: ${{ secrets.ENV_PROD != '' }}
+        shell: bash
+        run: |
+          printf "%s" "${{ secrets.ENV_PROD }}" > .env
+          echo ".env created from ENV_PROD secret"
+
+      # If you prefer building vendor on CI, uncomment the next step and remove vendor/ from repo
+      # - name: Install PHP dependencies (optional)
+      #   uses: php-actions/composer@v6
+      #   with:
+      #     php_version: '8.2'
+      #     args: --no-dev --prefer-dist --no-interaction --no-progress
+
+      - name: Deploy to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASS }}
+          server-dir: ${{ secrets.HOSTINGER_FTP_DIR }}
+          # Example: /public_html/rsd/
+          # The subdomain document root should point to /public_html/rsd/public
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/.vscode/**
+            **/.DS_Store
+            **/node_modules/**
+            **/build/**
+            tests/**
+            writable/debugbar/**
+            public/hot
+          # 60s default timeout can be short on shared hosting; bump a little
+          timeout: 600000

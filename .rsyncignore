@@ -1,0 +1,30 @@
+# Files/dirs to exclude from rsync deploy
+
+# VCS
+.git/
+.github/
+.gitignore
+
+# Local/editor
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Tests and build artifacts
+/tests/
+/build/
+/results/
+/phpunit*.xml
+
+# Debug caches
+writable/debugbar/
+
+# Hot reload markers (if any)
+public/hot
+
+# Node
+node_modules/
+
+# Do not upload local environment files
+.env
+.env.*
