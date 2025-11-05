@@ -167,4 +167,63 @@ class Tools extends BaseController
             ->setHeader('Content-Type', 'text/plain; charset=UTF-8')
             ->setBody("Latest log: " . basename($latest) . "\n\n" . $buffer);
     }
+
+    /**
+     * Basic health check: verifies rewrite reached CI, environment values,
+     * writability of cache/logs/session, and optional DB connectivity.
+     * GET /tools/health?key=TOKEN
+     */
+    public function health(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $checks = [];
+
+        $checks['environment'] = defined('ENVIRONMENT') ? ENVIRONMENT : '(undefined)';
+        $checks['ci_debug'] = defined('CI_DEBUG') ? (CI_DEBUG ? 'true' : 'false') : '(undefined)';
+
+        $paths = [
+            'cache'   => WRITEPATH . 'cache',
+            'logs'    => WRITEPATH . 'logs',
+            'session' => WRITEPATH . 'session',
+            'uploads' => WRITEPATH . 'uploads',
+        ];
+        foreach ($paths as $key => $path) {
+            $result = [
+                'exists'    => is_dir($path),
+                'writable'  => is_dir($path) ? is_writable($path) : false,
+            ];
+            // Try to write and delete a temp file
+            if ($result['exists']) {
+                $tmp = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.health_' . uniqid('', true);
+                $okWrite = @file_put_contents($tmp, 'ok');
+                $result['writeTest'] = $okWrite !== false ? 'ok' : 'fail';
+                if ($okWrite !== false) {
+                    @unlink($tmp);
+                }
+            }
+            $checks['writable_' . $key] = $result;
+        }
+
+        // Optional DB connection check
+        try {
+            $db = Database::connect();
+            $db->initialize();
+            $checks['database'] = [
+                'connected' => $db->connID ? true : false,
+                'driver'    => $db->DBDriver ?? null,
+                'host'      => $db->hostname ?? null,
+                'name'      => $db->database ?? null,
+            ];
+        } catch (\Throwable $e) {
+            $checks['database'] = [
+                'connected' => false,
+                'error'     => $e->getMessage(),
+            ];
+        }
+
+        return $this->response->setJSON($checks);
+    }
 }

@@ -61,3 +61,4 @@ $routes->get('tools/migrate', 'Tools::migrate');
 $routes->get('tools/seed-admin', 'Tools::seedAdmin');
 $routes->get('tools/env', 'Tools::env');
 $routes->get('tools/logs', 'Tools::logs');
+$routes->get('tools/health', 'Tools::health');
