@@ -1,53 +1,21 @@
-# Disable directory browsing
-Options -Indexes
+﻿# Fallback .htaccess at project root
+# When the subdomain or domain document root is set to this directory
+# (not recommended for CodeIgniter 4), this file will forward requests
+# into the public/ front controller so pretty URLs work.
 
-# ----------------------------------------------------------------------
-# Rewrite engine
-# ----------------------------------------------------------------------
-
-# Turning on the rewrite engine is necessary for the following rules and features.
-# FollowSymLinks must be enabled for this to work.
 <IfModule mod_rewrite.c>
-	Options +FollowSymlinks
-	RewriteEngine On
+    Options -Indexes -MultiViews
+    RewriteEngine On
+    RewriteBase /
 
-	# If you installed CodeIgniter in a subfolder, you will need to
-	# change the following line to match the subfolder you need.
-	# http://httpd.apache.org/docs/current/mod/mod_rewrite.html#rewritebase
-	RewriteBase /rsd/
+    # Allow existing files/folders in this directory
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
-	# Note: Do NOT force-remove the trailing slash for the base folder.
-	# Apache's DirectorySlash (mod_dir) adds it automatically for directories.
-	# Forcing a redirect here would conflict and cause redirect loops.
-
-	# Redirect Trailing Slashes for non-directories...
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_URI} (.+)/$
-	RewriteRule ^ %1 [L,R=301]
-
-	# Rewrite "www.example.com -> example.com"
-	RewriteCond %{HTTPS} !=on
-	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
-
-	# Checks to see if the user is attempting to access a valid file,
-	# such as an image or css document, if this isn't true it sends the
-	# request to the front controller, index.php
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^([\s\S]*)$ index.php?/$1 [L,NC,QSA]
-
-	# Ensure Authorization header is passed along
-	RewriteCond %{HTTP:Authorization} .
-	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    # Otherwise route everything into public/
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
 
-<IfModule !mod_rewrite.c>
-	# If we don't have mod_rewrite installed, all 404's
-	# can be sent to index.php, and everything works as normal.
-	ErrorDocument 404 index.php
-</IfModule>
-
-# Disable server signature start
-ServerSignature Off
-# Disable server signature end
+# Prefer index.php in public/ if directory indexing attempted
+DirectoryIndex public/index.php
