@@ -169,6 +169,11 @@ class AdminApplication extends BaseController
             try {
                 $birthdateObj = new \DateTime($birthdate);
                 $today = new \DateTime();
+                // Lower bound sanity check (reject unrealistically old dates)
+                $minDate = new \DateTime('1900-01-01');
+                if ($birthdateObj < $minDate) {
+                    return redirect()->back()->withInput()->with('error', 'Birthdate must not be earlier than Jan 1, 1900')->with('field_error_birthdate', 'Birthdate must not be earlier than Jan 1, 1900');
+                }
                 if ($birthdateObj > $today) {
                     return redirect()->back()->withInput()->with('error', 'Birthdate cannot be in the future')->with('field_error_birthdate', 'Birthdate cannot be in the future');
                 }
@@ -530,12 +535,19 @@ class AdminApplication extends BaseController
 
         // Additional server-side validations
         
-        // Sanitize and validate birthdate (must be at least 18 years old)
+        // Sanitize and validate birthdate (must be at least 18 years old, reasonable lower bound)
         $birthdate = $this->request->getPost('birthdate');
         if ($birthdate) {
             try {
                 $birthdateObj = new \DateTime($birthdate);
                 $today = new \DateTime();
+                $minDate = new \DateTime('1900-01-01');
+                if ($birthdateObj < $minDate) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Birthdate must not be earlier than Jan 1, 1900')
+                        ->with('field_error_birthdate', 'Birthdate must not be earlier than Jan 1, 1900');
+                }
                 $age = $today->diff($birthdateObj)->y;
                 
                 if ($age < 18) {

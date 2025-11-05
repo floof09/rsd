@@ -195,19 +195,21 @@
                             $birthdateFieldError = session()->getFlashdata('field_error_birthdate');
                             $resumeFieldError = session()->getFlashdata('field_error_resume');
                         ?>
-                        <form action="<?= base_url('admin/application/save') ?>" method="POST" id="applicationForm" enctype="multipart/form-data" autocomplete="off">
+                        <form action="<?= base_url('admin/application/save') ?>" method="POST" id="applicationForm" enctype="multipart/form-data" autocomplete="off" novalidate>
+                            <!-- Error summary (aria-live) -->
+                            <div id="formErrorSummary" class="alert alert-error" role="alert" aria-live="polite" style="display:none;margin-bottom:12px;"></div>
                             
                             <!-- Company Selection at Top -->
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label for="company_name">Choose Company <span class="required">*</span></label>
-                                    <select id="company_name" name="company_name" required>
+                                    <select id="company_name" name="company_name" required aria-invalid="<?= !empty($errors['company_name']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['company_name']) ? 'error_company_name' : '' ?>">
                                         <option value="">-- Select Company --</option>
                                         <option value="Everise" <?= old('company_name') === 'Everise' ? 'selected' : '' ?>>Everise</option>
                                         <option value="IGT" <?= old('company_name') === 'IGT' ? 'selected' : '' ?>>IGT</option>
                                     </select>
                                     <?php if (!empty($errors['company_name'])): ?>
-                                        <div class="field-error"><?= esc($errors['company_name']) ?></div>
+                                        <div class="field-error" id="error_company_name"><?= esc($errors['company_name']) ?></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -215,21 +217,21 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="first_name">First Name <span class="required">*</span></label>
-                                    <input type="text" id="first_name" name="first_name" value="<?= old('first_name') ?>" placeholder="Enter first name" required>
+                                    <input type="text" id="first_name" name="first_name" value="<?= old('first_name') ?>" placeholder="Enter first name" required aria-invalid="<?= !empty($errors['first_name']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['first_name']) ? 'error_first_name' : '' ?>">
                                     <?php if (!empty($errors['first_name'])): ?>
-                                        <div class="field-error"><?= esc($errors['first_name']) ?></div>
+                                        <div class="field-error" id="error_first_name"><?= esc($errors['first_name']) ?></div>
                                     <?php else: ?>
-                                        <div class="field-error" data-live-error="first_name" style="display:none"></div>
+                                        <div class="field-error" id="error_first_name" data-live-error="first_name" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="middle_name">Middle Name</label>
-                                    <input type="text" id="middle_name" name="middle_name" value="<?= old('middle_name') ?>" placeholder="Enter middle name (optional)">
+                                    <input type="text" id="middle_name" name="middle_name" value="<?= old('middle_name') ?>" placeholder="Enter middle name (optional)" aria-invalid="<?= !empty($errors['middle_name']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['middle_name']) ? 'error_middle_name' : '' ?>">
                                     <?php if (!empty($errors['middle_name'])): ?>
-                                        <div class="field-error"><?= esc($errors['middle_name']) ?></div>
+                                        <div class="field-error" id="error_middle_name"><?= esc($errors['middle_name']) ?></div>
                                     <?php else: ?>
-                                        <div class="field-error" data-live-error="middle_name" style="display:none"></div>
+                                        <div class="field-error" id="error_middle_name" data-live-error="middle_name" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -237,21 +239,21 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="last_name">Last Name <span class="required">*</span></label>
-                                    <input type="text" id="last_name" name="last_name" value="<?= old('last_name') ?>" placeholder="Enter last name" required>
+                                    <input type="text" id="last_name" name="last_name" value="<?= old('last_name') ?>" placeholder="Enter last name" required aria-invalid="<?= !empty($errors['last_name']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['last_name']) ? 'error_last_name' : '' ?>">
                                     <?php if (!empty($errors['last_name'])): ?>
-                                        <div class="field-error"><?= esc($errors['last_name']) ?></div>
+                                        <div class="field-error" id="error_last_name"><?= esc($errors['last_name']) ?></div>
                                     <?php else: ?>
-                                        <div class="field-error" data-live-error="last_name" style="display:none"></div>
+                                        <div class="field-error" id="error_last_name" data-live-error="last_name" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="suffix">Suffix</label>
-                                    <input type="text" id="suffix" name="suffix" value="<?= old('suffix') ?>" placeholder="e.g., Jr., Sr., II (optional)">
+                                    <input type="text" id="suffix" name="suffix" value="<?= old('suffix') ?>" placeholder="e.g., Jr., Sr., II (optional)" aria-invalid="<?= !empty($errors['suffix']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['suffix']) ? 'error_suffix' : '' ?>">
                                     <?php if (!empty($errors['suffix'])): ?>
-                                        <div class="field-error"><?= esc($errors['suffix']) ?></div>
+                                        <div class="field-error" id="error_suffix"><?= esc($errors['suffix']) ?></div>
                                     <?php else: ?>
-                                        <div class="field-error" data-live-error="suffix" style="display:none"></div>
+                                        <div class="field-error" id="error_suffix" data-live-error="suffix" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -259,9 +261,9 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="email_address">Email Address <span class="required">*</span></label>
-                                    <input type="email" id="email_address" name="email_address" value="<?= old('email_address') ?>" placeholder="applicant@email.com" required>
+                                    <input type="email" id="email_address" name="email_address" value="<?= old('email_address') ?>" placeholder="applicant@email.com" required aria-invalid="<?= !empty($errors['email_address']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['email_address']) ? 'error_email_address' : '' ?>" autocomplete="email">
                                     <?php if (!empty($errors['email_address'])): ?>
-                                        <div class="field-error"><?= esc($errors['email_address']) ?></div>
+                                        <div class="field-error" id="error_email_address"><?= esc($errors['email_address']) ?></div>
                                     <?php endif; ?>
                                 </div>
 
@@ -269,11 +271,13 @@
                                     <label for="phone_number">Phone Number</label>
                                     <div class="phone-input-wrapper">
                                         <span class="phone-prefix">+63</span>
-                                        <input type="tel" id="phone_number" name="phone_number" value="<?= old('phone_number') ?>" placeholder="9123456789" maxlength="10" inputmode="numeric" oninput="sanitizeMobile(this)">
+                                        <input type="tel" id="phone_number" name="phone_number" value="<?= old('phone_number') ?>" placeholder="9123456789" maxlength="10" inputmode="numeric" oninput="sanitizeMobile(this)" aria-invalid="<?= !empty($errors['phone_number']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['phone_number']) ? 'error_phone_number' : '' ?>" autocomplete="tel-national">
                                     </div>
                                     <small class="field-hint">Enter 10 digits starting with 9 (no spaces or dashes)</small>
                                     <?php if (!empty($errors['phone_number'])): ?>
-                                        <div class="field-error"><?= esc($errors['phone_number']) ?></div>
+                                        <div class="field-error" id="error_phone_number"><?= esc($errors['phone_number']) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" id="error_phone_number" data-live-error="phone_number" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -283,11 +287,13 @@
                                     <label for="viber_number">Viber Number</label>
                                     <div class="phone-input-wrapper">
                                         <span class="phone-prefix">+63</span>
-                                        <input type="tel" id="viber_number" name="viber_number" value="<?= old('viber_number') ?>" placeholder="9123456789" maxlength="10" inputmode="numeric" oninput="sanitizeMobile(this)">
+                                        <input type="tel" id="viber_number" name="viber_number" value="<?= old('viber_number') ?>" placeholder="9123456789" maxlength="10" inputmode="numeric" oninput="sanitizeMobile(this)" aria-invalid="<?= !empty($errors['viber_number']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['viber_number']) ? 'error_viber_number' : '' ?>">
                                     </div>
                                     <small class="field-hint">Enter 10 digits starting with 9 (no spaces or dashes)</small>
                                     <?php if (!empty($errors['viber_number'])): ?>
-                                        <div class="field-error"><?= esc($errors['viber_number']) ?></div>
+                                        <div class="field-error" id="error_viber_number"><?= esc($errors['viber_number']) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" id="error_viber_number" data-live-error="viber_number" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
 
@@ -339,13 +345,15 @@
 
                                 <div class="form-group">
                                     <label for="birthdate">Birthdate</label>
-                                    <input type="date" id="birthdate" name="birthdate" value="<?= old('birthdate') ?>">
+                                    <input type="date" id="birthdate" name="birthdate" value="<?= old('birthdate') ?>" min="1900-01-01" max="<?= date('Y-m-d', strtotime('-18 years')) ?>" aria-invalid="<?= !empty($errors['birthdate']) || !empty($birthdateFieldError) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['birthdate']) || !empty($birthdateFieldError) ? 'error_birthdate' : '' ?>">
                                     <small class="field-hint">Must be at least 18 years old</small>
                                     <?php if (!empty($errors['birthdate'])): ?>
-                                        <div class="field-error"><?= esc($errors['birthdate']) ?></div>
+                                        <div class="field-error" id="error_birthdate"><?= esc($errors['birthdate']) ?></div>
                                     <?php endif; ?>
                                     <?php if (!empty($birthdateFieldError)): ?>
-                                        <div class="field-error"><?= esc($birthdateFieldError) ?></div>
+                                        <div class="field-error" id="error_birthdate"><?= esc($birthdateFieldError) ?></div>
+                                    <?php else: ?>
+                                        <div class="field-error" id="error_birthdate" data-live-error="birthdate" style="display:none"></div>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -420,9 +428,11 @@
 
                             <div class="form-group full-width recruiter-box">
                                 <label for="recruiter_email">Send Details To <span class="required">*</span></label>
-                                <input type="email" id="recruiter_email" name="recruiter_email" value="<?= old('recruiter_email') ?>" placeholder="recruiter@company.com" required>
+                                <input type="email" id="recruiter_email" name="recruiter_email" value="<?= old('recruiter_email') ?>" placeholder="recruiter@company.com" required aria-invalid="<?= !empty($errors['recruiter_email']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['recruiter_email']) ? 'error_recruiter_email' : '' ?>" autocomplete="email">
                                 <?php if (!empty($errors['recruiter_email'])): ?>
-                                    <div class="field-error"><?= esc($errors['recruiter_email']) ?></div>
+                                    <div class="field-error" id="error_recruiter_email"><?= esc($errors['recruiter_email']) ?></div>
+                                <?php else: ?>
+                                    <div class="field-error" id="error_recruiter_email" data-live-error="recruiter_email" style="display:none"></div>
                                 <?php endif; ?>
                             </div>
 
@@ -432,16 +442,20 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="next_interviewer_email">Interviewer Email</label>
-                                        <input type="email" id="next_interviewer_email" name="next_interviewer_email" value="<?= old('next_interviewer_email') ?>" placeholder="colleague@gmail.com">
+                                        <input type="email" id="next_interviewer_email" name="next_interviewer_email" value="<?= old('next_interviewer_email') ?>" placeholder="colleague@gmail.com" aria-invalid="<?= !empty($errors['next_interviewer_email']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['next_interviewer_email']) ? 'error_next_interviewer_email' : '' ?>">
                                         <?php if (!empty($errors['next_interviewer_email'])): ?>
-                                            <div class="field-error"><?= esc($errors['next_interviewer_email']) ?></div>
+                                            <div class="field-error" id="error_next_interviewer_email"><?= esc($errors['next_interviewer_email']) ?></div>
+                                        <?php else: ?>
+                                            <div class="field-error" id="error_next_interviewer_email" data-live-error="next_interviewer_email" style="display:none"></div>
                                         <?php endif; ?>
                                     </div>
                                     <div class="form-group">
                                         <label for="next_interview_datetime">Interview Date & Time</label>
-                                        <input type="datetime-local" id="next_interview_datetime" name="next_interview_datetime" value="<?= old('next_interview_datetime') ?>">
+                                        <input type="datetime-local" id="next_interview_datetime" name="next_interview_datetime" value="<?= old('next_interview_datetime') ?>" aria-invalid="<?= !empty($errors['next_interview_datetime']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['next_interview_datetime']) ? 'error_next_interview_datetime' : '' ?>">
                                         <?php if (!empty($errors['next_interview_datetime'])): ?>
-                                            <div class="field-error"><?= esc($errors['next_interview_datetime']) ?></div>
+                                            <div class="field-error" id="error_next_interview_datetime"><?= esc($errors['next_interview_datetime']) ?></div>
+                                        <?php else: ?>
+                                            <div class="field-error" id="error_next_interview_datetime" data-live-error="next_interview_datetime" style="display:none"></div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -487,12 +501,23 @@
 
         function showError(id, msg) {
             const input = el(id); const holder = getErrorEl(id);
-            if (input) input.classList.add('invalid');
+            if (input) {
+                input.classList.add('invalid');
+                input.setAttribute('aria-invalid', 'true');
+                if (holder && holder.id) {
+                    const desc = (input.getAttribute('aria-describedby') || '').split(' ').filter(Boolean);
+                    if (!desc.includes(holder.id)) desc.push(holder.id);
+                    input.setAttribute('aria-describedby', desc.join(' ').trim());
+                }
+            }
             if (holder) { holder.textContent = msg; holder.style.display = 'block'; }
         }
         function clearError(id) {
             const input = el(id); const holder = getErrorEl(id);
-            if (input) input.classList.remove('invalid');
+            if (input) {
+                input.classList.remove('invalid');
+                input.setAttribute('aria-invalid', 'false');
+            }
             if (holder) { holder.textContent = ''; holder.style.display = 'none'; }
         }
 
@@ -530,13 +555,87 @@
             clearError('suffix'); return true;
         }
 
+        function validEmail(v) {
+            // Simple email validation consistent with HTML5 and CI valid_email
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        }
+
+        function validateCompany() {
+            const v = (el('company_name')?.value || '').trim();
+            if (!v) { showError('company_name', 'Please select a company'); return false; }
+            if (!['Everise','IGT'].includes(v)) { showError('company_name', 'Invalid company selection'); return false; }
+            clearError('company_name'); return true;
+        }
+        function validateEmailAddress() {
+            const v = (el('email_address')?.value || '').trim();
+            if (!v) { showError('email_address', 'Email address is required'); return false; }
+            if (v.length > 255) { showError('email_address', 'Email address is too long'); return false; }
+            if (!validEmail(v)) { showError('email_address', 'Please enter a valid email address'); return false; }
+            clearError('email_address'); return true;
+        }
+        function validateRecruiterEmail() {
+            const v = (el('recruiter_email')?.value || '').trim();
+            if (!v) { showError('recruiter_email', 'Recruiter email is required'); return false; }
+            if (v.length > 255) { showError('recruiter_email', 'Recruiter email is too long'); return false; }
+            if (!validEmail(v)) { showError('recruiter_email', 'Please enter a valid recruiter email address'); return false; }
+            clearError('recruiter_email'); return true;
+        }
+        function validateMobile(id) {
+            const v = (el(id)?.value || '').trim();
+            if (v === '') { clearError(id); return true; }
+            if (!/^9\d{9}$/.test(v)) { showError(id, (id === 'phone_number' ? 'Phone' : 'Viber') + ' number must be exactly 10 digits and start with 9'); return false; }
+            clearError(id); return true;
+        }
+        function validateSchedule() {
+            const email = (el('next_interviewer_email')?.value || '').trim();
+            const dt = (el('next_interview_datetime')?.value || '').trim();
+            const notes = (document.getElementById('next_interview_notes')?.value || '').trim();
+            if (email === '' && dt === '' && notes === '') { clearError('next_interviewer_email'); clearError('next_interview_datetime'); return true; }
+            let ok = true;
+            if (!email) { showError('next_interviewer_email', 'Provide interviewer email'); ok = false; }
+            else if (!validEmail(email)) { showError('next_interviewer_email', 'Please enter a valid interviewer email'); ok = false; }
+            else { clearError('next_interviewer_email'); }
+            if (!dt) { showError('next_interview_datetime', 'Provide date and time'); ok = false; }
+            else { clearError('next_interview_datetime'); }
+            return ok;
+        }
+
+        function validateBirthdate() {
+            const v = (el('birthdate')?.value || '').trim();
+            if (v === '') { clearError('birthdate'); return true; }
+            const bd = new Date(v + 'T00:00:00');
+            if (isNaN(bd.getTime())) { showError('birthdate', 'Please enter a valid date'); return false; }
+            const today = new Date();
+            // Lower bound: 1900-01-01
+            const min = new Date(1900, 0, 1);
+            if (bd < min) { showError('birthdate', 'Birthdate must not be earlier than Jan 1, 1900'); return false; }
+            // Not in the future
+            if (bd > today) { showError('birthdate', 'Birthdate cannot be in the future'); return false; }
+            // Age check >= 18
+            const eighteen = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+            if (bd > eighteen) { showError('birthdate', 'Applicant must be at least 18 years old'); return false; }
+            clearError('birthdate'); return true;
+        }
+
         function validateAll() {
-            const results = [validateFirst(), validateMiddle(), validateLast(), validateSuffix()];
+            const results = [
+                validateCompany(),
+                validateFirst(),
+                validateMiddle(),
+                validateLast(),
+                validateSuffix(),
+                validateEmailAddress(),
+                validateMobile('phone_number'),
+                validateMobile('viber_number'),
+                validateRecruiterEmail(),
+                validateSchedule(),
+                validateBirthdate(),
+            ];
             return results.every(Boolean);
         }
 
         // Attach listeners for live feedback
-        ['first_name','middle_name','last_name','suffix'].forEach(id => {
+        ['company_name','first_name','middle_name','last_name','suffix','email_address','phone_number','viber_number','recruiter_email','next_interviewer_email','next_interview_datetime','birthdate'].forEach(id => {
             const i = el(id); if (!i) return;
             i.addEventListener('input', () => {
                 // Only show errors once user has typed something or after blur
@@ -550,7 +649,18 @@
         form.addEventListener('submit', (e) => {
             if (!validateAll()) {
                 e.preventDefault();
-                const firstInvalid = document.querySelector('.form-group input.invalid');
+                const firstInvalid = document.querySelector('.form-group input.invalid, .form-group select.invalid, .form-group textarea.invalid');
+                const summary = document.getElementById('formErrorSummary');
+                if (summary) {
+                    // Build a concise list of visible errors
+                    const msgs = Array.from(document.querySelectorAll('.field-error'))
+                        .filter(el => el.style.display !== 'none' && el.textContent.trim() !== '')
+                        .slice(0, 4)
+                        .map(el => `• ${el.textContent.trim()}`)
+                        .join('<br>');
+                    summary.innerHTML = msgs || 'Please correct the errors below';
+                    summary.style.display = 'block';
+                }
                 if (firstInvalid) firstInvalid.focus();
             }
         });
