@@ -13,7 +13,12 @@ class Tools extends BaseController
     {
         $keyProvided = $this->request->getGet('key');
         $keyExpected = env('app.migrateKey');
-        return ($keyExpected && $keyProvided && hash_equals((string) $keyExpected, (string) $keyProvided));
+        // If a key is configured, require it strictly
+        if ($keyExpected) {
+            return ($keyProvided && hash_equals((string) $keyExpected, (string) $keyProvided));
+        }
+        // No key configured: allow only in non-production environments to avoid blocking diagnostics
+        return defined('ENVIRONMENT') && ENVIRONMENT !== 'production';
     }
 
     /**
