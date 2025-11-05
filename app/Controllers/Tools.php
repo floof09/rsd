@@ -16,6 +16,29 @@ class Tools extends BaseController
         return ($keyExpected && $keyProvided && hash_equals((string) $keyExpected, (string) $keyProvided));
     }
 
+    /**
+     * Quick environment info to verify .env and config are loaded on the server.
+     * GET /tools/env?key=TOKEN
+     */
+    public function env(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $appConfig = config('App');
+        $data = [
+            'ENVIRONMENT' => defined('ENVIRONMENT') ? ENVIRONMENT : '(undefined)',
+            'CI_DEBUG'    => defined('CI_DEBUG') ? (CI_DEBUG ? 'true' : 'false') : '(undefined)',
+            'baseURL'     => $appConfig->baseURL ?? null,
+            'forceHTTPS'  => property_exists($appConfig, 'forceGlobalSecureRequests') ? ($appConfig->forceGlobalSecureRequests ? 'true' : 'false') : '(n/a)',
+            'php_version' => PHP_VERSION,
+            'server_time' => date('c'),
+        ];
+
+        return $this->response->setJSON($data);
+    }
+
     public function migrate(): ResponseInterface
     {
         if (!$this->hasValidKey()) {
@@ -74,5 +97,69 @@ class Tools extends BaseController
         }
 
         return $this->response->setStatusCode(200)->setBody('Admin user ensured/updated for ' . $email);
+    }
+
+    /**
+     * Show the last N lines of the most recent log file in writable/logs.
+     * GET /tools/logs?key=TOKEN&lines=200
+     */
+    public function logs(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $lines = (int) ($this->request->getGet('lines') ?? 200);
+        if ($lines < 10) { $lines = 10; }
+        if ($lines > 2000) { $lines = 2000; }
+
+        $logDir = WRITEPATH . 'logs';
+        if (!is_dir($logDir)) {
+            return $this->response->setStatusCode(404)->setBody('Logs directory not found: ' . $logDir);
+        }
+
+        // Find latest log file matching pattern
+        $latest = null;
+        $latestMtime = 0;
+        foreach (glob($logDir . DIRECTORY_SEPARATOR . 'log-*.php') as $file) {
+            $mtime = @filemtime($file) ?: 0;
+            if ($mtime > $latestMtime) {
+                $latestMtime = $mtime;
+                $latest = $file;
+            }
+        }
+
+        if (!$latest) {
+            return $this->response->setStatusCode(404)->setBody('No log files found in ' . $logDir);
+        }
+
+        // Tail last N lines efficiently
+        $fp = @fopen($latest, 'rb');
+        if (!$fp) {
+            return $this->response->setStatusCode(500)->setBody('Unable to open log file');
+        }
+
+        $buffer = '';
+        $pos = -1;
+        $lineCount = 0;
+        $stat = fstat($fp);
+        $size = $stat['size'] ?? 0;
+        while ($lineCount <= $lines && -$pos < $size) {
+            fseek($fp, $pos, SEEK_END);
+            $char = fgetc($fp);
+            $buffer = $char . $buffer;
+            if ($char === "\n") {
+                $lineCount++;
+            }
+            $pos--;
+        }
+        fclose($fp);
+
+        // Strip PHP opening guard to make it readable in browser
+        $buffer = preg_replace('/^<\?php.*?exit;\s*\?>\s*/s', '', $buffer);
+
+        return $this->response
+            ->setHeader('Content-Type', 'text/plain; charset=UTF-8')
+            ->setBody("Latest log: " . basename($latest) . "\n\n" . $buffer);
     }
 }
