@@ -15,7 +15,9 @@ class ApplicationModel extends Model
     protected $allowedFields = [
         'company_name',
         'first_name',
+        'middle_name',
         'last_name',
+        'suffix',
         'email_address',
         'phone_number',
         'viber_number',
@@ -46,7 +48,9 @@ class ApplicationModel extends Model
     protected $validationRules = [
         'company_name' => 'required|min_length[2]',
         'first_name' => 'required|min_length[2]',
+        'middle_name' => 'permit_empty|max_length[100]',
         'last_name' => 'required|min_length[2]',
+        'suffix' => 'permit_empty|max_length[20]',
         'email_address' => 'required|valid_email',
         'phone_number' => 'permit_empty|min_length[10]',
         'street_address' => 'permit_empty',

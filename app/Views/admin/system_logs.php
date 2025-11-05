@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Logs - RSD Admin</title>
     <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/system-logs.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/system-logs.css') ?>?v=<?= time() ?>">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -133,6 +133,11 @@
                             </tbody>
                         </table>
                     </div>
+                    <?php if (isset($pager)) : ?>
+                    <div class="logs-pagination">
+                        <?= $pager->links('logs', 'rsd_full') ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </main>

@@ -216,10 +216,28 @@
                                 </div>
 
                                 <div class="form-group">
+                                    <label for="middle_name">Middle Name</label>
+                                    <input type="text" id="middle_name" name="middle_name" value="<?= old('middle_name') ?>" placeholder="Enter middle name (optional)">
+                                    <?php if (!empty($errors['middle_name'])): ?>
+                                        <div class="field-error"><?= esc($errors['middle_name']) ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="last_name">Last Name <span class="required">*</span></label>
                                     <input type="text" id="last_name" name="last_name" value="<?= old('last_name') ?>" placeholder="Enter last name" required>
                                     <?php if (!empty($errors['last_name'])): ?>
                                         <div class="field-error"><?= esc($errors['last_name']) ?></div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="suffix">Suffix</label>
+                                    <input type="text" id="suffix" name="suffix" value="<?= old('suffix') ?>" placeholder="e.g., Jr., Sr., II (optional)">
+                                    <?php if (!empty($errors['suffix'])): ?>
+                                        <div class="field-error"><?= esc($errors['suffix']) ?></div>
                                     <?php endif; ?>
                                 </div>
                             </div>

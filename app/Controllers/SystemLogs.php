@@ -15,9 +15,22 @@ class SystemLogs extends BaseController
 
         $logModel = new SystemLogModel();
         
+        // Pagination settings
+        $perPage = (int) ($this->request->getGet('perPage') ?? 25);
+        if ($perPage <= 0) { $perPage = 25; }
+
+        // Build query with user join and order, then paginate
+        $logs = $logModel
+            ->select('system_logs.*, users.first_name, users.last_name, users.email')
+            ->join('users', 'users.id = system_logs.user_id', 'left')
+            ->orderBy('system_logs.created_at', 'DESC')
+            ->paginate($perPage, 'logs');
+
         $data = [
-            'logs' => $logModel->getLogsWithUsers(100),
+            'logs' => $logs,
             'total_logs' => $logModel->countAll(),
+            'pager' => $logModel->pager,
+            'perPage' => $perPage,
         ];
 
         return view('admin/system_logs', $data);
@@ -34,10 +47,22 @@ class SystemLogs extends BaseController
 
         $logModel = new SystemLogModel();
         
+        $perPage = (int) ($this->request->getGet('perPage') ?? 25);
+        if ($perPage <= 0) { $perPage = 25; }
+
+        $logs = $logModel
+            ->select('system_logs.*, users.first_name, users.last_name, users.email')
+            ->join('users', 'users.id = system_logs.user_id', 'left')
+            ->where('system_logs.module', $module)
+            ->orderBy('system_logs.created_at', 'DESC')
+            ->paginate($perPage, 'logs');
+
         $data = [
-            'logs' => $logModel->getLogsByModule($module),
-            'total_logs' => $logModel->where('module', $module)->countAllResults(),
+            'logs' => $logs,
+            'total_logs' => (clone $logModel)->where('module', $module)->countAllResults(),
             'filter_module' => $module,
+            'pager' => $logModel->pager,
+            'perPage' => $perPage,
         ];
 
         return view('admin/system_logs', $data);

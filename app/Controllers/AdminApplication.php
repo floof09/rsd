@@ -327,6 +327,13 @@ class AdminApplication extends BaseController
                     'alpha_space' => 'First name can only contain letters and spaces'
                 ]
             ],
+            'middle_name' => [
+                'rules' => 'permit_empty|max_length[100]|alpha_space',
+                'errors' => [
+                    'max_length' => 'Middle name cannot exceed 100 characters',
+                    'alpha_space' => 'Middle name can only contain letters and spaces'
+                ]
+            ],
             'last_name' => [
                 'rules' => 'required|min_length[2]|max_length[100]|alpha_space',
                 'errors' => [
@@ -334,6 +341,12 @@ class AdminApplication extends BaseController
                     'min_length' => 'Last name must be at least 2 characters',
                     'max_length' => 'Last name cannot exceed 100 characters',
                     'alpha_space' => 'Last name can only contain letters and spaces'
+                ]
+            ],
+            'suffix' => [
+                'rules' => 'permit_empty|max_length[20]|alpha_numeric_punct',
+                'errors' => [
+                    'max_length' => 'Suffix cannot exceed 20 characters'
                 ]
             ],
             'email_address' => [
@@ -496,10 +509,14 @@ class AdminApplication extends BaseController
         }
 
         // Sanitize inputs (protect against XSS)
+        $middleName = trim((string)$this->request->getPost('middle_name'));
+        $suffix = trim((string)$this->request->getPost('suffix'));
         $data = [
             'company_name' => esc($this->request->getPost('company_name')),
             'first_name' => esc(trim($this->request->getPost('first_name'))),
+            'middle_name' => $middleName !== '' ? esc($middleName) : null,
             'last_name' => esc(trim($this->request->getPost('last_name'))),
+            'suffix' => $suffix !== '' ? esc($suffix) : null,
             'email_address' => filter_var($this->request->getPost('email_address'), FILTER_SANITIZE_EMAIL),
             // Normalize contact numbers to E.164 +63 format. Accept inputs like 916..., 0916..., 63916..., +63916...
             'phone_number' => (function () {
@@ -532,10 +549,16 @@ class AdminApplication extends BaseController
             'status' => 'pending',
         ];
 
-        // Include notes payload for next interview if provided
-        if ($nextInterview) {
-            $data['notes'] = json_encode(['next_interview' => $nextInterview]);
+        // Include notes payload for next interview and name meta if provided
+        $notesPayload = [];
+        if ($nextInterview) { $notesPayload['next_interview'] = $nextInterview; }
+        if ($middleName !== '' || $suffix !== '') {
+            $notesPayload['name'] = [
+                'middle_name' => $middleName !== '' ? $middleName : null,
+                'suffix' => $suffix !== '' ? $suffix : null,
+            ];
         }
+        if (!empty($notesPayload)) { $data['notes'] = json_encode($notesPayload); }
 
         // Handle file upload with strict validation
         $resume = $this->request->getFile('resume');
@@ -605,7 +628,12 @@ class AdminApplication extends BaseController
                 // Fire-and-forget email notifications (errors are logged but won't block the flow)
                 try {
                     helper('url');
-                    $applicantName = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+                    $applicantName = trim((
+                        ($data['first_name'] ?? '') . ' ' .
+                        ($middleName ? ($middleName . ' ') : '') .
+                        ($data['last_name'] ?? '') .
+                        ($suffix ? (' ' . $suffix) : '')
+                    ));
                     $company = $data['company_name'] ?? 'Company';
                     $viewLinkAdmin = base_url('admin/applications/' . $applicationId);
                     $viewLinkInterviewer = base_url('interviewer/applications/' . $applicationId);
