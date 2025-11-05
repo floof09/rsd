@@ -66,3 +66,74 @@ Additionally, make sure that the following extensions are enabled in your PHP:
 - json (enabled by default - don't turn it off)
 - [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
 - [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+
+## Deployment to Hostinger (GitHub Actions)
+
+This project includes two GitHub Actions workflows to deploy to Hostinger on pushes to the `main` branch:
+
+- `.github/workflows/deploy-hostinger.yml` – Deploy via FTP
+- `.github/workflows/deploy-ssh.yml` – Deploy via SSH/rsync (faster, supports post-deploy commands)
+
+### 1) Prepare Hostinger
+
+- Create subdomain: `rsdlearninghub.rsdhrmc.com`
+- Set document root to: `/public_html/rsd/public` (the CI4 `public/` directory)
+- Ensure PHP 8.2+ is active for the domain
+- Create the MySQL database and user; note credentials
+- Install SSL (Let’s Encrypt)
+
+### 2) GitHub Secrets
+
+Choose one deployment method and set these repo secrets:
+
+FTP method (`deploy-hostinger.yml`):
+- `HOSTINGER_FTP_HOST` – FTP hostname
+- `HOSTINGER_FTP_USER` – FTP username
+- `HOSTINGER_FTP_PASS` – FTP password
+- `HOSTINGER_FTP_DIR` – Remote target directory (e.g. `/public_html/rsd/`)
+
+SSH/rsync method (`deploy-ssh.yml`):
+- `SSH_HOST` – SSH hostname
+- `SSH_USER` – SSH username
+- `SSH_PORT` – SSH port (e.g. `65002`)
+- `SSH_PRIVATE_KEY` – Private key contents (PEM) for the user
+- `SSH_TARGET_DIR` – Remote target directory (e.g. `/home/<user>/public_html/rsd/`)
+
+Optional for both:
+- `ENV_PROD` – Full contents of your production `.env` file
+
+> Note: The SSH workflow respects `.rsyncignore` to avoid uploading dev/test files.
+
+### 3) Configure environment
+
+Create and tailor `.env` (or provide via `ENV_PROD` secret). Minimum settings:
+
+- `app.baseURL = 'https://rsdlearninghub.rsdhrmc.com/'`
+- Database credentials under `database.*`
+
+Writable directories (`writable/`) must be writable by PHP on the server.
+
+### 4) Deploy
+
+- Push to `main` or manually run the chosen workflow in the Actions tab
+- For SSH, the workflow can run post-deploy commands like `php spark cache:clear`
+
+### 5) Troubleshooting
+
+- If the site shows a directory listing, the document root is wrong; point to `/public_html/rsd/public`
+- Check `writable/logs/` on the server for errors
+- If CSS/JS look cached, clear cache (`php spark cache:clear`) and hard-refresh the browser
+
+## Hostinger Auto Deployment (Webhook)
+
+If you prefer Hostinger's built-in auto-deployment instead of GitHub Actions:
+
+1. In hPanel → Websites → Advanced → Git → your repo, enable Auto Deployment and copy the Webhook URL.
+2. In GitHub → Settings → Webhooks → Add webhook:
+	- Payload URL: paste the Hostinger Webhook URL
+	- Content type: `application/json`
+	- Secret: leave blank
+	- Events: "Just the push event"
+3. Save, then push any commit to `main` to trigger deployment.
+
+This paragraph intentionally added to trigger the initial webhook test.
