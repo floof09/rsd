@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Form - RSD Admin</title>
     <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/interviewer-dashboard.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/application-form.css') ?>?v=<?= time() ?>">
     <!-- Leaflet CSS for map picker -->
