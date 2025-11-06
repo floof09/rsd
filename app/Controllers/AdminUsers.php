@@ -51,12 +51,30 @@ class AdminUsers extends BaseController
         }
 
         $request = $this->request;
+        $postedType = strtolower(trim((string) ($request->getPost('user_type') ?? $request->getPost('role') ?? 'interviewer')));
+        // Map common labels
+        if ($postedType === 'recruiter') {
+            $postedType = 'interviewer';
+        }
+        $allowedTypes = ['interviewer', 'admin'];
+        if (!in_array($postedType, $allowedTypes, true)) {
+            session()->setFlashdata('errors', ['user_type' => 'Invalid role selected.']);
+            $old = [
+                'first_name' => trim((string) $request->getPost('first_name')),
+                'last_name'  => trim((string) $request->getPost('last_name')),
+                'email'      => strtolower(trim((string) $request->getPost('email'))),
+                'user_type'  => $postedType,
+            ];
+            session()->setFlashdata('old', $old);
+            return redirect()->to(base_url('admin/recruiters'));
+        }
+
         $data = [
             'first_name' => trim((string) $request->getPost('first_name')),
             'last_name'  => trim((string) $request->getPost('last_name')),
             'email'      => strtolower(trim((string) $request->getPost('email'))),
             'password'   => (string) $request->getPost('password'),
-            'user_type'  => 'interviewer', // Recruiter role in UI
+            'user_type'  => $postedType,
             'status'     => 'active',
         ];
 

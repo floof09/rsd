@@ -30,6 +30,15 @@
                         <h2>Active Accounts</h2>
                         <span class="count-badge"><?= is_array($users) ? count($users) : 0 ?> Total</span>
                     </div>
+                    <div class="header-right">
+                        <button id="addUserBtn" class="btn-primary" type="button" aria-expanded="false" aria-controls="addUserPanel">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add User
+                        </button>
+                    </div>
                 </div>
 
                 <?php if (!empty($success)): ?>
@@ -49,8 +58,8 @@
                     </div>
                 <?php endif; ?>
 
-                <div class="panel" style="margin-bottom:20px;">
-                    <h3 style="margin-top:0;">Add Recruiter</h3>
+                <div id="addUserPanel" class="panel" style="margin-bottom:20px; display: <?= !empty($errors) || !empty($old) ? 'block' : 'none' ?>;">
+                    <h3 style="margin-top:0;">Add User</h3>
                     <form action="<?= base_url('admin/recruiters/create') ?>" method="post" class="add-user-form" novalidate>
                         <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;">
                             <div>
@@ -66,13 +75,21 @@
                                 <input type="email" id="email" name="email" value="<?= esc($old['email'] ?? '') ?>" required style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
                             </div>
                             <div>
+                                <label for="user_type" style="display:block; font-weight:700; margin-bottom:6px;">Role</label>
+                                <select id="user_type" name="user_type" required style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px; background:#fff;">
+                                    <?php $sel = $old['user_type'] ?? 'interviewer'; ?>
+                                    <option value="interviewer" <?= ($sel === 'interviewer' || $sel === 'recruiter') ? 'selected' : '' ?>>Recruiter</option>
+                                    <option value="admin" <?= ($sel === 'admin') ? 'selected' : '' ?>>Admin</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label for="password" style="display:block; font-weight:700; margin-bottom:6px;">Temporary Password</label>
                                 <input type="password" id="password" name="password" minlength="8" required placeholder="Min 8 characters" style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
                             </div>
                         </div>
                         <div style="display:flex; gap:12px; align-items:center; margin-top:12px;">
                             <button type="submit" class="btn-primary">Create Account</button>
-                            <span class="hint" style="border:none; padding:0; background:none; color:var(--muted);">Role will be <strong>Recruiter</strong> and status <strong>Active</strong>.</span>
+                            <span class="hint" style="border:none; padding:0; background:none; color:var(--muted);">Status will be <strong>Active</strong>.</span>
                         </div>
                     </form>
                 </div>
@@ -115,5 +132,18 @@
     </main>
 </div>
 <script src="<?= base_url('assets/js/interviewer-dashboard.js') ?>?v=<?= time() ?>"></script>
+<script>
+(function(){
+    var btn = document.getElementById('addUserBtn');
+    var panel = document.getElementById('addUserPanel');
+    if(btn && panel){
+        btn.addEventListener('click', function(){
+            var isOpen = panel.style.display !== 'none';
+            panel.style.display = isOpen ? 'none' : 'block';
+            btn.setAttribute('aria-expanded', String(!isOpen));
+        });
+    }
+})();
+</script>
 </body>
 </html>
