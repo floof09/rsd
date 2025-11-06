@@ -64,3 +64,5 @@ $routes->get('tools/logs', 'Tools::logs');
 $routes->get('tools/health', 'Tools::health');
 // Create a log file with sample entries for diagnostics
 $routes->get('tools/test-log', 'Tools::testLog');
+// Repair migrations table state and run remaining migrations
+$routes->get('tools/repair-migrations', 'Tools::repairMigrations');

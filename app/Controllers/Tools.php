@@ -124,6 +124,69 @@ class Tools extends BaseController
     }
 
     /**
+     * Repair migrations state when some tables already exist but migrations table isn't in sync.
+     * - Ensures migrations table exists
+     * - Marks known migrations as applied if their tables exist
+     * - Runs remaining migrations
+     * GET /tools/repair-migrations?key=TOKEN
+     */
+    public function repairMigrations(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $db = Database::connect();
+        $forge = \Config\Services::forge();
+        $out = [];
+
+        // Ensure migrations table exists (CI normally auto-creates, but do it defensively)
+        if (!$db->tableExists('migrations')) {
+            $sql = "CREATE TABLE migrations (\n                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,\n                version VARCHAR(255) NOT NULL,\n                class VARCHAR(255) NOT NULL,\n                `group` VARCHAR(255) NOT NULL,\n                namespace VARCHAR(255) NOT NULL,\n                time INT NOT NULL,\n                batch INT UNSIGNED NOT NULL,\n                PRIMARY KEY (id)\n            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            $db->query($sql);
+            $out[] = 'Created migrations table';
+        }
+
+        // Helper to insert a migration row if missing
+        $ensureMigration = function (string $version, string $class) use ($db, &$out) {
+            $exists = $db->table('migrations')->where('version', $version)->countAllResults();
+            if ($exists == 0) {
+                $db->table('migrations')->insert([
+                    'version'   => $version,
+                    'class'     => $class,
+                    'group'     => 'default',
+                    'namespace' => 'App',
+                    'time'      => time(),
+                    'batch'     => 1,
+                ]);
+                $out[] = "Marked migration as applied: $class ($version)";
+            }
+        };
+
+        // If core tables already exist, mark their migrations as applied
+        if ($db->tableExists('users')) {
+            $ensureMigration('2025-10-28-073954', 'App\\Database\\Migrations\\CreateUsersTable');
+        }
+        if ($db->tableExists('applications')) {
+            $ensureMigration('2025-10-28-093216', 'App\\Database\\Migrations\\CreateApplicationsTable');
+            // If resume column is present (or even if not), mark the AddResume migration as applied to avoid duplicate attempts if already handled manually
+            $ensureMigration('2025-10-28-104042', 'App\\Database\\Migrations\\AddResumeToApplications');
+        }
+
+        // Now attempt to run remaining migrations (this should create system_logs, etc.)
+        $migrate = Services::migrations();
+        try {
+            $migrate->latest();
+            $out[] = 'Ran remaining migrations successfully.';
+        } catch (\Throwable $e) {
+            $out[] = 'Migration run failed: ' . $e->getMessage();
+            return $this->response->setStatusCode(500)->setBody(implode("\n", $out));
+        }
+
+        return $this->response->setStatusCode(200)->setBody(implode("\n", $out));
+    }
+
+    /**
      * Show the last N lines of the most recent log file in writable/logs.
      * GET /tools/logs?key=TOKEN&lines=200
      */
