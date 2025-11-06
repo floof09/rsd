@@ -1,0 +1,1 @@
+ok - public is live (created by deploy). If you can see this text at /ping.txt, the document root is pointing to the public/ folder and static files are served.
