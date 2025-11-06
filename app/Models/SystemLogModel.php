@@ -45,7 +45,24 @@ class SystemLogModel extends Model
             'created_at' => date('Y-m-d H:i:s'),
         ];
 
-        return $this->insert($data);
+        // Be defensive: if the system_logs table is missing or unavailable,
+        // avoid throwing and crashing auth flows. Fall back to file logging.
+        try {
+            return $this->insert($data);
+        } catch (\Throwable $e) {
+            // Log to file instead of failing the request
+            $safeMsg = sprintf(
+                'SystemLog DB write failed: %s | action=%s module=%s user_id=%s',
+                $e->getMessage(),
+                (string) $action,
+                (string) $module,
+                (string) ($data['user_id'] ?? 'null')
+            );
+            if (function_exists('log_message')) {
+                log_message('error', $safeMsg);
+            }
+            return false;
+        }
     }
 
     /**

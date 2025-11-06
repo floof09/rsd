@@ -25,6 +25,8 @@
 # app_baseURL = ''
 # app.forceGlobalSecureRequests = false
 # app.CSPEnabled = false
+# Optional: Protect diagnostics/migration endpoints. Set a strong random token.
+# app.migrateKey = ''
 
 #--------------------------------------------------------------------
 # DATABASE
