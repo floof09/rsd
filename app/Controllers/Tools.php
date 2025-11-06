@@ -187,6 +187,49 @@ class Tools extends BaseController
     }
 
     /**
+     * Verify a user's stored hash against a provided password and show minimal user info.
+     * GET /tools/auth-check?email=...&password=...
+     */
+    public function authCheck(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $email = trim((string) $this->request->getGet('email'));
+        $password = (string) $this->request->getGet('password');
+        if ($email === '' || $password === '') {
+            return $this->response->setStatusCode(400)->setJSON(['error' => 'Missing email or password']);
+        }
+
+        $db = Database::connect();
+        $row = $db->table('users')->where('email', $email)->get()->getRowArray();
+        if (!$row) {
+            return $this->response->setJSON([
+                'found' => false,
+                'email' => $email,
+            ]);
+        }
+
+        $hash = (string) ($row['password'] ?? '');
+        $verified = $hash !== '' ? password_verify($password, $hash) : false;
+
+        // Return minimal info; do not expose full hash in production
+        $info = [
+            'found' => true,
+            'id' => $row['id'] ?? null,
+            'email' => $row['email'] ?? null,
+            'user_type' => $row['user_type'] ?? null,
+            'status' => $row['status'] ?? null,
+            'hash_prefix' => substr($hash, 0, 12),
+            'hash_len' => strlen($hash),
+            'verified' => $verified,
+        ];
+
+        return $this->response->setJSON($info);
+    }
+
+    /**
      * Show the last N lines of the most recent log file in writable/logs.
      * GET /tools/logs?key=TOKEN&lines=200
      */

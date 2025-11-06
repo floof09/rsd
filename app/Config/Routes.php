@@ -66,3 +66,5 @@ $routes->get('tools/health', 'Tools::health');
 $routes->get('tools/test-log', 'Tools::testLog');
 // Repair migrations table state and run remaining migrations
 $routes->get('tools/repair-migrations', 'Tools::repairMigrations');
+// Verify a user's credentials against stored hash
+$routes->get('tools/auth-check', 'Tools::authCheck');
