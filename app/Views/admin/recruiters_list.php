@@ -32,6 +32,51 @@
                     </div>
                 </div>
 
+                <?php if (!empty($success)): ?>
+                    <div class="panel" style="border-left:4px solid #10b981; margin-bottom:16px;">
+                        <p style="margin:0; color:#065f46; font-weight:700;">✅ <?= esc($success) ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($errors) && is_array($errors)): ?>
+                    <div class="panel" style="border-left:4px solid #ef4444; margin-bottom:16px;">
+                        <p style="margin:0 0 8px; color:#991b1b; font-weight:800;">There were some problems creating the account:</p>
+                        <ul style="margin:0 0 0 18px; color:#7f1d1d;">
+                            <?php foreach ($errors as $field => $msg): ?>
+                                <li><?= esc($msg) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <div class="panel" style="margin-bottom:20px;">
+                    <h3 style="margin-top:0;">Add Recruiter</h3>
+                    <form action="<?= base_url('admin/recruiters/create') ?>" method="post" class="add-user-form" novalidate>
+                        <div style="display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px;">
+                            <div>
+                                <label for="first_name" style="display:block; font-weight:700; margin-bottom:6px;">First Name</label>
+                                <input type="text" id="first_name" name="first_name" value="<?= esc($old['first_name'] ?? '') ?>" required style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
+                            </div>
+                            <div>
+                                <label for="last_name" style="display:block; font-weight:700; margin-bottom:6px;">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" value="<?= esc($old['last_name'] ?? '') ?>" required style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
+                            </div>
+                            <div>
+                                <label for="email" style="display:block; font-weight:700; margin-bottom:6px;">Email</label>
+                                <input type="email" id="email" name="email" value="<?= esc($old['email'] ?? '') ?>" required style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
+                            </div>
+                            <div>
+                                <label for="password" style="display:block; font-weight:700; margin-bottom:6px;">Temporary Password</label>
+                                <input type="password" id="password" name="password" minlength="8" required placeholder="Min 8 characters" style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:10px;">
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:12px; align-items:center; margin-top:12px;">
+                            <button type="submit" class="btn-primary">Create Account</button>
+                            <span class="hint" style="border:none; padding:0; background:none; color:var(--muted);">Role will be <strong>Recruiter</strong> and status <strong>Active</strong>.</span>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="table-container">
                     <table>
                         <thead>

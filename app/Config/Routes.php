@@ -31,6 +31,8 @@ $routes->get('admin/system-logs/filter/(:any)', 'SystemLogs::filterByModule/$1')
 $routes->get('admin/system-logs/clear-old', 'SystemLogs::clearOldLogs');
 // Admin: Recruiters/Users
 $routes->get('admin/recruiters', 'AdminUsers::activeList');
+// Admin: Create recruiter account
+$routes->post('admin/recruiters/create', 'AdminUsers::create');
 // Admin: Email Test
 $routes->get('admin/email/test', 'EmailTest::send');
 // Admin: Reports
