@@ -68,3 +68,5 @@ $routes->get('tools/test-log', 'Tools::testLog');
 $routes->get('tools/repair-migrations', 'Tools::repairMigrations');
 // Verify a user's credentials against stored hash
 $routes->get('tools/auth-check', 'Tools::authCheck');
+// Database status: tables and counts
+$routes->get('tools/db-status', 'Tools::dbStatus');

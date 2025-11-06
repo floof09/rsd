@@ -230,6 +230,49 @@ class Tools extends BaseController
     }
 
     /**
+     * Show basic DB status: tables present and simple counts.
+     * GET /tools/db-status
+     */
+    public function dbStatus(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $db = Database::connect();
+        $tables = $db->listTables();
+        $hasUsers = in_array('users', $tables, true);
+        $hasApps = in_array('applications', $tables, true);
+        $hasLogs = in_array('system_logs', $tables, true);
+
+        $counts = [];
+        if ($hasUsers) {
+            $counts['users'] = (int) $db->table('users')->countAllResults();
+        }
+        if ($hasLogs) {
+            $counts['system_logs'] = (int) $db->table('system_logs')->countAllResults();
+        }
+        if ($hasApps) {
+            $counts['applications'] = (int) $db->table('applications')->countAllResults();
+        }
+
+        return $this->response->setJSON([
+            'database' => [
+                'name' => $db->database ?? null,
+                'driver' => $db->DBDriver ?? null,
+                'host' => $db->hostname ?? null,
+            ],
+            'tables' => $tables,
+            'has' => [
+                'users' => $hasUsers,
+                'applications' => $hasApps,
+                'system_logs' => $hasLogs,
+            ],
+            'counts' => $counts,
+        ]);
+    }
+
+    /**
      * Show the last N lines of the most recent log file in writable/logs.
      * GET /tools/logs?key=TOKEN&lines=200
      */
