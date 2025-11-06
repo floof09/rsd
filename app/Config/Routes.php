@@ -59,6 +59,7 @@ $routes->get('api/geocode/search', 'Geocode::search');
 // Maintenance/Tools (guarded by token in .env)
 $routes->get('tools/migrate', 'Tools::migrate');
 $routes->get('tools/seed-admin', 'Tools::seedAdmin');
+$routes->get('tools/seed-interviewer', 'Tools::seedInterviewer');
 $routes->get('tools/env', 'Tools::env');
 $routes->get('tools/logs', 'Tools::logs');
 $routes->get('tools/health', 'Tools::health');

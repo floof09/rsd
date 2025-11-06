@@ -124,6 +124,55 @@ class Tools extends BaseController
     }
 
     /**
+     * Ensure an interviewer user exists (create or update password and profile).
+     * GET /tools/seed-interviewer?key=TOKEN&email=...&password=...&first=...&last=...
+     */
+    public function seedInterviewer(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $email = trim((string) $this->request->getGet('email')) ?: 'interviewer@rsd.com';
+        $password = (string) $this->request->getGet('password');
+        $first = trim((string) $this->request->getGet('first')) ?: 'Interviewer';
+        $last = trim((string) $this->request->getGet('last')) ?: 'User';
+
+        if ($password === '') {
+            return $this->response->setStatusCode(400)->setBody('Missing password');
+        }
+
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $db = Database::connect();
+        $builder = $db->table('users');
+
+        $existing = $builder->select('id')->where('email', $email)->get()->getFirstRow();
+        if ($existing) {
+            $builder->where('id', $existing->id)->update([
+                'password' => $hash,
+                'first_name' => $first,
+                'last_name' => $last,
+                'user_type' => 'interviewer',
+                'status' => 'active',
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        } else {
+            $builder->insert([
+                'email' => $email,
+                'password' => $hash,
+                'first_name' => $first,
+                'last_name' => $last,
+                'user_type' => 'interviewer',
+                'status' => 'active',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return $this->response->setStatusCode(200)->setBody('Interviewer ensured/updated for ' . $email);
+    }
+
+    /**
      * Repair migrations state when some tables already exist but migrations table isn't in sync.
      * - Ensures migrations table exists
      * - Marks known migrations as applied if their tables exist
