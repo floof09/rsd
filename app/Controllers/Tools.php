@@ -22,6 +22,25 @@ class Tools extends BaseController
     }
 
     /**
+     * Emit a few log messages to ensure a log file exists in writable/logs.
+     * GET /tools/test-log?key=TOKEN
+     */
+    public function testLog(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        // Use CI4's global logger helper
+        log_message('debug', 'Test log: debug level active');
+        log_message('info', 'Test log: info message');
+        log_message('notice', 'Test log: notice message');
+        log_message('warning', 'Test log: warning message');
+        log_message('error', 'Test log: error message');
+
+        return $this->response->setStatusCode(200)->setBody('Wrote test log messages. Now open /tools/logs to view.');
+    }
+    /**
      * Quick environment info to verify .env and config are loaded on the server.
      * GET /tools/env?key=TOKEN
      */
