@@ -72,3 +72,4 @@ $routes->get('tools/auth-check', 'Tools::authCheck');
 $routes->get('tools/db-status', 'Tools::dbStatus');
 // Session diagnostics
 $routes->get('tools/session-info', 'Tools::sessionInfo');
+$routes->get('tools/session-files', 'Tools::sessionFiles');

@@ -303,6 +303,45 @@ class Tools extends BaseController
     }
 
     /**
+     * List session files in the writable session directory.
+     * GET /tools/session-files?key=TOKEN
+     */
+    public function sessionFiles(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $dir = rtrim(WRITEPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'session';
+        if (!is_dir($dir)) {
+            return $this->response->setStatusCode(404)->setBody('Session dir not found: ' . $dir);
+        }
+
+        $files = [];
+        $entries = glob($dir . DIRECTORY_SEPARATOR . '*') ?: [];
+        foreach ($entries as $f) {
+            if (!is_file($f)) continue;
+            $stat = stat($f);
+            $files[] = [
+                'name' => basename($f),
+                'size' => $stat['size'] ?? null,
+                'mtime' => date('c', $stat['mtime'] ?? 0),
+            ];
+        }
+
+        // Sort by mtime desc
+        usort($files, function ($a, $b) {
+            return strcmp($b['mtime'], $a['mtime']);
+        });
+
+        return $this->response->setJSON([
+            'session_dir' => $dir,
+            'count' => count($files),
+            'files' => $files,
+        ]);
+    }
+
+    /**
      * Show the last N lines of the most recent log file in writable/logs.
      * GET /tools/logs?key=TOKEN&lines=200
      */
