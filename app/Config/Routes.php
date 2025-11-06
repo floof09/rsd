@@ -70,3 +70,5 @@ $routes->get('tools/repair-migrations', 'Tools::repairMigrations');
 $routes->get('tools/auth-check', 'Tools::authCheck');
 // Database status: tables and counts
 $routes->get('tools/db-status', 'Tools::dbStatus');
+// Session diagnostics
+$routes->get('tools/session-info', 'Tools::sessionInfo');

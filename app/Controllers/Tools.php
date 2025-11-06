@@ -273,6 +273,36 @@ class Tools extends BaseController
     }
 
     /**
+     * Inspect current session basics (guarded). Useful to debug login persistence.
+     * GET /tools/session-info?key=TOKEN
+     */
+    public function sessionInfo(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+
+        $sess = session();
+        $data = [
+            'session_id'   => method_exists($sess, 'getId') ? $sess->getId() : null,
+            'isLoggedIn'   => $sess->get('isLoggedIn'),
+            'user_id'      => $sess->get('user_id'),
+            'email'        => $sess->get('email'),
+            'user_type'    => $sess->get('user_type'),
+            'justLoggedIn' => $sess->get('justLoggedIn'),
+            'cookies'      => $_COOKIE ?? [],
+            'headers'      => [
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+                'host'       => $_SERVER['HTTP_HOST'] ?? null,
+                'https'      => $_SERVER['HTTPS'] ?? null,
+                'x_forwarded_proto' => $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null,
+            ],
+        ];
+
+        return $this->response->setJSON($data);
+    }
+
+    /**
      * Show the last N lines of the most recent log file in writable/logs.
      * GET /tools/logs?key=TOKEN&lines=200
      */

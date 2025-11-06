@@ -32,8 +32,22 @@ class Auth extends BaseController
         $password = $this->request->getPost('password');
         $remember = $this->request->getPost('remember');
         
+        // Trace start of login for diagnostics
+        if (function_exists('log_message')) {
+            log_message('info', 'Auth::doLogin start email={email} ip={ip}', [
+                'email' => (string) $email,
+                'ip'    => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            ]);
+        }
+        
         // Validate input
         if (!$email || !$password) {
+            if (function_exists('log_message')) {
+                log_message('warning', 'Auth::doLogin missing fields email_present={e} password_present={p}', [
+                    'e' => $email ? 'y' : 'n',
+                    'p' => $password ? 'y' : 'n',
+                ]);
+            }
             return redirect()->back()->with('error', 'Please fill in all fields');
         }
         
@@ -49,6 +63,9 @@ class Auth extends BaseController
                 'Failed login attempt for email: ' . $email,
                 null
             );
+            if (function_exists('log_message')) {
+                log_message('warning', 'Auth::doLogin invalid credentials for {email}', ['email' => (string) $email]);
+            }
             
             return redirect()->back()->with('error', 'Invalid email or password');
         }
@@ -63,6 +80,12 @@ class Auth extends BaseController
                 'Login attempt on inactive account: ' . $email,
                 $user['id']
             );
+            if (function_exists('log_message')) {
+                log_message('info', 'Auth::doLogin inactive account id={id} email={email}', [
+                    'id' => (string) $user['id'],
+                    'email' => (string) $email,
+                ]);
+            }
             
             return redirect()->back()->with('error', 'Your account is inactive. Please contact administrator.');
         }
@@ -79,6 +102,16 @@ class Auth extends BaseController
         ];
         
         session()->set($sessionData);
+        // Regenerate session ID to prevent fixation
+        if (function_exists('session')) {
+            @session()->regenerate(true);
+        }
+        if (function_exists('log_message')) {
+            log_message('info', 'Auth::doLogin success id={id} type={type}', [
+                'id' => (string) $user['id'],
+                'type' => (string) $user['user_type'],
+            ]);
+        }
         
         // Update last login
         $userModel->updateLastLogin($user['id']);
@@ -94,6 +127,9 @@ class Auth extends BaseController
         
         // Redirect based on user type
         $redirectUrl = $this->getDashboardRoute($user['user_type']);
+        if (function_exists('log_message')) {
+            log_message('info', 'Auth::doLogin redirecting to {url}', ['url' => (string) $redirectUrl]);
+        }
         return redirect()->to($redirectUrl)->with('success', 'Welcome back!');
     }
 
