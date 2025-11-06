@@ -137,15 +137,19 @@ class Tools extends BaseController
         if ($lines < 10) { $lines = 10; }
         if ($lines > 2000) { $lines = 2000; }
 
-        $logDir = WRITEPATH . 'logs';
+    $logDir = WRITEPATH . 'logs';
         if (!is_dir($logDir)) {
             return $this->response->setStatusCode(404)->setBody('Logs directory not found: ' . $logDir);
         }
 
-        // Find latest log file matching pattern
+        // Find latest log file (support both .php and .log extensions)
         $latest = null;
         $latestMtime = 0;
-        foreach (glob($logDir . DIRECTORY_SEPARATOR . 'log-*.php') as $file) {
+        $candidates = array_merge(
+            glob($logDir . DIRECTORY_SEPARATOR . 'log-*.php') ?: [],
+            glob($logDir . DIRECTORY_SEPARATOR . 'log-*.log') ?: []
+        );
+        foreach ($candidates as $file) {
             $mtime = @filemtime($file) ?: 0;
             if ($mtime > $latestMtime) {
                 $latestMtime = $mtime;
@@ -179,8 +183,10 @@ class Tools extends BaseController
         }
         fclose($fp);
 
-        // Strip PHP opening guard to make it readable in browser
-        $buffer = preg_replace('/^<\?php.*?exit;\s*\?>\s*/s', '', $buffer);
+        // If the log file is PHP-protected, strip the guard for readability
+        if (substr($latest, -4) === '.php') {
+            $buffer = preg_replace('/^<\?php.*?exit;\s*\?>\s*/s', '', $buffer);
+        }
 
         return $this->response
             ->setHeader('Content-Type', 'text/plain; charset=UTF-8')
