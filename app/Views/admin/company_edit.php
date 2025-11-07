@@ -8,7 +8,7 @@
 </head>
 <body>
 <div class="dashboard-container interviewer-dashboard">
-    <?= view('components/admin_sidebar') ?>
+    <?= view('components/sidebar') ?>
     <main class="main-content">
         <header class="top-bar">
             <h1><?= $company ? 'Edit Company' : 'Add Company' ?></h1>
@@ -53,5 +53,6 @@
         </div>
     </main>
 </div>
+<?= view('components/sidebar_script') ?>
 </body>
 </html>

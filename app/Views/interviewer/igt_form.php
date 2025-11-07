@@ -21,7 +21,7 @@ $errors = session('errors') ?? [];
 </head>
 <body>
 <div class="dashboard-container">
-    <?= view('components/interviewer_sidebar') ?>
+    <?= view('components/sidebar') ?>
     <main class="main-content">
         <header class="top-bar">
             <h1>IGT Additional Interview</h1>
@@ -191,6 +191,7 @@ $errors = session('errors') ?? [];
             </div>
         </div>
     </main>
+    <?= view('components/sidebar_script') ?>
 </div>
 </body>
 </html>

@@ -21,7 +21,7 @@
 </head>
 <body>
 <div class="dashboard-container interviewer-dashboard">
-    <?= view('components/admin_sidebar') ?>
+    <?= view('components/sidebar') ?>
     <main class="main-content">
         <header class="top-bar">
             <h1>Configure Form: <?= esc($company['name']) ?></h1>
@@ -126,5 +126,6 @@
     existing.forEach(f => addField(f));
     if (!existing.length) addField();
 </script>
+<?= view('components/sidebar_script') ?>
 </body>
 </html>

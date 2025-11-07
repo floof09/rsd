@@ -53,11 +53,7 @@
     $hasSecond = !empty($notes['next_interview']) || !empty($notes['igt']);
 ?>
 <div class="dashboard-container interviewer-dashboard">
-    <?php if ($rolePrefix === 'interviewer'): ?>
-        <?= view('components/interviewer_sidebar') ?>
-    <?php else: ?>
-        <?= view('components/admin_sidebar') ?>
-    <?php endif; ?>
+    <?= view('components/sidebar') ?>
 
     <main class="main-content">
         <header class="top-bar">

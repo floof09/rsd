@@ -77,9 +77,9 @@
     <div class="dashboard-container">
     <?php $rolePrefix = session()->get('user_type') === 'interviewer' ? 'interviewer' : 'admin'; ?>
     <?php if ($rolePrefix === 'interviewer'): ?>
-        <?= view('components/interviewer_sidebar') ?>
+    <?= view('components/sidebar') ?>
     <?php else: ?>
-        <?= view('components/admin_sidebar') ?>
+        
     <?php endif; ?>
 
     <main class="main-content">

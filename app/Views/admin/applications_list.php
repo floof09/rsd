@@ -13,11 +13,7 @@
 <body>
     <div class="dashboard-container interviewer-dashboard">
         <?php helper('name'); ?>
-        <?php if (session()->get('user_type') === 'interviewer'): ?>
-            <?= view('components/interviewer_sidebar') ?>
-        <?php else: ?>
-            <?= view('components/admin_sidebar') ?>
-        <?php endif; ?>
+        <?= view('components/sidebar') ?>
 
         <main class="main-content">
             <header class="top-bar">

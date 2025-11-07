@@ -148,11 +148,7 @@
 </head>
 <body>
     <div class="dashboard-container interviewer-dashboard">
-        <?php if (session()->get('user_type') === 'interviewer'): ?>
-            <?= view('components/interviewer_sidebar') ?>
-        <?php else: ?>
-            <?= view('components/admin_sidebar') ?>
-        <?php endif; ?>
+        <?= view('components/sidebar') ?>
 
         <main class="main-content">
             <header class="top-bar">
@@ -482,6 +478,7 @@
     </div>
     
     <script src="<?= base_url('assets/js/interviewer-dashboard.js') ?>?v=<?= time() ?>"></script>
+    <?= view('components/sidebar_script') ?>
     <!-- Leaflet JS for map picker -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
