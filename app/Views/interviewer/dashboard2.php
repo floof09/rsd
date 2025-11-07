@@ -1,7 +1,7 @@
 <?php $title = 'Interviewer Dashboard • RSD'; ?>
 <?= view('layouts/header', ['title' => $title, 'bodyClass' => 'interviewer-dashboard']) ?>
 
-<?= view('components/interviewer_sidebar') ?>
+<?= view('components/sidebar') ?>
 
 <main class="main-content">
     <header class="top-bar">

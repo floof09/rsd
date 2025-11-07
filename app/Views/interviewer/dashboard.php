@@ -1,17 +1,11 @@
 <?php $title = 'Interviewer Dashboard • RSD'; ?>
 <?= view('layouts/header', ['title' => $title, 'bodyClass' => 'interviewer-dashboard']) ?>
-
-<?= view('components/interviewer_sidebar') ?>
-<?php $title = 'Interviewer Dashboard • RSD'; ?>
-<?= view('layouts/header', ['title' => $title, 'bodyClass' => 'interviewer-dashboard']) ?>
-
-<?= view('components/interviewer_sidebar') ?>
-
+<?= view('components/sidebar') ?>
 
 <main class="main-content">
     <header class="top-bar">
-    <h1>Interviewer Dashboard</h1>
-    <div class="user-info" style="gap:8px;">
+        <h1>Interviewer Dashboard</h1>
+        <div class="user-info" style="gap:8px;">
             <button id="themeBtn" class="theme-toggle" type="button" aria-pressed="false" aria-label="Toggle theme">
                 <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
                 <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -19,7 +13,7 @@
             </button>
             <span>Welcome, <?= esc(session()->get('first_name')) ?> <?= esc(session()->get('last_name')) ?></span>
             <div class="user-avatar"><?= strtoupper(substr(session()->get('first_name'), 0, 1)) ?></div>
-    </div>
+        </div>
     </header>
 
     <div class="dashboard-content">
@@ -149,6 +143,7 @@
     </div>
 </main>
 
+<?= view('components/sidebar_script') ?>
 <?= view('layouts/footer') ?>
     <header class="top-bar">
         <h1>Interviewer Dashboard</h1>
@@ -290,11 +285,12 @@
     </div>
 </main>
 
+<?= view('components/sidebar_script') ?>
 <?= view('layouts/footer') ?>
 <?php $title = 'Interviewer Dashboard • RSD'; ?>
 <?= view('layouts/header', ['title' => $title, 'bodyClass' => 'interviewer-dashboard']) ?>
 
-<?= view('components/interviewer_sidebar') ?>
+<?= view('components/sidebar') ?>
 
 <main class="main-content">
     <header class="top-bar">
@@ -934,7 +930,7 @@
 
             color: #92400e;
 
-        }            display: inline-flex;        .activity-badge{ padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; text-transform:capitalize; background:#eef2ff; color:#3730a3; white-space:nowrap; }        <?= view('components/interviewer_sidebar') ?>
+    }            display: inline-flex;        .activity-badge{ padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; text-transform:capitalize; background:#eef2ff; color:#3730a3; white-space:nowrap; }        <?= view('components/sidebar') ?>
 
 
 
@@ -1022,7 +1018,7 @@
 
         }
 
-            font-weight: 600;        <?= view('components/interviewer_sidebar') ?>                    <span>Welcome, <?= esc(session()->get('first_name')) ?> <?= esc(session()->get('last_name')) ?></span>
+            font-weight: 600;        <?= view('components/sidebar') ?>                    <span>Welcome, <?= esc(session()->get('first_name')) ?> <?= esc(session()->get('last_name')) ?></span>
 
         .activity-meta {
 
@@ -1170,7 +1166,7 @@
 
     <div class="dashboard-container">
 
-        <?= view('components/interviewer_sidebar') ?>            text-decoration: none;
+    <?= view('components/sidebar') ?>            text-decoration: none;
 
 
 
@@ -1623,7 +1619,7 @@
 
     <div class="dashboard-container">
 
-        <?= view('components/interviewer_sidebar') ?>                            <div class="kpi-trend">                                <span class="badge b-ok">IGT</span>
+    <?= view('components/sidebar') ?>                            <div class="kpi-trend">                                <span class="badge b-ok">IGT</span>
 
 
 
