@@ -173,6 +173,120 @@ class Tools extends BaseController
     }
 
     /**
+     * Seed initial companies with example form schemas so the dynamic form feature works immediately.
+     * GET /tools/seed-companies?key=TOKEN
+     */
+    public function seedCompanies(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+        $db = Database::connect();
+        // Ensure companies table exists before seeding
+        if (!$db->tableExists('companies')) {
+            return $this->response->setStatusCode(500)->setBody('companies table does not exist. Run /tools/migrate first.');
+        }
+
+        $builder = $db->table('companies');
+        $seed = [
+            [
+                'name' => 'Everise',
+                'status' => 'active',
+                'form_schema' => json_encode([
+                    'fields' => [
+                        [ 'key' => 'position_applied', 'label' => 'Position Applied For', 'type' => 'text', 'required' => true, 'maxLength' => 150 ],
+                        [ 'key' => 'shift_preference', 'label' => 'Shift Preference', 'type' => 'select', 'options' => ['Day','Night','Graveyard'], 'required' => true ],
+                        [ 'key' => 'expected_salary', 'label' => 'Expected Salary (PHP)', 'type' => 'number', 'min' => 10000, 'max' => 150000 ],
+                        [ 'key' => 'has_equipment', 'label' => 'Has Own Equipment', 'type' => 'checkbox', 'required' => false ],
+                    ]
+                ])
+            ],
+            [
+                'name' => 'IGT',
+                'status' => 'active',
+                'form_schema' => json_encode([
+                    'fields' => [
+                        [ 'key' => 'program', 'label' => 'Program', 'type' => 'text', 'required' => true, 'maxLength' => 120 ],
+                        [ 'key' => 'igt_tag', 'label' => 'IGT Tag Result', 'type' => 'select', 'options' => ['Passed','Failed'], 'required' => true ],
+                        [ 'key' => 'availability_date', 'label' => 'Availability Date', 'type' => 'date' ],
+                        [ 'key' => 'english_level', 'label' => 'English Communication Level', 'type' => 'select', 'options' => ['Poor','Fair','Good','Excellent'], 'required' => true ],
+                    ]
+                ])
+            ],
+        ];
+
+        $created = 0; $updated = 0; $errors = [];
+        foreach ($seed as $row) {
+            $existing = $builder->select('id')->where('name', $row['name'])->get()->getFirstRow();
+            try {
+                if ($existing) {
+                    $builder->where('id', $existing->id)->update([
+                        'status' => $row['status'],
+                        'form_schema' => $row['form_schema'],
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                    $updated++;
+                } else {
+                    $builder->insert([
+                        'name' => $row['name'],
+                        'status' => $row['status'],
+                        'form_schema' => $row['form_schema'],
+                        'created_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                    $created++;
+                }
+            } catch (\Throwable $e) {
+                $errors[] = $row['name'] . ': ' . $e->getMessage();
+            }
+        }
+
+        $msg = 'Companies seeding complete. Created: ' . $created . ', Updated: ' . $updated;
+        if ($errors) { $msg .= '\nErrors: ' . implode('; ', $errors); }
+        return $this->response->setStatusCode(200)->setBody($msg);
+    }
+
+    /**
+     * Backfill existing applications.company_id based on applications.company_name matching companies.name.
+     * GET /tools/backfill-company-ids?key=TOKEN
+     */
+    public function backfillCompanyIds(): ResponseInterface
+    {
+        if (!$this->hasValidKey()) {
+            return $this->response->setStatusCode(403)->setBody('Forbidden: invalid key');
+        }
+        $db = Database::connect();
+        if (!$db->tableExists('applications')) {
+            return $this->response->setStatusCode(500)->setBody('applications table missing');
+        }
+        if (!$db->tableExists('companies')) {
+            return $this->response->setStatusCode(500)->setBody('companies table missing');
+        }
+
+        $companyRows = $db->table('companies')->select('id,name')->get()->getResultArray();
+        $map = [];
+        foreach ($companyRows as $c) { $map[strtolower($c['name'])] = (int)$c['id']; }
+
+        $apps = $db->table('applications')->select('id,company_name,company_id')->where('company_id IS NULL')->get()->getResultArray();
+        $updated = 0; $skipped = 0; $unknown = [];
+        foreach ($apps as $a) {
+            $name = trim((string)$a['company_name']);
+            if ($name === '') { $skipped++; continue; }
+            $key = strtolower($name);
+            if (!isset($map[$key])) { $unknown[] = $name; continue; }
+            try {
+                $db->table('applications')->where('id', $a['id'])->update([ 'company_id' => $map[$key] ]);
+                $updated++;
+            } catch (\Throwable $e) {
+                $unknown[] = $name . ' (error: ' . $e->getMessage() . ')';
+            }
+        }
+        $msg = 'Backfill complete. Updated: ' . $updated . ', Skipped blank: ' . $skipped;
+        if ($unknown) { $msg .= '\nUnmatched company names: ' . implode(', ', array_slice(array_unique($unknown), 0, 25)); }
+        return $this->response->setStatusCode(200)->setBody($msg);
+    }
+
+    /**
      * Repair migrations state when some tables already exist but migrations table isn't in sync.
      * - Ensures migrations table exists
      * - Marks known migrations as applied if their tables exist
