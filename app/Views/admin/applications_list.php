@@ -36,13 +36,15 @@
                             <span class="count-badge"><?= count($applications) ?> Total</span>
                         </div>
                         <div class="header-actions">
-                            <button class="btn btn-secondary" onclick="exportToCSV()">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                    <polyline points="7 10 12 15 17 10"/>
-                                    <line x1="12" y1="15" x2="12" y2="3"/>
-                                </svg>
-                                Export CSV
+                            <button class="btn btn-secondary export-btn" onclick="exportToCSV()" title="Download filtered applications as CSV">
+                                <span class="btn-icon-wrapper">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </span>
+                                <span class="btn-label">Export CSV</span>
                             </button>
                         </div>
                     </div>
@@ -201,37 +203,42 @@
 
         function exportToCSV() {
             const table = document.getElementById('applicationsTable');
-            let csv = [];
-            
-            // Headers
+            if(!table){ return; }
+            const visibleRows = Array.from(table.querySelectorAll('tbody tr')).filter(r => r.style.display !== 'none');
             const headers = [];
-            for (let th of table.querySelectorAll('thead th')) {
-                if (th.textContent !== 'Actions') {
-                    headers.push(th.textContent);
-                }
-            }
-            csv.push(headers.join(','));
-            
-            // Rows
-            const rows = table.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                if (row.style.display !== 'none') {
-                    const cols = [];
-                    const cells = row.querySelectorAll('td');
-                    for (let i = 0; i < cells.length - 1; i++) {
-                        cols.push('"' + cells[i].textContent.trim().replace(/"/g, '""') + '"');
+            table.querySelectorAll('thead th').forEach(th => { if (th.textContent !== 'Actions') headers.push(th.textContent.trim()); });
+            const escapeCell = (val) => {
+                const out = (val || '').toString().trim();
+                if(/[",\n]/.test(out)){ return '"' + out.replace(/"/g,'""') + '"'; }
+                return out; 
+            };
+            const lines = [];
+            lines.push(headers.map(escapeCell).join(','));
+            visibleRows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td'));
+                // Skip last actions column
+                const dataCells = cells.slice(0, cells.length - 1).map(c => {
+                    let txt = c.textContent.trim();
+                    // Normalize date applied format for Excel recognition
+                    if(/^[A-Z][a-z]{2} \d{2}, \d{4}$/.test(txt)){ 
+                        const d = new Date(txt); 
+                        if(!isNaN(d.getTime())){ txt = d.toISOString().split('T')[0]; }
                     }
-                    csv.push(cols.join(','));
-                }
+                    return escapeCell(txt);
+                });
+                lines.push(dataCells.join(','));
             });
-            
-            const csvContent = csv.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+            // UTF-8 BOM for Excel
+            const bom = '\uFEFF';
+            const csvContent = bom + lines.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = 'applications_' + new Date().toISOString().split('T')[0] + '.csv';
+            document.body.appendChild(a);
             a.click();
+            setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 1000);
         }
 
         function viewApplication(id) {

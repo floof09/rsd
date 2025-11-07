@@ -120,34 +120,49 @@ class Reports extends BaseController
             ->get()->getResultArray();
 
         $filename = 'applications_last_' . $days . '_days_' . date('Ymd_His') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
 
+        // Use php://temp and build UTF-8 BOM for Excel compatibility
         $fp = fopen('php://temp', 'w+');
-        fputcsv($fp, ['ID','Company','First Name','Last Name','Email','Status','Created At','Recruiter Email','Interviewer']);
+
+        // Add UTF-8 BOM so Excel recognizes encoding
+        fwrite($fp, "\xEF\xBB\xBF");
+
+        // Header row (human friendly & stable order)
+        $headers = ['ID','Company','Applicant First','Applicant Last','Applicant Email','Status','Created Date','Recruiter Email','Interviewer'];
+        fputcsv($fp, $headers);
+
         foreach ($rows as $r) {
             $interviewer = trim(($r['interviewer_first'] ?? '') . ' ' . ($r['interviewer_last'] ?? ''));
-            fputcsv($fp, [
-                $r['id'],
+            $created = '';
+            if (!empty($r['created_at'])) {
+                // Format as ISO date + time for sorting; Excel friendly
+                $createdDT = new \DateTime($r['created_at']);
+                $created = $createdDT->format('Y-m-d H:i:s');
+            }
+            $row = [
+                // Prevent Excel scientific notation on ID by prefixing with ='value'
+                "=" . '"' . $r['id'] . '"',
                 $r['company_name'],
                 $r['first_name'],
                 $r['last_name'],
-                $r['email_address'],
+                strtolower($r['email_address']),
                 $r['status'],
-                $r['created_at'],
-                $r['recruiter_email'],
+                $created,
+                strtolower($r['recruiter_email']),
                 $interviewer,
-            ]);
+            ];
+            fputcsv($fp, $row);
         }
+
         rewind($fp);
         $csv = stream_get_contents($fp);
         fclose($fp);
 
         return $this->response->setStatusCode(200)
-            ->setHeader('Content-Type', $headers['Content-Type'])
-            ->setHeader('Content-Disposition', $headers['Content-Disposition'])
+            ->setHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
+            ->setHeader('Pragma', 'no-cache')
             ->setBody($csv);
     }
 }

@@ -61,13 +61,15 @@
                             </svg>
                             Clear Old Logs
                         </button>
-                        <button class="btn btn-primary" onclick="exportLogs()">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Export CSV
+                        <button class="btn btn-primary export-btn" onclick="exportLogs()" title="Download visible logs as CSV">
+                            <span class="btn-icon-wrapper">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                            </span>
+                            <span class="btn-label">Export CSV</span>
                         </button>
                     </div>
                 </div>
@@ -156,29 +158,31 @@
 
         function exportLogs() {
             const table = document.querySelector('.logs-table');
-            let csv = [];
-            
-            // Get headers
-            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
-            csv.push(headers.join(','));
-            
-            // Get data
-            const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
+            if(!table){ return; }
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+            const escapeCell = (val) => {
+                const v = (val||'').toString().trim();
+                if(/[",\n]/.test(v)){ return '"' + v.replace(/"/g,'""') + '"'; }
+                return v;
+            };
+            const lines = [];
+            lines.push(headers.map(escapeCell).join(','));
+            const rows = table.querySelectorAll('tbody tr');
             rows.forEach(row => {
-                const cols = Array.from(row.querySelectorAll('td')).map(td => {
-                    return '"' + td.textContent.trim().replace(/"/g, '""') + '"';
-                });
-                csv.push(cols.join(','));
+                if(row.querySelector('.empty-state')){ return; }
+                const cells = Array.from(row.querySelectorAll('td')).map(td => escapeCell(td.textContent));
+                lines.push(cells.join(','));
             });
-            
-            // Download
-            const csvContent = csv.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+            const bom = '\uFEFF';
+            const csvContent = bom + lines.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'system_logs_' + Date.now() + '.csv';
+            a.download = 'system_logs_' + new Date().toISOString().replace(/[:T]/g,'-').split('.')[0] + '.csv';
+            document.body.appendChild(a);
             a.click();
+            setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 800);
         }
     </script>
 </body>
