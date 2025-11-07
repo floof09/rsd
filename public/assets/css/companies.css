@@ -1,0 +1,8 @@
+/* Companies page specific styles, moved from inline */
+.companies-page .user-info--tight{gap:8px}
+.companies-page .subheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.companies-page .subheader p{margin:0;color:#64748b}
+.companies-page .card{padding:0;overflow:hidden}
+.companies-page th.col-id{width:48px}
+.companies-page th.col-actions{width:220px}
+.companies-page td.empty{text-align:center;padding:16px;color:#64748b}
