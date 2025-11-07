@@ -202,17 +202,20 @@
                             <!-- Company Selection at Top -->
                             <div class="form-row">
                                 <div class="form-group full-width">
-                                    <label for="company_name">Choose Company <span class="required">*</span></label>
-                                    <select id="company_name" name="company_name" required aria-invalid="<?= !empty($errors['company_name']) ? 'true' : 'false' ?>" aria-describedby="<?= !empty($errors['company_name']) ? 'error_company_name' : '' ?>">
+                                    <label for="company_id">Choose Company <span class="required">*</span></label>
+                                    <select id="company_id" name="company_id" required>
                                         <option value="">-- Select Company --</option>
-                                        <option value="Everise" <?= old('company_name') === 'Everise' ? 'selected' : '' ?>>Everise</option>
-                                        <option value="IGT" <?= old('company_name') === 'IGT' ? 'selected' : '' ?>>IGT</option>
+                                        <?php foreach (($companies ?? []) as $c): ?>
+                                            <option value="<?= (int)$c['id'] ?>" <?= (old('company_id') == (int)$c['id']) ? 'selected' : '' ?>><?= esc($c['name']) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
-                                    <?php if (!empty($errors['company_name'])): ?>
-                                        <div class="field-error" id="error_company_name"><?= esc($errors['company_name']) ?></div>
-                                    <?php endif; ?>
+                                    <input type="hidden" id="company_name" name="company_name" value="<?= esc(old('company_name') ?? '') ?>">
+                                    <div class="field-error" id="error_company_id" data-live-error="company_id" style="display:none"></div>
                                 </div>
                             </div>
+
+                            <!-- Dynamic custom fields container rendered per company -->
+                            <div id="customFieldsContainer"></div>
                             
                             <div class="form-row">
                                 <div class="form-group">
@@ -522,7 +525,7 @@
         }
 
         // Unicode-friendly regexes (must use the 'u' flag)
-        const reName = new RegExp("^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$", 'u');
+    const reName = new RegExp("^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’’\\-]*$", 'u');
         const reMiddle = new RegExp("^([\\p{L}\\p{M}]\\.?|[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*)$", 'u');
         const reSuffix = /^[A-Za-z0-9\.\sIVXLCDMivxlcdm]{1,20}$/;
 
@@ -561,10 +564,9 @@
         }
 
         function validateCompany() {
-            const v = (el('company_name')?.value || '').trim();
-            if (!v) { showError('company_name', 'Please select a company'); return false; }
-            if (!['Everise','IGT'].includes(v)) { showError('company_name', 'Invalid company selection'); return false; }
-            clearError('company_name'); return true;
+            const v = (el('company_id')?.value || '').trim();
+            if (!v) { showError('company_id', 'Please select a company'); return false; }
+            clearError('company_id'); return true;
         }
         function validateEmailAddress() {
             const v = (el('email_address')?.value || '').trim();
@@ -635,7 +637,7 @@
         }
 
         // Attach listeners for live feedback
-        ['company_name','first_name','middle_name','last_name','suffix','email_address','phone_number','viber_number','recruiter_email','next_interviewer_email','next_interview_datetime','birthdate'].forEach(id => {
+        ['company_id','first_name','middle_name','last_name','suffix','email_address','phone_number','viber_number','recruiter_email','next_interviewer_email','next_interview_datetime','birthdate'].forEach(id => {
             const i = el(id); if (!i) return;
             i.addEventListener('input', () => {
                 // Only show errors once user has typed something or after blur
@@ -937,7 +939,7 @@
         if (submissionSuccess) {
             localStorage.removeItem('applicationFormData');
         }
-        const formInputs = document.querySelectorAll('#applicationForm input:not([type="file"]), #applicationForm select, #applicationForm textarea');
+    const formInputs = document.querySelectorAll('#applicationForm input:not([type="file"]), #applicationForm select, #applicationForm textarea');
         
         // Save form data to localStorage on input
         function saveFormData() {
@@ -978,6 +980,10 @@
             const vn = document.getElementById('viber_number');
             if (pn) sanitizeMobile(pn);
             if (vn) sanitizeMobile(vn);
+
+            // If a company is already selected (old value) then load its schema
+            const cid = document.getElementById('company_id');
+            if (cid) { onCompanyChange(); cid.addEventListener('change', onCompanyChange); }
         });
 
         // Note: localStorage is cleared on the next page load if the
@@ -1041,6 +1047,68 @@
             el.value = digits;
             saveFormData();
         }
+
+        async function onCompanyChange() {
+            const sel = document.getElementById('company_id');
+            const hiddenName = document.getElementById('company_name');
+            const container = document.getElementById('customFieldsContainer');
+            container.innerHTML = '';
+            if (!sel || !sel.value) { if (hiddenName) hiddenName.value = ''; return; }
+            const optionLabel = sel.options[sel.selectedIndex]?.text || '';
+            if (hiddenName) hiddenName.value = optionLabel;
+            try {
+                const res = await fetch(`<?= base_url('api/companies') ?>/${sel.value}/schema`, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) throw new Error('Unable to load company form');
+                const data = await res.json();
+                renderCustomFields(container, data.schema?.fields || []);
+            } catch (e) {
+                container.innerHTML = `<div class="alert alert-error">Failed to load company form fields.</div>`;
+            }
+        }
+
+        function renderCustomFields(container, fields) {
+            if (!fields || !fields.length) return; // no custom fields
+            const section = document.createElement('div');
+            section.className = 'form-section';
+            section.innerHTML = `<h3 style="margin:12px 0; font-size:16px; color:#2d3748;">Additional Company Fields</h3>`;
+            fields.forEach(f => {
+                const group = document.createElement('div');
+                group.className = 'form-group full-width';
+                const id = `custom_${f.key}`;
+                const nameAttr = `custom[${f.key}]`;
+                const label = `<label for="${id}">${escapeHtml(f.label || f.key)}${f.required ? ' <span class="required">*</span>' : ''}</label>`;
+                let inputHtml = '';
+                switch (f.type) {
+                    case 'textarea':
+                        inputHtml = `<textarea id="${id}" name="${nameAttr}" rows="3"></textarea>`; break;
+                    case 'select':
+                        const opts = (f.options || []).map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('');
+                        inputHtml = `<select id="${id}" name="${nameAttr}"><option value="">-- Select --</option>${opts}</select>`; break;
+                    case 'checkbox':
+                        inputHtml = `<input type="checkbox" id="${id}" name="${nameAttr}" value="1">`; break;
+                    case 'date':
+                        inputHtml = `<input type="date" id="${id}" name="${nameAttr}">`; break;
+                    case 'number':
+                        const min = f.min != null ? ` min="${String(f.min)}"` : '';
+                        const max = f.max != null ? ` max="${String(f.max)}"` : '';
+                        inputHtml = `<input type="number" id="${id}" name="${nameAttr}"${min}${max}>`; break;
+                    case 'email':
+                        inputHtml = `<input type="email" id="${id}" name="${nameAttr}">`; break;
+                    case 'tel':
+                        inputHtml = `<input type="tel" id="${id}" name="${nameAttr}">`; break;
+                    case 'text':
+                    default:
+                        const maxLength = f.maxLength ? ` maxlength="${String(f.maxLength)}"` : '';
+                        inputHtml = `<input type="text" id="${id}" name="${nameAttr}"${maxLength}>`;
+                }
+                group.innerHTML = label + inputHtml + `<div class="field-error" data-live-error="${id}" style="display:none"></div>`;
+                section.appendChild(group);
+            });
+            container.appendChild(section);
+        }
+
+        function escapeHtml(s){ return String(s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
     </script>
 </body>
 </html>

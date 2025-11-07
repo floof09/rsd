@@ -52,6 +52,15 @@
             </svg>
             <span>System Logs</span>
         </a>
+        <a href="<?= base_url('admin/companies') ?>" class="nav-item <?= url_is('admin/companies*') ? 'active' : '' ?>">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            <span>Companies</span>
+        </a>
         <a href="<?= base_url('admin/email/test') ?>" class="nav-item <?= url_is('admin/email/test') ? 'active' : '' ?>">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="5" width="18" height="14" rx="2" ry="2"/>

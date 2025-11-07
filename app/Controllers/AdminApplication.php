@@ -8,6 +8,102 @@ use App\Libraries\Mailer;
 
 class AdminApplication extends BaseController
 {
+    /**
+     * Validate custom fields based on company schema.
+     * Returns a sanitized array keyed by field key.
+     * Throws an exception with a human-friendly message on validation error.
+     */
+    private function validateCustomFields(array $schema, array $input): array
+    {
+        $out = [];
+        $fields = $schema['fields'] ?? [];
+        foreach ($fields as $field) {
+            $key = (string) ($field['key'] ?? '');
+            if ($key === '') { continue; }
+            $type = (string) ($field['type'] ?? 'text');
+            $required = !empty($field['required']);
+            $label = (string) ($field['label'] ?? $key);
+            $val = $input[$key] ?? null;
+
+            if ($type === 'checkbox') {
+                // checkbox posts as 'on' or null
+                $val = !empty($val) ? true : false;
+            }
+
+            if ($required) {
+                // for checkbox, required means must be true
+                if (($type === 'checkbox' && $val !== true) || ($type !== 'checkbox' && ($val === null || $val === ''))) {
+                    throw new \RuntimeException($label . ' is required.');
+                }
+            }
+
+            if ($val === null || $val === '') {
+                // keep nulls out of payload to reduce noise
+                continue;
+            }
+
+            // Basic sanitation & validations
+            switch ($type) {
+                case 'email':
+                    $val = filter_var((string)$val, FILTER_SANITIZE_EMAIL);
+                    if (!filter_var($val, FILTER_VALIDATE_EMAIL)) {
+                        throw new \RuntimeException('Please provide a valid email for ' . $label . '.');
+                    }
+                    break;
+                case 'number':
+                    if (!is_numeric($val)) {
+                        throw new \RuntimeException($label . ' must be a number.');
+                    }
+                    $val = 0 + $val;
+                    if (isset($field['min']) && $val < (0 + $field['min'])) {
+                        throw new \RuntimeException($label . ' must be at least ' . $field['min'] . '.');
+                    }
+                    if (isset($field['max']) && $val > (0 + $field['max'])) {
+                        throw new \RuntimeException($label . ' must be at most ' . $field['max'] . '.');
+                    }
+                    break;
+                case 'tel':
+                    $digits = preg_replace('/\D/', '', (string)$val);
+                    $val = $digits;
+                    break;
+                case 'date':
+                    try {
+                        $d = new \DateTime((string)$val);
+                        $val = $d->format('Y-m-d');
+                    } catch (\Throwable $e) {
+                        throw new \RuntimeException('Invalid date for ' . $label . '.');
+                    }
+                    break;
+                case 'textarea':
+                case 'text':
+                default:
+                    $val = trim((string)$val);
+                    if (isset($field['maxLength']) && mb_strlen($val) > (int)$field['maxLength']) {
+                        throw new \RuntimeException($label . ' must be at most ' . (int)$field['maxLength'] . ' characters.');
+                    }
+                    if (!empty($field['pattern'])) {
+                        $pattern = '/' . str_replace('/', '\/', (string)$field['pattern']) . '/u';
+                        if (@preg_match($pattern, '') !== false) {
+                            if (!preg_match($pattern, $val)) {
+                                throw new \RuntimeException($label . ' has an invalid format.');
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            // Select: enforce options if provided
+            if ($type === 'select' && !empty($field['options']) && is_array($field['options'])) {
+                if (!in_array($val, $field['options'], true)) {
+                    throw new \RuntimeException('Invalid selection for ' . $label . '.');
+                }
+            }
+
+            $out[$key] = $val;
+        }
+
+        return $out;
+    }
     public function index()
     {
         // Only interviewers can open the application form
@@ -20,7 +116,9 @@ class AdminApplication extends BaseController
                 ->with('error', 'Only interviewers can access the application form.');
         }
 
-        return view('admin/application_form');
+        // Provide active companies for dynamic selection
+        $companies = (new \App\Models\CompanyModel())->activeList();
+        return view('admin/application_form', [ 'companies' => $companies ]);
     }
 
     public function edit($id)
@@ -109,7 +207,8 @@ class AdminApplication extends BaseController
 
         // Validation rules (same as save)
         $rules = [
-            'company_name' => 'required|in_list[Everise,IGT]',
+            // company_id posted, server will resolve to name
+            'company_id' => 'required|is_natural_no_zero',
             // Unicode-friendly name validation
             'first_name' => [
                 'rules' => "required|min_length[1]|max_length[100]|regex_match[/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s\\p{Pd}’'\\-]*$/u]",
@@ -221,9 +320,17 @@ class AdminApplication extends BaseController
             }
         }
 
+        // Resolve company by ID and validate existence
+        $companyId = (int) ($this->request->getPost('company_id') ?? 0);
+        $company = $companyId ? (new \App\Models\CompanyModel())->find($companyId) : null;
+        if (!$company) {
+            return redirect()->back()->withInput()->with('error', 'Please select a valid company');
+        }
+
         // Prepare update data
         $data = [
-            'company_name' => esc($this->request->getPost('company_name')),
+            'company_id' => $companyId,
+            'company_name' => esc($company['name']),
             'first_name' => esc(trim($this->request->getPost('first_name'))),
             'middle_name' => $mn !== '' ? esc($mn) : null,
             'last_name' => esc(trim($this->request->getPost('last_name'))),
@@ -296,6 +403,21 @@ class AdminApplication extends BaseController
 
         if ($notesChanged) {
             $data['notes'] = json_encode($existingNotes);
+        }
+
+        // Handle dynamic custom fields according to company's schema
+        try {
+            $schema = (new \App\Models\CompanyModel())->getSchemaArray($companyId);
+            $custom = (array) ($this->request->getPost('custom') ?? []);
+            $validatedCustom = $this->validateCustomFields($schema, $custom);
+            if (!isset($data['notes'])) {
+                $existingNotes = $existingNotes ?: [];
+            }
+            $existingNotes['custom'] = $validatedCustom;
+            $data['notes'] = json_encode($existingNotes);
+        } catch (\Throwable $e) {
+            // If validation fails, redirect back with friendly error
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
 
         // Handle resume replacement (optional)
@@ -394,11 +516,11 @@ class AdminApplication extends BaseController
 
         // Define comprehensive validation rules (Unicode-friendly)
         $validationRules = [
-            'company_name' => [
-                'rules' => 'required|in_list[Everise,IGT]',
+            // Post company_id, not name. We'll resolve to name server-side.
+            'company_id' => [
+                'rules' => 'required|is_natural_no_zero',
                 'errors' => [
                     'required' => 'Please select a company',
-                    'in_list' => 'Invalid company selection'
                 ]
             ],
             // Unicode-friendly name validation (match update())
@@ -534,6 +656,15 @@ class AdminApplication extends BaseController
         }
 
         // Additional server-side validations
+
+        // Resolve company and schema
+        $companyId = (int) ($this->request->getPost('company_id') ?? 0);
+        $companyModel = new \App\Models\CompanyModel();
+        $company = $companyId ? $companyModel->find($companyId) : null;
+        if (!$company) {
+            return redirect()->back()->withInput()->with('error', 'Please select a valid company');
+        }
+        $schema = $companyModel->getSchemaArray($companyId);
         
         // Sanitize and validate birthdate (must be at least 18 years old, reasonable lower bound)
         $birthdate = $this->request->getPost('birthdate');
@@ -604,7 +735,8 @@ class AdminApplication extends BaseController
         $middleName = trim((string)$this->request->getPost('middle_name'));
         $suffix = trim((string)$this->request->getPost('suffix'));
         $data = [
-            'company_name' => esc($this->request->getPost('company_name')),
+            'company_id' => $companyId,
+            'company_name' => esc($company['name']),
             'first_name' => esc(trim($this->request->getPost('first_name'))),
             'middle_name' => $middleName !== '' ? esc($middleName) : null,
             'last_name' => esc(trim($this->request->getPost('last_name'))),
@@ -650,6 +782,15 @@ class AdminApplication extends BaseController
                 'suffix' => $suffix !== '' ? $suffix : null,
             ];
         }
+        // Merge validated custom fields into notes
+        $custom = (array) ($this->request->getPost('custom') ?? []);
+        try {
+            $validatedCustom = $this->validateCustomFields($schema, $custom);
+            $notesPayload['custom'] = $validatedCustom;
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+
         if (!empty($notesPayload)) { $data['notes'] = json_encode($notesPayload); }
 
         // Handle file upload with strict validation

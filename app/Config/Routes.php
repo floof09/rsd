@@ -17,6 +17,12 @@ $routes->get('auth/logout', 'Auth::logout');
 
 // Admin Routes
 $routes->get('admin/dashboard', 'AdminDashboard::index');
+$routes->get('admin/companies', 'AdminCompanies::index');
+$routes->get('admin/companies/create', 'AdminCompanies::create');
+$routes->post('admin/companies/save', 'AdminCompanies::save');
+$routes->get('admin/companies/(:num)/edit', 'AdminCompanies::edit/$1');
+$routes->get('admin/companies/(:num)/form', 'AdminCompanies::form/$1');
+$routes->post('admin/companies/(:num)/form/save', 'AdminCompanies::saveForm/$1');
 $routes->get('admin/application', 'AdminApplication::index');
 $routes->post('admin/application/save', 'AdminApplication::save');
 $routes->get('admin/applications', 'AdminApplication::list');
@@ -57,6 +63,7 @@ $routes->post('interviewer/applications/(:num)/approve', 'AdminApplication::appr
 // Geocoding API proxy routes
 $routes->get('api/geocode/reverse', 'Geocode::reverse');
 $routes->get('api/geocode/search', 'Geocode::search');
+$routes->get('api/companies/(:num)/schema', 'CompanyApi::schema/$1');
 
 // Maintenance/Tools (guarded by token in .env)
 $routes->get('tools/migrate', 'Tools::migrate');
