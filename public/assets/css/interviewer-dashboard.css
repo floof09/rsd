@@ -4,10 +4,10 @@
 body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 
 /* Layout polish overrides: scoped to interviewer dashboard */
-/* Reduce outer padding so content stretches further */
-.interviewer-dashboard .main-content { padding-inline: 12px; }
-/* Expand dashboard full-width (minus sidebar margin) */
-.interviewer-dashboard .main-content .dashboard-content { max-width: none; width:100%; margin:0; }
+/* Let global container control horizontal padding/centering */
+.interviewer-dashboard .main-content { padding-inline: 0; }
+/* Use global centered container for width; ensure it stays centered here too */
+.interviewer-dashboard .main-content .dashboard-content { max-width: 1280px; width:100%; margin:0 auto; }
 .interviewer-dashboard .top-bar h1 { color: var(--ink); }
 .interviewer-dashboard .panel h3 { color: var(--ink); }
 
