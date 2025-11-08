@@ -12,9 +12,6 @@ function navItem($href,$isActive,$label,$iconSvg){
 ?>
 <aside class="app-sidebar" aria-label="Primary navigation">
     <div class="sb-top">
-        <button id="sidebarToggle" class="sb-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
         <div class="brand" role="banner">
             <div class="brand-logo">
                 <svg width="40" height="40" viewBox="0 0 100 100" aria-hidden="true">
@@ -30,6 +27,9 @@ function navItem($href,$isActive,$label,$iconSvg){
                 <span class="brand-sub"><?= $isAdmin ? 'Admin' : ($isInterviewer ? 'Interviewer' : '') ?></span>
             </div>
         </div>
+        <button id="sidebarToggle" class="sb-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
     </div>
     <nav class="sb-nav" role="navigation">
         <?php if ($isAdmin): ?>
