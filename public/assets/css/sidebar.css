@@ -1,13 +1,15 @@
 /* Sidebar design tokens */
-:root{--sb-bg:#0f172a;--sb-bg-2:#111827;--sb-fg:#e5e7eb;--sb-muted:#9ca3af;--sb-accent:#fece83;--sb-border:#1f2937;--sb-hover:rgba(255,255,255,.06);--sb-active:rgba(255,255,255,.12)}
+:root{--sb-bg:#0f172a;--sb-bg-2:#111827;--sb-fg:#e5e7eb;--sb-muted:#9ca3af;--sb-accent:#fece83;--sb-border:#1f2937;--sb-hover:rgba(255,255,255,.06);--sb-active:rgba(255,255,255,.12);--sb-toggle-bg:var(--sb-accent);--sb-toggle-fg:#0f172a;--sb-toggle-border:rgba(0,0,0,.15);--sb-toggle-hover-bg:#ffd89a}
 
 /* New modern sidebar (app-sidebar) */
 .app-sidebar{position:fixed;inset:0 auto 0 0;width:272px;background:linear-gradient(180deg,var(--sb-bg),var(--sb-bg-2));color:var(--sb-fg);display:flex;flex-direction:column;gap:10px;border-right:1px solid var(--sb-border);box-shadow:2px 0 24px rgba(0,0,0,.25);z-index:1000;transition:width .25s ease}
 .app-sidebar.collapsed{width:84px}
 
 .sb-top{display:flex;align-items:center;gap:10px;padding:14px 14px 4px 14px}
-.sb-toggle{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;border:1px solid var(--sb-border);background:transparent;color:var(--sb-fg);cursor:pointer;transition:transform .2s ease,background .15s ease}
-.sb-toggle:hover{background:var(--sb-hover)}
+.sb-toggle{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;border:1px solid var(--sb-toggle-border);background:var(--sb-toggle-bg);color:var(--sb-toggle-fg);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25);transition:transform .2s ease,background .15s ease,box-shadow .15s ease}
+.sb-toggle:hover{background:var(--sb-toggle-hover-bg);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.sb-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.app-sidebar.collapsed .sb-toggle svg{transform:rotate(180deg)}
 
 .brand{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:12px}
 .brand-logo{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--sb-border)}
