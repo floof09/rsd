@@ -2,22 +2,17 @@
 <?= view('layouts/header', ['title' => $title, 'bodyClass' => 'interviewer-dashboard']) ?>
 <?= view('components/sidebar') ?>
 
-<main class="main-content">
+<main class="main-content" role="main">
     <header class="top-bar">
         <h1>Interviewer Dashboard</h1>
-        <div class="user-info" style="gap:8px;">
-            <button id="themeBtn" class="theme-toggle" type="button" aria-pressed="false" aria-label="Toggle theme">
-                <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                Theme
-            </button>
+        <div class="user-info">
             <span>Welcome, <?= esc(session()->get('first_name')) ?> <?= esc(session()->get('last_name')) ?></span>
-            <div class="user-avatar"><?= strtoupper(substr(session()->get('first_name'), 0, 1)) ?></div>
+            <div class="user-avatar" aria-hidden="true"><?= strtoupper(substr(session()->get('first_name'), 0, 1)) ?></div>
         </div>
     </header>
 
     <div class="dashboard-content">
-    <div class="hero">
+        <div class="hero">
             <div>
                 <h1>Good day, <?= esc(session()->get('first_name')) ?> 👋</h1>
                 <div class="hint">Track your applications and log IGT interviews faster with the quick tools below.</div>
@@ -26,13 +21,13 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                 New Application
             </a>
-    </div>
+        </div>
 
-    <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success" style="margin-top:14px;"> <?= session()->getFlashdata('success') ?> </div>
-    <?php endif; ?>
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success" style="margin-top:14px;"><?= session()->getFlashdata('success') ?></div>
+        <?php endif; ?>
 
-    <section class="kpi-grid">
+        <section class="kpi-grid" aria-label="Key performance indicators">
             <div class="kpi-card">
                 <div class="kpi-top">
                     <div class="kpi-ico">
@@ -52,7 +47,6 @@
                     <p>Total Applications</p>
                 </div>
             </div>
-
             <div class="kpi-card">
                 <div class="kpi-top">
                     <div class="kpi-ico kpi-ico--green">
@@ -71,7 +65,6 @@
                     <p>RSD Applications</p>
                 </div>
             </div>
-
             <div class="kpi-card">
                 <div class="kpi-top">
                     <div class="kpi-ico kpi-ico--cyan">
@@ -92,9 +85,9 @@
                     <p>IGT Applications</p>
                 </div>
             </div>
-    </section>
+        </section>
 
-    <section class="panel-grid">
+        <section class="panel-grid" aria-label="Recent activity and actions">
             <div class="panel" style="grid-column: span 7; min-width:0;">
                 <h3>Quick Actions</h3>
                 <div class="action-grid">
@@ -106,7 +99,7 @@
                     </a>
                     <a class="action-card" href="<?= base_url('interviewer/applications') ?>">
                         <div class="action-ico">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 0 2-2h2a2 2 0 0 0 2 2"/></svg>
                         </div>
                         <strong>My Applications</strong>
                     </a>
@@ -139,7 +132,7 @@
                     <div class="hint">No recent updates yet.</div>
                 <?php endif; ?>
             </div>
-    </section>
+        </section>
     </div>
 </main>
 

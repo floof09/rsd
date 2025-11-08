@@ -38,14 +38,19 @@
 .sb-logout{color:var(--sb-fg)}
 
 /* Layout content shift */
-.app-sidebar + .main-content{margin-left:272px;transition:margin-left .25s ease}
-.app-sidebar.collapsed + .main-content{margin-left:84px}
+/* Use adjacent (+) and general sibling (~) to be resilient to minor wrappers */
+.app-sidebar + .main-content,
+.app-sidebar ~ .main-content{margin-left:272px;transition:margin-left .25s ease}
+.app-sidebar.collapsed + .main-content,
+.app-sidebar.collapsed ~ .main-content{margin-left:84px}
 
 /* Center page content inside main area so it doesn't hug the left edge */
 .main-content .dashboard-content{max-width:1100px;margin:0 auto;padding-left:24px;padding-right:24px}
 
 @media (max-width: 900px){
 	.app-sidebar{position:fixed}
-	.app-sidebar + .main-content{margin-left:272px}
-	.app-sidebar.collapsed + .main-content{margin-left:84px}
+	.app-sidebar + .main-content,
+	.app-sidebar ~ .main-content{margin-left:272px}
+	.app-sidebar.collapsed + .main-content,
+	.app-sidebar.collapsed ~ .main-content{margin-left:84px}
 }
