@@ -48,8 +48,9 @@
 .app-sidebar.collapsed + .main-content,
 .app-sidebar.collapsed ~ .main-content{margin-left:84px}
 
-/* Center page content inside main area so it doesn't hug the left edge */
-.main-content .dashboard-content{max-width:1100px;margin:0 auto;padding-left:24px;padding-right:24px}
+/* Page content width inside main area */
+/* Make content span full width with comfortable padding */
+.main-content .dashboard-content{max-width:none;width:100%;margin:0;padding-left:16px;padding-right:16px}
 
 @media (max-width: 900px){
 	.app-sidebar{position:fixed}
