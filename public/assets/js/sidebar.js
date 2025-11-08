@@ -1,29 +1,12 @@
 (function(){
-  if (window.__SIDEBAR_WIRED__) return; // avoid duplicate listeners
-  window.__SIDEBAR_WIRED__ = true;
-  function restoreState(){
-    try {
-      var isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-      var sidebar = document.querySelector('.sidebar');
-      if (sidebar && isCollapsed) sidebar.classList.add('collapsed');
-    } catch (e) {}
+  if(window.__APP_SIDEBAR__) return;window.__APP_SIDEBAR__=true;
+  var STORAGE_KEY='appSidebarCollapsed';
+  function el(){return document.querySelector('.app-sidebar');}
+  function restore(){
+    try{var collapsed=localStorage.getItem(STORAGE_KEY)==='true';var s=el();if(s&&collapsed){s.classList.add('collapsed');var t=document.getElementById('sidebarToggle');if(t) t.setAttribute('aria-expanded','false');}}catch(e){}
   }
-  function toggle(){
-    var sidebar = document.querySelector('.sidebar');
-    if (!sidebar) return;
-    sidebar.classList.toggle('collapsed');
-    try { localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed')); } catch(e) {}
+  function toggle(){var s=el();if(!s) return;var willCollapse=!s.classList.contains('collapsed');s.classList.toggle('collapsed');var t=document.getElementById('sidebarToggle');if(t) t.setAttribute('aria-expanded', String(!willCollapse));try{localStorage.setItem(STORAGE_KEY, String(willCollapse));}catch(e){}
   }
-  function init(){
-    restoreState();
-    var btn = document.getElementById('sidebarToggle');
-    if (btn) {
-      btn.addEventListener('click', toggle);
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  function init(){restore();var btn=document.getElementById('sidebarToggle');if(btn){btn.addEventListener('click',toggle);} }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);} else {init();}
 })();
