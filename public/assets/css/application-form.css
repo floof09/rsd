@@ -1,5 +1,5 @@
 .application-form-container {
-	max-width: min(var(--layout-max, 1440px), 100%);
+	max-width: 1200px;
 	margin: 0 auto;
 	padding: 0;
 	width: 100%;
@@ -22,7 +22,7 @@
 	background: white;
 	border-radius: 12px;
 	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-	padding: 36px 34px;
+	padding: 40px 48px;
 	max-width: 100%;
 }
 
