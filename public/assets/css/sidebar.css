@@ -2,7 +2,7 @@
 :root{--sb-bg:#0f172a;--sb-bg-2:#111827;--sb-fg:#e5e7eb;--sb-muted:#9ca3af;--sb-accent:#fece83;--sb-border:#1f2937;--sb-hover:rgba(255,255,255,.06);--sb-active:rgba(255,255,255,.12);--sb-toggle-bg:var(--sb-accent);--sb-toggle-fg:#0f172a;--sb-toggle-border:rgba(0,0,0,.15);--sb-toggle-hover-bg:#ffd89a}
 
 /* New modern sidebar (app-sidebar) */
-.app-sidebar{position:fixed;inset:0 auto 0 0;width:272px;background:linear-gradient(180deg,var(--sb-bg),var(--sb-bg-2));color:var(--sb-fg);display:flex;flex-direction:column;gap:10px;border-right:1px solid var(--sb-border);box-shadow:2px 0 24px rgba(0,0,0,.25);z-index:1000;transition:width .25s ease}
+.app-sidebar{position:fixed;inset:0 auto 0 0;width:272px;background:linear-gradient(180deg,var(--sb-bg),var(--sb-bg-2));color:var(--sb-fg);display:flex;flex-direction:column;gap:10px;border-right:1px solid var(--sb-border);box-shadow:2px 0 24px rgba(0,0,0,.25);z-index:1000;transition:width .25s ease;overflow:hidden}
 .app-sidebar.collapsed{width:84px}
 
 .sb-top{display:flex;align-items:center;gap:10px;padding:14px 14px 4px 14px}
@@ -11,13 +11,13 @@
 .sb-toggle:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .app-sidebar.collapsed .sb-toggle svg{transform:rotate(180deg)}
 
-.brand{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:12px}
-.brand-logo{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--sb-border)}
-.brand-text{display:flex;flex-direction:column;line-height:1}
-.brand-title{font-size:14px;font-weight:700;letter-spacing:.2px}
-.brand-sub{font-size:12px;color:var(--sb-muted)}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:12px;overflow:hidden}
+.brand-logo{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--sb-border);flex-shrink:0}
+.brand-text{display:flex;flex-direction:column;line-height:1;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.brand-title{font-size:14px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.brand-sub{font-size:12px;color:var(--sb-muted);white-space:nowrap}
 
-.sb-nav{flex:1;display:flex;flex-direction:column;padding:6px 8px 10px 8px;gap:10px;overflow:auto}
+.sb-nav{flex:1;display:flex;flex-direction:column;padding:6px 8px 10px 8px;gap:10px;overflow-y:auto;overflow-x:hidden}
 .sb-section{display:flex;flex-direction:column;gap:6px}
 .sb-section-label{font-size:11px;color:var(--sb-muted);padding:0 10px;text-transform:uppercase;letter-spacing:.12em}
 
@@ -30,6 +30,7 @@
 /* Tooltips for collapsed mode */
 .app-sidebar.collapsed .nav-label{display:none}
 .app-sidebar.collapsed .sb-link{justify-content:center}
+.app-sidebar.collapsed .brand-text{display:none}
 .sb-link[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:100%;margin-left:8px;top:50%;transform:translateY(-50%);background:#111827;color:#e5e7eb;font-size:12px;padding:6px 8px;border-radius:8px;white-space:nowrap;border:1px solid #1f2937;box-shadow:0 6px 22px rgba(0,0,0,.25);opacity:0;animation:fadeIn .12s ease forwards}
 @keyframes fadeIn{to{opacity:1}}
 
@@ -39,6 +40,9 @@
 /* Layout content shift */
 .app-sidebar + .main-content{margin-left:272px;transition:margin-left .25s ease}
 .app-sidebar.collapsed + .main-content{margin-left:84px}
+
+/* Center page content inside main area so it doesn't hug the left edge */
+.main-content .dashboard-content{max-width:1100px;margin:0 auto;padding-left:24px;padding-right:24px}
 
 @media (max-width: 900px){
 	.app-sidebar{position:fixed}
