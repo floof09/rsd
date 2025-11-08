@@ -114,7 +114,7 @@
                     </a>
                 </div>
                 <div class="divider"></div>
-                <div class="hint">💡 Tip: Open an application and use "➕ IGT Interview" for IGT companies to record the additional interview.</div>
+                <div class="hint">💡 Tip: 12121Open an application and use "➕ IGT Interview" for IGT companies to record the additional interview.</div>
             </div>
             <div class="panel" style="grid-column: span 5; min-width:0;">
                 <h3>Recently Updated</h3>
