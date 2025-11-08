@@ -1,7 +1,8 @@
+
 .applications-container {
 	/* Normalize to a centered container consistent with global layout */
 	width: 100%;
-	max-width: min(1280px, 100% - 48px);
+	max-width: min(var(--layout-max), 100% - 48px);
 	margin: 0 auto;
 	background: #ffffff;
 	border-radius: 12px;
