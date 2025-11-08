@@ -1,13 +1,12 @@
 .applications-container {
-	/* +5px per side beyond previous setting */
-	width: calc(100% + 270px);
-	max-width: none;
-	margin-left: -135px;
-	margin-right: -135px;
+	/* Normalize to a centered container consistent with global layout */
+	width: 100%;
+	max-width: 1280px;
+	margin: 0 auto;
 	background: #ffffff;
-	border-radius: 0; /* remove rounding so it reads as one continuous panel */
+	border-radius: 12px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-	padding: 28px 36px; /* roomier spacing */
+	padding: 28px 36px;
 }
 
 .list-header {

@@ -49,8 +49,8 @@
 .app-sidebar.collapsed ~ .main-content{margin-left:84px}
 
 /* Page content width inside main area */
-/* Center content across all tabs with a comfortable max width */
-.main-content .dashboard-content{max-width:1280px;width:100%;margin:0 auto;padding-left:24px;padding-right:24px}
+/* Center content across all tabs with a comfortable, responsive max width */
+.main-content .dashboard-content{max-width:min(1280px,100% - 48px);width:100%;margin:0 auto;padding-left:24px;padding-right:24px}
 
 @media (max-width: 900px){
 	.app-sidebar{position:fixed}
@@ -59,3 +59,6 @@
 	.app-sidebar.collapsed + .main-content,
 	.app-sidebar.collapsed ~ .main-content{margin-left:84px}
 }
+
+/* Reusable centered layout utility for optional wrappers outside the main dashboard-content */
+.layout-centered{max-width:min(1280px,100% - 48px);margin:0 auto;padding-left:24px;padding-right:24px;width:100%;}
