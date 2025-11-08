@@ -49,6 +49,7 @@ $routes->get('admin/reports/export', 'Reports::export');
 // Interviewer Routes
 $routes->get('interviewer/dashboard', 'InterviewerDashboard::index');
 $routes->get('interviewer/application', 'AdminApplication::index');
+$routes->post('interviewer/application/save', 'AdminApplication::save');
 $routes->get('interviewer/applications', 'AdminApplication::interviewerList');
 $routes->get('interviewer/applications/(:num)', 'AdminApplication::show/$1');
 $routes->get('interviewer/applications/(:num)/edit', 'AdminApplication::edit/$1');

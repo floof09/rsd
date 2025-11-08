@@ -3,6 +3,19 @@
 	margin: 0 auto;
 }
 
+/* Unified error indicator styles (moved from inline <style>) */
+.field-error {
+	color: #e53e3e;
+	font-size: 12px;
+	margin-top: 6px;
+}
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid {
+	border-color: #e53e3e !important;
+	box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
 .form-card {
 	background: white;
 	border-radius: 8px;

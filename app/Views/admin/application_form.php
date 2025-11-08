@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Form - RSD Admin</title>
+    <title>Application Form • RSD Interviewer</title>
     <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg') ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>?v=<?= time() ?>">
     <link rel="stylesheet" href="<?= base_url('assets/css/interviewer-dashboard.css') ?>?v=<?= time() ?>">
@@ -11,140 +11,6 @@
     <!-- Leaflet CSS for map picker -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        .field-error {
-            color: #e53e3e;
-            font-size: 12px;
-            margin-top: 6px;
-        }
-        .form-group input.invalid,
-        .form-group select.invalid,
-        .form-group textarea.invalid {
-            border-color: #e53e3e !important;
-            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
-        }
-        .file-upload-wrapper {
-            position: relative;
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .file-upload-wrapper input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .file-upload-display {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 20px;
-            border: 2px dashed #cbd5e0;
-            border-radius: 8px;
-            background: #f7fafc;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .file-upload-wrapper:hover .file-upload-display {
-            border-color: #f6ad55;
-            background: #fffaf0;
-        }
-
-        .file-upload-display svg {
-            color: #f6ad55;
-            flex-shrink: 0;
-        }
-
-        .file-name {
-            color: #4a5568;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .file-size {
-            color: #a0aec0;
-            font-size: 12px;
-            margin-left: auto;
-        }
-
-        .file-preview {
-            margin-top: 12px;
-            padding: 16px;
-            background: #fff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-
-        .preview-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .preview-header svg {
-            color: #f56565;
-            flex-shrink: 0;
-        }
-
-        .preview-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .preview-filename {
-            color: #2d3748;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .preview-filesize {
-            color: #718096;
-            font-size: 12px;
-        }
-
-        .preview-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .btn-preview, .btn-remove {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-preview {
-            background: #4299e1;
-            color: white;
-        }
-
-        .btn-preview:hover {
-            background: #3182ce;
-        }
-
-        .btn-remove {
-            background: #fc8181;
-            color: white;
-        }
-
-        .btn-remove:hover {
-            background: #f56565;
-        }
-    </style>
 </head>
 <body>
     <div class="dashboard-container interviewer-dashboard">
@@ -191,7 +57,7 @@
                             $birthdateFieldError = session()->getFlashdata('field_error_birthdate');
                             $resumeFieldError = session()->getFlashdata('field_error_resume');
                         ?>
-                        <form action="<?= base_url('admin/application/save') ?>" method="POST" id="applicationForm" enctype="multipart/form-data" autocomplete="off" novalidate>
+                        <form action="<?= base_url('interviewer/application/save') ?>" method="POST" id="applicationForm" enctype="multipart/form-data" autocomplete="off" novalidate>
                             <!-- Error summary (aria-live) -->
                             <div id="formErrorSummary" class="alert alert-error" role="alert" aria-live="polite" style="display:none;margin-bottom:12px;"></div>
                             
