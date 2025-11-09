@@ -1,13 +1,11 @@
 .application-form-container {
-	/* Fill the main content area more to reduce perceived right whitespace */
-	max-width: min(var(--layout-max, 1600px), 100%);
-	margin-left: auto;
-	margin-right: auto;
-	padding: 0;
-	width: 100%;
-}
-
-/* Unified error indicator styles (moved from inline <style>) */
+    /* Fill nearly all available horizontal space */
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 24px;
+    width: 100%;
+}/* Unified error indicator styles (moved from inline <style>) */
 .field-error {
 	color: #e53e3e;
 	font-size: 12px;
