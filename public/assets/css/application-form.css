@@ -1,6 +1,8 @@
 .application-form-container {
-	max-width: 1200px;
-	margin: 0 auto;
+	/* Use global layout token so width scales consistently with the dashboard */
+	max-width: min(calc(var(--layout-max, 1440px) * 0.9), 100%);
+	margin-left: auto;
+	margin-right: auto;
 	padding: 0;
 	width: 100%;
 }
@@ -24,6 +26,9 @@
 	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 	padding: 40px 48px;
 	max-width: 100%;
+	/* Ensure the card itself is centered if it becomes narrower than the container */
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .form-header {
