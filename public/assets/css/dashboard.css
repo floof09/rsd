@@ -30,7 +30,10 @@ body {
 
 .top-bar {
     background: white;
-    padding: 20px 32px;
+    /* Make the bar content use the same centered container width as pages */
+    max-width: min(var(--layout-max, 1440px), 100% - 48px);
+    margin: 0 auto;
+    padding: 20px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -84,7 +87,11 @@ body.theme-dark {
 
 /* Dashboard Content */
 .dashboard-content {
-    padding: 32px;
+    /* Center page content and keep a comfortable max width */
+    max-width: min(var(--layout-max, 1440px), 100% - 48px);
+    width: 100%;
+    margin: 0 auto;
+    padding: 32px 24px;
 }
 
 /* Alerts */
@@ -122,7 +129,8 @@ body.theme-dark {
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    /* Fill available space with modern responsive columns */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 24px;
     margin-bottom: 32px;
 }
