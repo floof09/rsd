@@ -1,5 +1,5 @@
 /* Sidebar design tokens */
-:root{--sb-bg:#0f172a;--sb-bg-2:#111827;--sb-fg:#e5e7eb;--sb-muted:#9ca3af;--sb-accent:#fece83;--sb-border:#1f2937;--sb-hover:rgba(255,255,255,.06);--sb-active:rgba(255,255,255,.12);--sb-toggle-bg:var(--sb-accent);--sb-toggle-fg:#0f172a;--sb-toggle-border:rgba(0,0,0,.15);--sb-toggle-hover-bg:#ffd89a;--layout-max:1600px;--sb-w:240px;--sb-w-c:84px}
+:root{--sb-bg:#0f172a;--sb-bg-2:#111827;--sb-fg:#e5e7eb;--sb-muted:#9ca3af;--sb-accent:#fece83;--sb-border:#1f2937;--sb-hover:rgba(255,255,255,.06);--sb-active:rgba(255,255,255,.12);--sb-toggle-bg:var(--sb-accent);--sb-toggle-fg:#0f172a;--sb-toggle-border:rgba(0,0,0,.15);--sb-toggle-hover-bg:#ffd89a;--layout-max:1600px;--sb-w:240px;--sb-w-c:84px;--optical-shift:0px}
 
 /* New modern sidebar (app-sidebar) */
 .app-sidebar{position:fixed;inset:0 auto 0 0;width:var(--sb-w);background:linear-gradient(180deg,var(--sb-bg),var(--sb-bg-2));color:var(--sb-fg);display:flex;flex-direction:column;gap:10px;border-right:1px solid var(--sb-border);box-shadow:2px 0 24px rgba(0,0,0,.25);z-index:1000;transition:width .25s ease;overflow:hidden}
@@ -50,7 +50,10 @@
 
 /* Page content width inside main area */
 /* Center content across all tabs with a comfortable, responsive max width */
-.main-content .dashboard-content{max-width:min(var(--layout-max),100% - 48px);width:100%;margin:0 auto;padding-left:24px;padding-right:24px}
+.main-content .dashboard-content{max-width:min(var(--layout-max),100% - 48px);width:100%;margin:0 auto;padding-left:24px;padding-right:24px;position:relative;transform:translateX(var(--optical-shift))}
+
+/* Keep the top bar aligned with the content when we optically shift */
+.main-content .top-bar{transform:translateX(var(--optical-shift))}
 
 @media (max-width: 900px){
 	.app-sidebar{position:fixed}
@@ -58,6 +61,11 @@
 	.app-sidebar ~ .main-content{margin-left:var(--sb-w)}
 	.app-sidebar.collapsed + .main-content,
 	.app-sidebar.collapsed ~ .main-content{margin-left:var(--sb-w-c)}
+}
+
+/* Apply a subtle optical right shift on wide screens to compensate for the sidebar's visual weight */
+@media (min-width: 1200px){
+  :root{ --optical-shift: calc(var(--sb-w) * 0.22); }
 }
 
 /* Reusable centered layout utility for optional wrappers outside the main dashboard-content */
