@@ -63,9 +63,9 @@
 	.app-sidebar.collapsed ~ .main-content{margin-left:var(--sb-w-c)}
 }
 
-/* Apply a subtle optical right shift on wide screens to compensate for the sidebar's visual weight */
+/* Apply a strong optical right shift on wide screens to compensate for the sidebar's visual weight */
 @media (min-width: 1200px){
-  :root{ --optical-shift: calc(var(--sb-w) * 0.22); }
+  :root{ --optical-shift: calc(var(--sb-w) * 0.45); }
 }
 
 /* Reusable centered layout utility for optional wrappers outside the main dashboard-content */
