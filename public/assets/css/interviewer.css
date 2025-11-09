@@ -1,0 +1,6 @@
+/* Interviewer bundle: imports and overrides */
+@import url('shared.css');
+@import url('interviewer/interviewer-dashboard.css');
+@import url('interviewer/application-form.css');
+
+/* Interviewer specific tweaks placeholder */

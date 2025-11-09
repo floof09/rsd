@@ -1,0 +1,19 @@
+/* Admin users list (migrated copy) */
+.users-container{max-width:1200px;margin:0 auto}
+.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding:20px;background:#fff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.05)}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-left h2{font-size:24px;color:var(--dark-text);margin:0}
+.count-badge{background:var(--primary-color);color:var(--dark-text);padding:4px 12px;border-radius:20px;font-size:14px;font-weight:600}
+.table-container{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:linear-gradient(135deg,#f7fafc 0%,#edf2f7 100%)}
+thead th{padding:16px;text-align:left;font-weight:600;color:var(--dark-text);font-size:13px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e2e8f0}
+tbody tr{border-bottom:1px solid #f7fafc;transition:background .2s ease}
+tbody tr:hover{background:#f7fafc}
+tbody td{padding:16px;color:var(--dark-text);font-size:14px}
+.user-info-cell{display:flex;align-items:center;gap:10px}
+.user-info-cell .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary-color) 0%,#f4a261 100%);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:var(--dark-text);flex:0 0 32px;min-width:32px;aspect-ratio:1/1}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;text-transform:capitalize}
+.role-admin{background:#dbeafe;color:#1e40af}
+.role-interviewer{background:#e9d5ff;color:#6b21a8}
+.role-applicant{background:#fee2e2;color:#991b1b}

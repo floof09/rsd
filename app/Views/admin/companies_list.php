@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Companies - RSD Admin</title>
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/users-list.css') ?>?v=<?= time() ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/companies.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>?v=<?= time() ?>">
 </head>
 <body>
 <div class="dashboard-container interviewer-dashboard">

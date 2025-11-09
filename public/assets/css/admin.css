@@ -1,0 +1,10 @@
+/* Admin bundle: imports and overrides for admin area */
+@import url('shared.css');
+@import url('admin/dashboard.css');
+@import url('admin/applications-list.css');
+@import url('admin/application-form.css');
+@import url('admin/users-list.css');
+@import url('admin/companies.css');
+@import url('admin/system-logs.css');
+
+/* Admin specific tweaks can go here */

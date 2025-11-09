@@ -10,8 +10,7 @@ $errors = session('errors') ?? [];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IGT Additional Interview</title>
     <link rel="icon" type="image/svg+xml" href="<?= base_url('assets/images/favicon.svg') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/css/application-form.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/interviewer.css') ?>?v=<?= time() ?>">
     <style>
         .field-error { color:#e53e3e; font-size:12px; margin-top:6px; }
         .section-title { margin: 18px 0 8px; color: #2d3748; font-weight: 700; }

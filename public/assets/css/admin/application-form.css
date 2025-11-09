@@ -1,10 +1,24 @@
+/* Admin application form (migrated copy) */
 .application-form-container {
-    /* Push WAY to the right - past center */
-    max-width: none;
-    margin-left: 25%;
-    margin-right: 2%;
-    padding: 0 48px;
-}/* Unified error indicator styles (moved from inline <style>) */
+	/* Align form right after the sidebar and constrain width for readability */
+	max-width: 1080px;
+	margin-left: calc(var(--sb-w) + 0px);
+	margin-right: auto;
+	padding: 0 24px 44px;
+}
+
+/* Responsive adjustments matching sidebar collapse and small screens */
+@media (max-width: 1200px) {
+	.application-form-container { max-width: 1000px; }
+}
+@media (max-width: 960px) {
+	.application-form-container { margin-left: calc(var(--sb-w-c) + 24px); padding: 0 24px 40px; }
+}
+@media (max-width: 700px) {
+	.application-form-container { margin-left: 0; max-width: 100%; padding: 0 18px 36px; }
+	.form-card { padding: 24px 22px; }
+}
+/* Unified error indicator styles (moved from inline <style>) */
 .field-error {
 	color: #e53e3e;
 	font-size: 12px;

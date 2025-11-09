@@ -1,0 +1,3 @@
+/* Shared base imports: sidebar tokens + typography (no layout centering) */
+@import url('sidebar.css');
+@import url('base.css');

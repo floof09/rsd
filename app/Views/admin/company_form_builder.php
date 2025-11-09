@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Configure Form - <?= esc($company['name']) ?> - RSD Admin</title>
-    <link rel="stylesheet" href="<?= base_url('assets/css/dashboard.css') ?>?v=<?= time() ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/admin.css') ?>?v=<?= time() ?>">
     <style>
         .field-row { display:grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-bottom:8px; }
         .field-row .small { max-width:160px; }

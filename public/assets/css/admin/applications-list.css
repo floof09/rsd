@@ -1,0 +1,51 @@
+/* Admin applications list (migrated copy) */
+.applications-container{width:100%;max-width:min(var(--layout-max),100% - 48px);margin:0 auto;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:28px 36px}
+.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:8px 0 0;background:transparent;border-radius:0;box-shadow:none}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-left h2{font-size:24px;color:var(--dark-text);margin:0}
+.count-badge{background:var(--primary-color);color:var(--dark-text);padding:6px 14px;border-radius:9999px;font-size:14px;font-weight:600}
+.filter-bar{display:flex;gap:16px;margin-bottom:16px;padding:0 0 8px;background:transparent;border-radius:0;box-shadow:none}
+.search-box{flex:1;position:relative;display:flex;align-items:center}
+.search-box svg{position:absolute;left:12px;color:#a0aec0}
+.search-box input{width:100%;padding:10px 10px 10px 40px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px}
+.search-box input:focus{outline:none;border-color:var(--primary-color)}
+.filter-group select{padding:10px 16px;border:1px solid #e2e8f0;border-radius:6px;font-size:14px;cursor:pointer;min-width:150px}
+.filter-group select:focus{outline:none;border-color:var(--primary-color)}
+.table-container{background:transparent;border-radius:0;box-shadow:none;overflow:visible}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead{background:linear-gradient(135deg,#f7fafc 0%,#edf2f7 100%)}
+thead th{padding:12px;text-align:left;font-weight:600;color:var(--dark-text);font-size:13px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #e2e8f0}
+tbody tr{border-bottom:1px solid #f7fafc;transition:background .2s ease}
+tbody tr:hover{background:#f7fafc}
+tbody td{padding:12px;color:var(--dark-text);font-size:13px}
+.applicant-info{display:flex;align-items:center;gap:10px}
+.applicant-info .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary-color) 0%,#f4a261 100%);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:var(--dark-text);flex:0 0 32px;min-width:32px;aspect-ratio:1/1}
+.applicant-info span{flex:1 1 auto}
+.status-badge{padding:8px 14px;border-radius:9999px;font-size:13px;font-weight:600;text-transform:capitalize;white-space:nowrap;display:inline-flex;align-items:center;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.status-pending{background:#fef3c7;color:#92400e}
+.status-approved{background:#d1fae5;color:#065f46}
+.status-rejected{background:#fee2e2;color:#991b1b}
+.status-for_review{background:#dbeafe;color:#1e40af}
+.status-approved_for_endorsement{background:#dcfce7;color:#166534}
+.status-col{width:120px}
+.interviewer-col{width:220px}
+tbody td.interviewer-col{white-space:normal;line-height:1.25}
+.action-buttons{display:flex;gap:8px}
+.actions-col{width:110px}
+tbody td.actions-col .action-buttons{justify-content:flex-end}
+.btn-icon{padding:8px;border:none;background:transparent;cursor:pointer;border-radius:6px;transition:.2s;color:var(--dark-text)}
+.btn-icon:hover{background:#f7fafc;transform:scale(1.1)}
+.btn-icon.btn-danger:hover{background:#fee2e2;color:#991b1b}
+.empty-state{text-align:center;padding:80px 20px;background:white;border-radius:12px;max-width:640px;margin:32px auto;display:flex;flex-direction:column;align-items:center}
+.empty-state svg{color:#cbd5e0;margin-bottom:16px}
+.empty-state h3{font-size:20px;color:var(--dark-text);margin-bottom:8px}
+.empty-state p{color:var(--light-text);margin-bottom:24px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:6px;border:none;font-size:14px;font-weight:500;cursor:pointer;transition:.3s;text-decoration:none}
+.btn-primary{background:var(--primary-color);color:var(--dark-text)}
+.btn-primary:hover{background:#f4a261;transform:translateY(-2px);box-shadow:0 4px 12px rgba(254,206,131,.4)}
+.btn-secondary{background:var(--secondary-color);color:white}
+.btn-secondary:hover{background:#a0a0a0;transform:translateY(-2px)}
+@media (max-width:768px){ .list-header{flex-direction:column;gap:16px;align-items:flex-start} .header-actions{width:100%;flex-direction:column} .filter-bar{flex-direction:column} table{min-width:900px} }
+@media (max-width:1280px){ thead th{padding:10px;font-size:12px} tbody td{padding:10px;font-size:12px} .status-col{width:110px} .interviewer-col{width:200px} .actions-col{width:100px} }
+@media (max-width:1100px){ .applications-container{max-width:none} thead th{padding:8px} tbody td{padding:8px} }
+
