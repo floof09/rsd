@@ -58,6 +58,9 @@ $routes->get('interviewer/applications/(:num)/resume', 'AdminApplication::resume
 	// IGT additional interview (interviewer only)
 	$routes->get('interviewer/applications/(:num)/igt', 'AdminApplication::igtForm/$1');
 	$routes->post('interviewer/applications/(:num)/igt/save', 'AdminApplication::igtSave/$1');
+// Interviewer: Company-specific second stage form
+$routes->get('interviewer/applications/(:num)/company-fields', 'AdminApplication::companyFields/$1');
+$routes->post('interviewer/applications/(:num)/company-fields/save', 'AdminApplication::companyFieldsSave/$1');
 // Interviewer: Approve for endorsement
 $routes->post('interviewer/applications/(:num)/approve', 'AdminApplication::approveForEndorsement/$1');
 
@@ -70,6 +73,7 @@ $routes->get('api/companies/(:num)/schema', 'CompanyApi::schema/$1');
 $routes->get('tools/migrate', 'Tools::migrate');
 $routes->get('tools/seed-admin', 'Tools::seedAdmin');
 $routes->get('tools/seed-interviewer', 'Tools::seedInterviewer');
+$routes->get('tools/seed-companies', 'Tools::seedCompanies');
 $routes->get('tools/env', 'Tools::env');
 $routes->get('tools/logs', 'Tools::logs');
 $routes->get('tools/health', 'Tools::health');
@@ -77,6 +81,7 @@ $routes->get('tools/health', 'Tools::health');
 $routes->get('tools/test-log', 'Tools::testLog');
 // Repair migrations table state and run remaining migrations
 $routes->get('tools/repair-migrations', 'Tools::repairMigrations');
+$routes->get('tools/backfill-company-ids', 'Tools::backfillCompanyIds');
 // Verify a user's credentials against stored hash
 $routes->get('tools/auth-check', 'Tools::authCheck');
 // Database status: tables and counts

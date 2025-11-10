@@ -1,3 +1,10 @@
 /* Shared base imports: sidebar tokens + typography (no layout centering) */
 @import url('sidebar.css');
 @import url('base.css');
+/* Simple step progress indicator (used in multi-stage application flow) */
+.progress-steps { display:flex; gap:6px; align-items:center; margin:0 0 12px; font-family: var(--font-stack, 'Inter', system-ui, Arial); }
+.progress-steps .step { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; letter-spacing:.5px; background:#edf2f7; color:#2d3748; border:1px solid #e2e8f0; }
+.progress-steps .step.current { background:#6366f1; color:#fff; border-color:#6366f1; }
+.progress-steps .step.done { background:#10b981; color:#fff; border-color:#10b981; }
+.progress-steps .step + .step { position:relative; }
+.progress-steps .step + .step:before { content:''; position:absolute; left:-8px; top:50%; width:8px; height:2px; background:#cbd5e1; transform:translateY(-50%); }

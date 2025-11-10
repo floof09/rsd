@@ -35,6 +35,7 @@
                             <h2>Company Application Form</h2>
                             <p>Fill in the applicant details below</p>
                         </div>
+                        <div class="progress-steps"><span class="step current">Step 1 of 2: Basic Application</span></div>
 
                         <?php if (!empty($flashSuccess)): ?>
                             <div class="alert alert-success">
@@ -74,8 +75,7 @@
                                 </div>
                             </div>
 
-                            <!-- Dynamic custom fields container rendered per company -->
-                            <div id="customFieldsContainer"></div>
+                            <!-- Company-specific custom fields now collected in Step 2. -->
                             
                             <div class="form-row">
                                 <div class="form-group">
@@ -842,9 +842,8 @@
             if (pn) sanitizeMobile(pn);
             if (vn) sanitizeMobile(vn);
 
-            // If a company is already selected (old value) then load its schema
-            const cid = document.getElementById('company_id');
-            if (cid) { onCompanyChange(); cid.addEventListener('change', onCompanyChange); }
+            // Company-specific custom fields are deferred to Step 2
+            // (No dynamic schema loading here anymore.)
         });
 
         // Note: localStorage is cleared on the next page load if the
@@ -909,67 +908,7 @@
             saveFormData();
         }
 
-        async function onCompanyChange() {
-            const sel = document.getElementById('company_id');
-            const hiddenName = document.getElementById('company_name');
-            const container = document.getElementById('customFieldsContainer');
-            container.innerHTML = '';
-            if (!sel || !sel.value) { if (hiddenName) hiddenName.value = ''; return; }
-            const optionLabel = sel.options[sel.selectedIndex]?.text || '';
-            if (hiddenName) hiddenName.value = optionLabel;
-            try {
-                const res = await fetch(`<?= base_url('api/companies') ?>/${sel.value}/schema`, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) throw new Error('Unable to load company form');
-                const data = await res.json();
-                renderCustomFields(container, data.schema?.fields || []);
-            } catch (e) {
-                container.innerHTML = `<div class="alert alert-error">Failed to load company form fields.</div>`;
-            }
-        }
-
-        function renderCustomFields(container, fields) {
-            if (!fields || !fields.length) return; // no custom fields
-            const section = document.createElement('div');
-            section.className = 'form-section';
-            section.innerHTML = `<h3 style="margin:12px 0; font-size:16px; color:#2d3748;">Additional Company Fields</h3>`;
-            fields.forEach(f => {
-                const group = document.createElement('div');
-                group.className = 'form-group full-width';
-                const id = `custom_${f.key}`;
-                const nameAttr = `custom[${f.key}]`;
-                const label = `<label for="${id}">${escapeHtml(f.label || f.key)}${f.required ? ' <span class="required">*</span>' : ''}</label>`;
-                let inputHtml = '';
-                switch (f.type) {
-                    case 'textarea':
-                        inputHtml = `<textarea id="${id}" name="${nameAttr}" rows="3"></textarea>`; break;
-                    case 'select':
-                        const opts = (f.options || []).map(o => `<option value="${escapeAttr(o)}">${escapeHtml(o)}</option>`).join('');
-                        inputHtml = `<select id="${id}" name="${nameAttr}"><option value="">-- Select --</option>${opts}</select>`; break;
-                    case 'checkbox':
-                        inputHtml = `<input type="checkbox" id="${id}" name="${nameAttr}" value="1">`; break;
-                    case 'date':
-                        inputHtml = `<input type="date" id="${id}" name="${nameAttr}">`; break;
-                    case 'number':
-                        const min = f.min != null ? ` min="${String(f.min)}"` : '';
-                        const max = f.max != null ? ` max="${String(f.max)}"` : '';
-                        inputHtml = `<input type="number" id="${id}" name="${nameAttr}"${min}${max}>`; break;
-                    case 'email':
-                        inputHtml = `<input type="email" id="${id}" name="${nameAttr}">`; break;
-                    case 'tel':
-                        inputHtml = `<input type="tel" id="${id}" name="${nameAttr}">`; break;
-                    case 'text':
-                    default:
-                        const maxLength = f.maxLength ? ` maxlength="${String(f.maxLength)}"` : '';
-                        inputHtml = `<input type="text" id="${id}" name="${nameAttr}"${maxLength}>`;
-                }
-                group.innerHTML = label + inputHtml + `<div class="field-error" data-live-error="${id}" style="display:none"></div>`;
-                section.appendChild(group);
-            });
-            container.appendChild(section);
-        }
-
-        function escapeHtml(s){ return String(s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-        function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+        // Dynamic company custom field rendering removed (handled in Step 2)
     </script>
 </body>
 </html>

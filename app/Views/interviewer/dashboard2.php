@@ -38,9 +38,10 @@
                             <polyline points="17 11 19 13 23 9"/>
                         </svg>
                     </div>
-                    <div class="kpi-trend">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
-                        12%
+                    <div class="kpi-trend" title="<?= esc($trend_window_label ?? '') ?>">
+                        <?php $t = (int)($trend_total ?? 0); $up = $t >= 0; ?>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="transform:rotate(<?= $up ? '0' : '180' ?>deg);"><path d="M18 15l-6-6-6 6"/></svg>
+                        <?= $up ? '+' : '' ?><?= $t ?>%
                     </div>
                 </div>
                 <div class="kpi-meta">
@@ -57,9 +58,10 @@
                             <line x1="9" y1="3" x2="9" y2="21"/>
                         </svg>
                     </div>
-                    <div class="kpi-trend">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
-                        8%
+                    <div class="kpi-trend" title="<?= esc($trend_window_label ?? '') ?>">
+                        <?php $t = (int)($trend_rsd ?? 0); $up = $t >= 0; ?>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="transform:rotate(<?= $up ? '0' : '180' ?>deg);"><path d="M18 15l-6-6-6 6"/></svg>
+                        <?= $up ? '+' : '' ?><?= $t ?>%
                     </div>
                 </div>
                 <div class="kpi-meta">
@@ -78,9 +80,10 @@
                             <circle cx="7" cy="7" r="3"/>
                         </svg>
                     </div>
-                    <div class="kpi-trend">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
-                        5%
+                    <div class="kpi-trend" title="<?= esc($trend_window_label ?? '') ?>">
+                        <?php $t = (int)($trend_igt ?? 0); $up = $t >= 0; ?>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="transform:rotate(<?= $up ? '0' : '180' ?>deg);"><path d="M18 15l-6-6-6 6"/></svg>
+                        <?= $up ? '+' : '' ?><?= $t ?>%
                     </div>
                 </div>
                 <div class="kpi-meta">

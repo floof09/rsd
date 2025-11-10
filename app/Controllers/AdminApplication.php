@@ -954,7 +954,9 @@ class AdminApplication extends BaseController
                     log_message('error', 'Post-save email notifications failed: ' . $e->getMessage());
                 }
                 
-                return redirect()->back()->with('success', 'Application saved successfully!');
+                // After initial save, proceed to company-specific second stage
+                return redirect()->to('/interviewer/applications/' . $applicationId . '/company-fields')
+                    ->with('success', 'Application saved. Next, complete the company-specific questions.');
             } else {
                 // Surface model-level errors if any (in case of DB/Model validation)
                 $modelErrors = method_exists($applicationModel, 'errors') ? $applicationModel->errors() : [];
@@ -971,6 +973,90 @@ class AdminApplication extends BaseController
                 ->withInput()
                 ->with('error', 'An error occurred while saving the application. Please try again.');
         }
+    }
+
+    // ========== Second Stage: Company-specific custom fields (Interviewer Only) ==========
+    public function companyFields($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/auth/login');
+        }
+
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
+        }
+        if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications')->with('error', 'You can only complete company fields for applications you created.');
+        }
+
+        $companyId = (int)($application['company_id'] ?? 0);
+        $company = $companyId ? (new \App\Models\CompanyModel())->find($companyId) : null;
+        if (!$company) {
+            return redirect()->to('/interviewer/applications/' . $id)->with('error', 'Company not found for this application.');
+        }
+        $schema = (new \App\Models\CompanyModel())->getSchemaArray($companyId);
+
+        // Prefill from existing notes.custom, if present
+        $existingCustom = [];
+        if (!empty($application['notes'])) {
+            $decoded = json_decode($application['notes'], true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $existingCustom = (array)($decoded['custom'] ?? []);
+            }
+        }
+
+        return view('interviewer/company_fields', [
+            'application' => $application,
+            'company' => $company,
+            'schema' => $schema,
+            'values' => $existingCustom,
+        ]);
+    }
+
+    public function companyFieldsSave($id)
+    {
+        if (!session()->get('isLoggedIn') || session()->get('user_type') !== 'interviewer') {
+            return redirect()->to('/auth/login');
+        }
+        $applicationModel = new ApplicationModel();
+        $application = $applicationModel->find($id);
+        if (!$application) {
+            return redirect()->to('/interviewer/applications')->with('error', 'Application not found');
+        }
+        if ((int)($application['interviewed_by'] ?? 0) !== (int)session()->get('user_id')) {
+            return redirect()->to('/interviewer/applications')->with('error', 'You can only update applications you created.');
+        }
+
+        $companyId = (int)($application['company_id'] ?? 0);
+        $company = $companyId ? (new \App\Models\CompanyModel())->find($companyId) : null;
+        if (!$company) {
+            return redirect()->to('/interviewer/applications/' . $id)->with('error', 'Company not found for this application.');
+        }
+
+        // Validate posted custom fields against schema
+        try {
+            $schema = (new \App\Models\CompanyModel())->getSchemaArray($companyId);
+            $custom = (array)($this->request->getPost('custom') ?? []);
+            $validated = $this->validateCustomFields($schema, $custom);
+
+            // Merge into notes JSON
+            $notes = [];
+            if (!empty($application['notes'])) {
+                $decoded = json_decode($application['notes'], true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $notes = $decoded;
+                }
+            }
+            $notes['custom'] = $validated;
+
+            $applicationModel->update($id, [ 'notes' => json_encode($notes) ]);
+        } catch (\Throwable $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+
+        return redirect()->to('/interviewer/applications/' . $id)->with('success', 'Company-specific form saved.');
     }
 
     public function list()
