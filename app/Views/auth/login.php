@@ -9,6 +9,40 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Chatbot widget scoped styles */
+        .chatbot-toggle{
+            position:fixed;right:24px;bottom:24px;z-index:1100;
+            width:56px;height:56px;border:none;border-radius:50%;
+            background:linear-gradient(135deg,#8251f6,#a56ef8);color:#fff;
+            box-shadow:0 10px 24px rgba(130,81,246,.35),0 6px 12px rgba(0,0,0,.1);
+            display:flex;align-items:center;justify-content:center;cursor:pointer;
+            transition:transform .15s ease, box-shadow .15s ease;
+        }
+        .chatbot-toggle:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(130,81,246,.4),0 8px 16px rgba(0,0,0,.12)}
+        .chatbot-panel{
+            position:fixed;right:24px;bottom:90px;z-index:1100;
+            width:320px;max-width:calc(100vw - 32px);
+            background:#101216;color:#e8e9ef;border:1px solid rgba(255,255,255,.06);
+            border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.35);
+            display:none;flex-direction:column;
+        }
+        .chatbot-header{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.06)}
+        .chatbot-header .status{font-size:12px;color:#9aa3b2}
+        .chatbot-messages{padding:12px;height:280px;overflow:auto;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
+        .chat-row{display:flex;margin:8px 0}
+        .chat-row.user{justify-content:flex-end}
+        .chat-bubble{max-width:78%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.35}
+        .chat-row.user .chat-bubble{background:#2a2f3a;color:#e8e9ef;border-top-right-radius:6px}
+        .chat-row.bot .chat-bubble{background:#1a1e26;color:#dfe3ea;border:1px solid rgba(255,255,255,.06);border-top-left-radius:6px}
+        .chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+        .chat-suggestion{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#c7ccdb;font-size:12px;cursor:pointer}
+        .chat-suggestion:hover{background:rgba(255,255,255,.06)}
+        .chatbot-input{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+        .chatbot-input textarea{flex:1;resize:none;max-height:120px;height:40px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#0e1116;color:#e8e9ef;font-family:inherit}
+        .chatbot-input button{min-width:44px;border:none;border-radius:10px;background:#7a4ef2;color:#fff;cursor:pointer}
+        @media (max-width: 600px){.chatbot-panel{right:12px;left:12px;width:auto}.chatbot-toggle{right:16px;bottom:16px}}
+    </style>
 </head>
 <body>
     <!-- Animated Background -->
@@ -217,6 +251,32 @@
         </div>
     </div>
 
+    <!-- Chatbot Floating Widget -->
+    <button class="chatbot-toggle" id="chatbotToggle" aria-label="Open help chat" title="Quick help">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+        </svg>
+    </button>
+    <div class="chatbot-panel" id="chatbotPanel" role="dialog" aria-modal="true" aria-labelledby="chatbotTitle">
+        <div class="chatbot-header">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/></svg>
+            <div>
+                <div id="chatbotTitle" style="font-weight:600">RSD Assistant</div>
+                <div class="status">Login & quick help</div>
+            </div>
+            <button onclick="chatbotClose()" style="margin-left:auto;background:transparent;border:none;color:#c7ccdb;cursor:pointer" aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages"></div>
+        <div class="chatbot-input">
+            <textarea id="chatbotInput" placeholder="Ask about password reset, roles, or security…" rows="1"></textarea>
+            <button id="chatbotSend" aria-label="Send">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+        </div>
+    </div>
+
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
@@ -251,6 +311,81 @@
         <?php if (session()->getFlashdata('clearFormData')): ?>
             localStorage.removeItem('applicationFormData');
         <?php endif; ?>
+
+        // Chatbot logic
+        const chatbot = {
+            api: '<?= base_url('api/chatbot') ?>',
+            panel: document.getElementById('chatbotPanel'),
+            toggle: document.getElementById('chatbotToggle'),
+            messages: document.getElementById('chatbotMessages'),
+            input: document.getElementById('chatbotInput'),
+            sendBtn: document.getElementById('chatbotSend'),
+            openedOnce: false,
+        };
+
+        function chatbotOpen(){ chatbot.panel.style.display='flex'; chatbot.input.focus(); if(!chatbot.openedOnce){ chatbotGreeting(); chatbot.openedOnce=true; } }
+        function chatbotClose(){ chatbot.panel.style.display='none'; }
+        chatbot.toggle.addEventListener('click', ()=>{
+            const isOpen = getComputedStyle(chatbot.panel).display !== 'none';
+            if(isOpen) chatbotClose(); else chatbotOpen();
+        });
+
+        chatbot.sendBtn.addEventListener('click', ()=> chatbotSend());
+        chatbot.input.addEventListener('keydown', (e)=>{
+            if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); chatbotSend(); }
+        });
+
+        function chatbotAppend(role, text){
+            const row = document.createElement('div');
+            row.className = 'chat-row '+role;
+            const bubble = document.createElement('div');
+            bubble.className='chat-bubble';
+            bubble.textContent = text;
+            row.appendChild(bubble);
+            chatbot.messages.appendChild(row);
+            chatbot.messages.scrollTop = chatbot.messages.scrollHeight;
+        }
+
+        function renderSuggestions(list){
+            if(!list || !list.length) return;
+            const wrap = document.createElement('div');
+            wrap.className='chat-suggestions';
+            list.slice(0,4).forEach(s=>{
+                const b=document.createElement('button');
+                b.className='chat-suggestion';
+                b.type='button';
+                b.textContent=s;
+                b.addEventListener('click', ()=>{ chatbot.input.value=s; chatbotSend(); });
+                wrap.appendChild(b);
+            });
+            chatbot.messages.appendChild(wrap);
+            chatbot.messages.scrollTop = chatbot.messages.scrollHeight;
+        }
+
+        async function chatbotGreeting(){
+            try{
+                const res = await fetch(chatbot.api, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:''})});
+                const data = await res.json();
+                (data.messages||[]).forEach(m=>{ if(m.role==='bot') chatbotAppend('bot', m.text); });
+                renderSuggestions(data.suggestions);
+            }catch(e){ chatbotAppend('bot','Hi! You can ask me about login and password reset.'); }
+        }
+
+        async function chatbotSend(){
+            const text = chatbot.input.value.trim();
+            if(!text) return;
+            chatbotAppend('user', text);
+            chatbot.input.value='';
+            try{
+                const res = await fetch(chatbot.api, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+                const data = await res.json();
+                (data.messages||[]).forEach(m=>{ if(m.role==='bot') chatbotAppend('bot', m.text); });
+                // show new suggestions if any
+                // remove old suggestion groups to reduce clutter
+                [...chatbot.messages.querySelectorAll('.chat-suggestions')].forEach(n=>n.remove());
+                renderSuggestions(data.suggestions);
+            }catch(e){ chatbotAppend('bot','Sorry, I could not reach the help service. Please try again.'); }
+        }
     </script>
 </body>
 </html>

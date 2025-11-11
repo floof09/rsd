@@ -1,5 +1,5 @@
 /* Interviewer dashboard (migrated copy) */
-:root { --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#ffffff; --brandA:#6366f1; --brandB:#8b5cf6; --accent:#6366f1; --ok:#10b981; --warn:#f59e0b; --shadow:0 1px 3px rgba(0,0,0,.04), 0 10px 25px rgba(0,0,0,.06); }
+:root { --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#ffffff; --brandA:#fece83; --brandB:#f4a261; --accent:#fece83; --ok:#10b981; --warn:#f59e0b; --shadow:0 1px 3px rgba(0,0,0,.04), 0 10px 25px rgba(0,0,0,.06); }
 .theme-dark { --ink:#f1f5f9; --muted:#94a3b8; --border:#1e293b; --bg:#0f172a; --card:#1e293b; --shadow:0 1px 3px rgba(0,0,0,.2), 0 10px 25px rgba(0,0,0,.3); }
 .interviewer-dashboard .dashboard-content{ background:linear-gradient(180deg, rgba(99,102,241,.02) 0%, transparent 40%); position:relative; }
 .interviewer-dashboard .dashboard-content::before{ content:""; position:fixed; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity:.6; pointer-events:none; z-index:-1; }
@@ -30,7 +30,7 @@
 .interviewer-dashboard .activity{ display:flex; flex-direction:column; gap:12px; }
 .interviewer-dashboard .activity-row{ display:flex; align-items:center; gap:16px; padding:14px 16px; border-radius:14px; transition:background .15s ease; }
 .interviewer-dashboard .activity-row:hover{ background:rgba(99,102,241,.04); }
-.interviewer-dashboard .activity-avatar{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:13px; color:#fff; background:linear-gradient(135deg,var(--accent), #8b5cf6); flex-shrink:0; }
+.interviewer-dashboard .activity-avatar{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:13px; color:#111827; background:linear-gradient(135deg,var(--brandA), var(--brandB)); flex-shrink:0; box-shadow:0 2px 6px rgba(254,206,131,.35); }
 .interviewer-dashboard .activity-info{ flex:1; min-width:0; }
 .interviewer-dashboard .activity-title{ font-weight:700; color:var(--ink); font-size:14px; }
 .interviewer-dashboard .activity-meta{ color:var(--muted); font-size:12px; margin-top:2px; }

@@ -68,6 +68,8 @@ $routes->post('interviewer/applications/(:num)/approve', 'AdminApplication::appr
 $routes->get('api/geocode/reverse', 'Geocode::reverse');
 $routes->get('api/geocode/search', 'Geocode::search');
 $routes->get('api/companies/(:num)/schema', 'CompanyApi::schema/$1');
+// Lightweight chatbot for login/help
+$routes->post('api/chatbot', 'ChatBotApi::respond');
 
 // Maintenance/Tools (guarded by token in .env)
 $routes->get('tools/migrate', 'Tools::migrate');

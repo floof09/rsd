@@ -1,4 +1,4 @@
-:root { --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#ffffff; --brandA:#f59e0b; --brandB:#f97316; --accent:#6366f1; --ok:#10b981; --warn:#f59e0b; --shadow:0 1px 3px rgba(0,0,0,.04), 0 10px 25px rgba(0,0,0,.06); }
+:root { --ink:#0f172a; --muted:#64748b; --border:#e2e8f0; --bg:#f8fafc; --card:#ffffff; --brandA:#fece83; --brandB:#f4a261; --accent:#fece83; --ok:#10b981; --warn:#f59e0b; --shadow:0 1px 3px rgba(0,0,0,.04), 0 10px 25px rgba(0,0,0,.06); }
 .theme-dark { --ink:#f1f5f9; --muted:#94a3b8; --border:#1e293b; --bg:#0f172a; --card:#1e293b; --shadow:0 1px 3px rgba(0,0,0,.2), 0 10px 25px rgba(0,0,0,.3); }
 
 body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
@@ -21,9 +21,9 @@ body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui
 
 .interviewer-dashboard .kpi-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:18px; margin-top:20px; }
 .interviewer-dashboard .kpi-card{ position:relative; background:var(--card); border:1px solid var(--border); border-radius:20px; padding:26px 24px; display:flex; flex-direction:column; gap:16px; box-shadow:var(--shadow); transition: all .2s cubic-bezier(.4,0,.2,1); }
-.interviewer-dashboard .kpi-card:hover{ transform: translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.1); border-color: rgba(99,102,241,.3); }
+.interviewer-dashboard .kpi-card:hover{ transform: translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.1); border-color: rgba(254,206,131,.5); }
 .interviewer-dashboard .kpi-top{ display:flex; align-items:center; justify-content:space-between; }
-.interviewer-dashboard .kpi-ico{ width:48px; height:48px; border-radius:14px; display:grid; place-items:center; color:#fff; background:linear-gradient(135deg, var(--accent), #8b5cf6); box-shadow:0 4px 14px rgba(99,102,241,.3); }
+.interviewer-dashboard .kpi-ico{ width:48px; height:48px; border-radius:14px; display:grid; place-items:center; color:#111827; background:linear-gradient(135deg, var(--brandA), var(--brandB)); box-shadow:0 4px 14px rgba(254,206,131,.4); font-weight:700; }
 .interviewer-dashboard .kpi-ico--green{ background: linear-gradient(135deg,#10b981,#34d399); box-shadow: 0 4px 14px rgba(16,185,129,.3); }
 .interviewer-dashboard .kpi-ico--cyan{ background: linear-gradient(135deg,#0ea5e9,#22d3ee); box-shadow: 0 4px 14px rgba(14,165,233,.3); }
 .interviewer-dashboard .kpi-trend{ display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:999px; font-size:11px; font-weight:700; background:#ecfdf5; color:#065f46; }
@@ -46,15 +46,15 @@ body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui
 
 .interviewer-dashboard .activity{ display:flex; flex-direction:column; gap:12px; }
 .interviewer-dashboard .activity-row{ display:flex; align-items:center; gap:16px; padding:14px 16px; border-radius:14px; transition:background .15s ease; }
-.interviewer-dashboard .activity-row:hover{ background: rgba(99,102,241,.04); }
-.interviewer-dashboard .activity-avatar{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:13px; color:#fff; background: linear-gradient(135deg, var(--accent), #8b5cf6); flex-shrink:0; }
+.interviewer-dashboard .activity-row:hover{ background: rgba(254,206,131,.08); }
+.interviewer-dashboard .activity-avatar{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-weight:800; font-size:13px; color:#111827; background: linear-gradient(135deg, var(--brandA), var(--brandB)); flex-shrink:0; box-shadow:0 2px 6px rgba(254,206,131,.35); }
 .interviewer-dashboard .activity-info{ flex:1; min-width:0; }
 .interviewer-dashboard .activity-title{ font-weight:700; color:var(--ink); font-size:14px; }
 .interviewer-dashboard .activity-meta{ color:var(--muted); font-size:12px; margin-top:2px; }
 .interviewer-dashboard .activity-badge{ padding:4px 10px; border-radius:999px; font-size:11px; font-weight:800; text-transform:capitalize; background:#eef2ff; color:#3730a3; white-space:nowrap; }
 
-.interviewer-dashboard .btn-primary{ display:inline-flex; align-items:center; gap:12px; padding:14px 26px; background:linear-gradient(90deg, var(--brandA), var(--brandB)); color:#fff; border-radius:14px; text-decoration:none; font-weight:800; border:0; box-shadow:0 4px 18px rgba(245,158,11,.35); transition: all .2s ease; font-size:15px; }
-.interviewer-dashboard .btn-primary:hover{ transform: translateY(-1px); box-shadow:0 6px 20px rgba(245,158,11,.4); }
+.interviewer-dashboard .btn-primary{ display:inline-flex; align-items:center; gap:12px; padding:14px 26px; background:linear-gradient(135deg, var(--brandA), var(--brandB)); color:#111827; border-radius:14px; text-decoration:none; font-weight:800; border:0; box-shadow:0 4px 18px rgba(254,206,131,.4); transition: all .2s ease; font-size:15px; }
+.interviewer-dashboard .btn-primary:hover{ transform: translateY(-1px); box-shadow:0 6px 24px rgba(244,162,97,.5); }
 
 .interviewer-dashboard .divider{ height:1px; background:var(--border); margin:14px 0; }
 
@@ -67,14 +67,14 @@ body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui
   padding:12px 14px;
   border:1px solid var(--border);
   border-radius:12px;
-  background: linear-gradient(180deg, rgba(99,102,241,.03), rgba(245,158,11,.03));
+  background: linear-gradient(180deg, rgba(254,206,131,.06), rgba(244,162,97,.08));
   color: var(--muted);
   font-size:14px;
   line-height:1.6;
 }
 
 .interviewer-dashboard .theme-toggle{ display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background: var(--card); color:var(--ink); cursor:pointer; font-weight:700; transition: all .15s ease; }
-.interviewer-dashboard .theme-toggle:hover{ background: linear-gradient(90deg, rgba(245,158,11,.06), rgba(99,102,241,.06)); }
+.interviewer-dashboard .theme-toggle:hover{ background: linear-gradient(90deg, rgba(254,206,131,.15), rgba(244,162,97,.12)); }
 
 /* Temporarily hide theme toggle control across the app */
 .theme-toggle{ display:none !important; }
