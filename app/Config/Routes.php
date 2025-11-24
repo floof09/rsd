@@ -5,8 +5,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-// Redirect root to /login so the URL reflects /login
-$routes->get('/', function() { return redirect()->to('/login'); });
+// New landing page route
+$routes->get('/', 'Landing::index');
 
 // Auth Routes
 $routes->get('login', 'Auth::login');

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">RSD Logo</title>
+  <desc id="desc">Four overlapping neutral circles forming a flower around a central golden square.</desc>
+  <defs>
+    <style>
+      .petal{fill:#dddddd;opacity:0.92;}
+      .core{fill:#fece83;}
+    </style>
+  </defs>
+  <circle class="petal" cx="120" cy="60" r="60" />
+  <circle class="petal" cx="60" cy="120" r="60" />
+  <circle class="petal" cx="180" cy="120" r="60" />
+  <circle class="petal" cx="120" cy="180" r="60" />
+  <rect class="core" x="90" y="90" width="60" height="60" rx="4" ry="4" />
+</svg>
