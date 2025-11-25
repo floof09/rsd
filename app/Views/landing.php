@@ -44,19 +44,38 @@
     <main id="main">
         <section id="about" class="about" aria-labelledby="about-heading">
             <div class="section-wrap">
-                <h2 id="about-heading" class="section-title">About Us</h2>
-                <p class="lead">We unify structured hiring flows, adaptive company field configuration, and actionable 7‑day trend insights so your team can make confident decisions faster.</p>
+                <div class="about-split" data-fade>
+                    <div class="about-left">
+                        <div class="logo-stack" aria-hidden="true">
+                            <div class="circle c1"></div>
+                            <div class="circle c2"></div>
+                            <div class="circle c3"></div>
+                            <div class="circle c4"></div>
+                            <div class="circle c5"></div>
+                            <div class="circle c6"></div>
+                            <div class="circle core"></div>
+                        </div>
+                        <div class="about-brand">
+                            <h2 id="about-heading" class="who-title"><span class="who-accent">Who</span> we are…</h2>
+                            <p class="who-sub">Human Resource Management Consultancy</p>
+                        </div>
+                    </div>
+                    <div class="about-right">
+                        <p><strong>RSD Human Resource Management Consultancy</strong> is a registered recruitment firm in the Philippines that offers virtual sourcing and hiring services. Its team of experienced professionals specializes in staffing, volume hiring, executive search, and HR consultancy.</p>
+                    </div>
+                </div>
+                <h3 class="pillars-title" data-fade>Our Pillars</h3>
                 <div class="about-grid">
                     <div class="about-card" data-fade>
-                        <h3>Clarity</h3>
+                        <h4>Clarity</h4>
                         <p>Two-stage applications reduce friction and highlight progress at every point.</p>
                     </div>
                     <div class="about-card" data-fade>
-                        <h3>Adaptability</h3>
+                        <h4>Adaptability</h4>
                         <p>Non-technical form builder empowers HR to evolve requirements instantly.</p>
                     </div>
                     <div class="about-card" data-fade>
-                        <h3>Insight</h3>
+                        <h4>Insight</h4>
                         <p>Rolling comparisons surface subtle bottlenecks before they hinder velocity.</p>
                     </div>
                 </div>
