@@ -9,7 +9,7 @@ use App\Libraries\Mailer;
 class AdminApplication extends BaseController
 {
     /**
-     * Validate custom fields based on company schema.
+     * Validate custom fields based on company schema. comment
      * Returns a sanitized array keyed by field key.
      * Throws an exception with a human-friendly message on validation error.
      */
