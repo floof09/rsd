@@ -15,7 +15,7 @@
     <header class="site-header" role="banner">
         <div class="nav-wrap">
             <div class="brand">
-                <img src="<?= base_url('assets/images/logo.svg') ?>" alt="RSD logo" class="brand-logo" />
+                <img src="/assets/images/logo.jpg" alt="RSD logo" class="brand-logo" />
                 <span class="logo-text">RSD</span>
             </div>
             <nav class="main-nav" aria-label="Primary">
